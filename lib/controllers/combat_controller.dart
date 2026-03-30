@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/enemy.dart';
@@ -9,6 +8,7 @@ import '../game_logic/player_controller.dart';
 import '../game_logic/enemy_controller.dart';
 import '../game_logic/world_manager.dart';
 import 'game_controller.dart';
+import '../services/audio_service.dart';
 
 /// Controlador principal del sistema de combate
 /// Integra jugador, enemigos, proyectiles y mundos
@@ -36,6 +36,7 @@ class CombatController extends ChangeNotifier {
   int get currentLevel => _worldManager.currentLevel;
   int get currentWorldNumber => _worldManager.currentWorldNumber;
   WorldManager get worldManager => _worldManager;
+  double get currentGold => _gameController?.gold ?? 0;
 
   /// Inicializa el sistema de combate
   void initialize(Size screenSize, {GameController? gameController}) {
@@ -169,6 +170,7 @@ class CombatController extends ChangeNotifier {
       // Otorgar oro
       final goldReward = defeatedEnemy.getGoldReward();
       _gameController!.addGold(goldReward);
+      AudioService.instance.playCoinCollect();
       
       // Procesar drops (cofres/corazones)
       _gameController!.processEnemyDefeat(defeatedLevel);
@@ -227,14 +229,21 @@ class CombatController extends ChangeNotifier {
   /// Mueve el jugador a una posición horizontal específica (movimiento táctil)
   void movePlayerToX(double x) {
     if (_isPaused) return;
-    _playerController.moveTo(x, _screenSize.width);
+    _playerController.moveToX(x, _screenSize.width);
+    notifyListeners();
+  }
+
+  /// Mueve el jugador a una posición libre dentro de la arena
+  void movePlayerToPosition(Offset localPosition) {
+    if (_isPaused) return;
+    _playerController.moveTo(localPosition, _screenSize);
     notifyListeners();
   }
   
-  /// Maneja el drag horizontal del jugador
+  /// Maneja el drag del jugador
   void handlePlayerDrag(DragUpdateDetails details) {
     if (_isPaused) return;
-    movePlayerToX(details.globalPosition.dx);
+    movePlayerToPosition(details.localPosition);
   }
 
   /// Activa el poder especial del jugador

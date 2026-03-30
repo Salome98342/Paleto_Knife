@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/game_controller.dart';
 import '../main.dart';
+import '../services/audio_service.dart';
 import 'combat_screen.dart';
 import 'kitchen_screen.dart';
 import 'techniques_screen.dart';
@@ -25,6 +26,7 @@ class _MainGameScreenState extends State<MainGameScreen> {
   void initState() {
     super.initState();
     _gameController = GameController();
+    AudioService.instance.playGameplayMusic();
     _initializeGame();
   }
 
@@ -38,6 +40,7 @@ class _MainGameScreenState extends State<MainGameScreen> {
 
   @override
   void dispose() {
+    AudioService.instance.playMenuMusic();
     _gameController.dispose();
     super.dispose();
   }
@@ -77,7 +80,7 @@ class _MainGameScreenState extends State<MainGameScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          const CombatScreen(),
+          CombatScreen(gameController: _gameController),
           KitchenScreen(gameController: _gameController),
           TechniquesScreen(gameController: _gameController),
           EquipmentScreen(gameController: _gameController),

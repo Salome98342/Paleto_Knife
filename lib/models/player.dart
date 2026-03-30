@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 /// Modelo del jugador (Chef Maestro)
 class Player {
+  static const double spriteWidth = 50.0;
+  static const double spriteHeight = 60.0;
+  static const double hitboxWidth = 34.0;
+  static const double hitboxHeight = 46.0;
+
   Offset position; // Posición en pantalla
   double health; // Vida actual
   double maxHealth; // Vida máxima
@@ -51,14 +56,26 @@ class Player {
   });
 
   /// Mueve el jugador horizontalmente
-  void move(double dx, double screenWidth) {
+  void moveHorizontal(double dx, double screenWidth) {
     double newX = position.dx + dx;
     
     // Limitar movimiento al ancho de la pantalla (con margen)
-    const playerWidth = 50.0;
+    const playerWidth = spriteWidth;
     newX = newX.clamp(playerWidth / 2, screenWidth - playerWidth / 2);
     
     position = Offset(newX, position.dy);
+  }
+
+  /// Mueve al jugador a una posición objetivo dentro de límites
+  void moveTo(
+    Offset target,
+    Size screenSize, {
+    double minY = 0,
+    double maxYPadding = 70,
+  }) {
+    final clampedX = target.dx.clamp(spriteWidth / 2, screenSize.width - spriteWidth / 2);
+    final clampedY = target.dy.clamp(minY, screenSize.height - maxYPadding);
+    position = Offset(clampedX, clampedY);
   }
 
   /// Recibe daño
@@ -177,8 +194,8 @@ class Player {
   Rect getHitbox() {
     return Rect.fromCenter(
       center: position,
-      width: 50,
-      height: 50,
+      width: hitboxWidth,
+      height: hitboxHeight,
     );
   }
 

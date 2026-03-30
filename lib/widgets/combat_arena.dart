@@ -37,7 +37,7 @@ class CombatArena extends StatelessWidget {
           child: Stack(
             children: [
               // Efecto de partículas elementales (decoración)
-              ..._buildElementalParticles(enemy.element),
+              ..._buildElementalParticles(enemy.element, constraints.biggest),
               
               // Proyectiles
               ...projectiles.map((proj) => _buildProjectile(proj)),
@@ -71,24 +71,48 @@ class CombatArena extends StatelessWidget {
   }
   
   /// Crea partículas decorativas según el elemento
-  List<Widget> _buildElementalParticles(ElementType element) {
+  List<Widget> _buildElementalParticles(ElementType element, Size arenaSize) {
     final particles = <Widget>[];
     final random = math.Random(element.hashCode);
-    
-    for (int i = 0; i < 5; i++) {
-      particles.add(
-        Positioned(
-          left: random.nextDouble() * 400,
-          top: random.nextDouble() * 600,
-          child: Opacity(
-            opacity: 0.2,
-            child: Text(
-              element.getEmoji(),
-              style: TextStyle(fontSize: 40 + random.nextDouble() * 20),
+
+    final isNeutral = element == ElementType.neutral;
+    final particleCount = isNeutral ? 6 : 4;
+
+    for (int i = 0; i < particleCount; i++) {
+      final left = random.nextDouble() * (arenaSize.width - 24).clamp(1.0, double.infinity);
+      final top = random.nextDouble() * (arenaSize.height - 24).clamp(1.0, double.infinity);
+
+      if (isNeutral) {
+        final dotSize = 8.0 + random.nextDouble() * 10;
+        particles.add(
+          Positioned(
+            left: left,
+            top: top,
+            child: Container(
+              width: dotSize,
+              height: dotSize,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
             ),
           ),
-        ),
-      );
+        );
+      } else {
+        particles.add(
+          Positioned(
+            left: left,
+            top: top,
+            child: Opacity(
+              opacity: 0.12,
+              child: Text(
+                element.getEmoji(),
+                style: TextStyle(fontSize: 26 + random.nextDouble() * 12),
+              ),
+            ),
+          ),
+        );
+      }
     }
     
     return particles;
@@ -97,7 +121,7 @@ class CombatArena extends StatelessWidget {
   /// Construye el widget del jugador
   Widget _buildPlayer(Player player) {
     return Positioned(
-      left: player.position.dx - 25,
+      left: player.position.dx - (Player.spriteWidth / 2),
       top: player.position.dy - 40,
       child: Column(
         children: [
@@ -148,8 +172,8 @@ class CombatArena extends StatelessWidget {
               
               // Sprite del Paleto Animado
               Container(
-                width: 50,
-                height: 60,
+                width: Player.spriteWidth,
+                height: Player.spriteHeight,
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
@@ -168,8 +192,8 @@ class CombatArena extends StatelessWidget {
                 ),
                 child: Image.asset(
                   'assets/images/paleto_spin.gif',
-                  width: 50,
-                  height: 50,
+                  width: Player.spriteWidth,
+                  height: Player.spriteHeight,
                   gaplessPlayback: true,
                 ),
               ),

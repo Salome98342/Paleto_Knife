@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import '../game/paleto_game.dart';
+import '../services/audio_service.dart';
 
 /// Pantalla del juego Flame - Modo Clicker/Acción
 /// 
@@ -20,6 +21,13 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     _game = PaletoGame();
+    AudioService.instance.playGameplayMusic();
+  }
+
+  @override
+  void dispose() {
+    AudioService.instance.playMenuMusic();
+    super.dispose();
   }
 
   @override

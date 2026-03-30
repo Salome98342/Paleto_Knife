@@ -23,19 +23,32 @@ class PlayerController {
   /// Mueve el jugador horizontalmente
   void moveLeft(double deltaTime, double screenWidth) {
     final distance = -_player.movementSpeed * deltaTime;
-    _player.move(distance, screenWidth);
+    _player.moveHorizontal(distance, screenWidth);
   }
 
   void moveRight(double deltaTime, double screenWidth) {
     final distance = _player.movementSpeed * deltaTime;
-    _player.move(distance, screenWidth);
+    _player.moveHorizontal(distance, screenWidth);
   }
 
-  /// Mueve el jugador a una posición específica
-  void moveTo(double x, double screenWidth) {
+  /// Mueve el jugador solo en el eje X
+  void moveToX(double x, double screenWidth) {
     const playerWidth = 50.0;
     final clampedX = x.clamp(playerWidth / 2, screenWidth - playerWidth / 2);
     _player.position = Offset(clampedX, _player.position.dy);
+  }
+
+  /// Mueve el jugador libremente (X/Y) dentro de la zona de juego
+  void moveTo(Offset target, Size screenSize) {
+    final minY = screenSize.height * 0.45;
+    const bottomPadding = 90.0;
+
+    _player.moveTo(
+      target,
+      screenSize,
+      minY: minY,
+      maxYPadding: bottomPadding,
+    );
   }
 
   /// Activa el poder especial

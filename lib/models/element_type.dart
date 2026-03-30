@@ -73,7 +73,7 @@ enum ElementType {
       case ElementType.master:
         return '⭐';
       case ElementType.neutral:
-        return '⚪';
+        return '◽';
     }
   }
 }
