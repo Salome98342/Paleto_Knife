@@ -162,7 +162,6 @@ class GameState {
       case KnifeAbility.multiStrike:
         // Multi-strike is handled during damage calculation
         break;
-        break;
     }
     
     // Joyas equipadas

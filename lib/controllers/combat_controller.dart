@@ -24,6 +24,7 @@ class CombatController extends ChangeNotifier {
   
   bool _isInitialized = false;
   bool _isPaused = false;
+  int _enemiesDefeatedThisLevel = 0;
   
   Size _screenSize = const Size(400, 800);
 
@@ -102,6 +103,14 @@ class CombatController extends ChangeNotifier {
 
   /// Actualización principal del juego
   void _update(double deltaTime) {
+    // Sincronizar stats desde GameController si existe
+    if (_gameController != null) {
+      _playerController.player.baseDamage = _gameController!.baseDamage;
+      _playerController.player.attackSpeed = _gameController!.attackSpeed;
+      _playerController.player.critChance = _gameController!.critChance;
+      _playerController.player.critMultiplier = _gameController!.critMultiplier;
+    }
+
     // Actualizar jugador
     _playerController.update(deltaTime);
     
@@ -162,6 +171,8 @@ class CombatController extends ChangeNotifier {
     
     debugPrint('Enemigo derrotado! (${defeatedEnemy.tier.name}, Lvl $defeatedLevel)');
     
+    AudioService.instance.playHitSound();
+
     // Detener ataques
     _enemyController.stopAutoAttack();
     
@@ -182,13 +193,17 @@ class CombatController extends ChangeNotifier {
         _gameController!.addKnifeFragments(2); // 2 fragmentos por mini-jefe
       }
       
-      // Actualizar nivel en el GameController
-      final nextLevel = defeatedLevel + 1;
-      _gameController!.setCurrentLevel(nextLevel);
+      // Solo avanza de nivel cada 5 enemigos (para que la progresión no sea tan acelerada)
+      _enemiesDefeatedThisLevel++;
+      if (_enemiesDefeatedThisLevel >= 5 || defeatedEnemy.isBoss) {
+        _enemiesDefeatedThisLevel = 0;
+        
+        final nextLevel = defeatedLevel + 1;
+        _gameController!.setCurrentLevel(nextLevel);
+        // Avanzar nivel en el WorldManager
+        _worldManager.advanceLevel();
+      }
     }
-    
-    // Avanzar nivel en el WorldManager
-    _worldManager.advanceLevel();
     
     // Esperar un momento antes de crear nuevo enemigo
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -250,6 +265,7 @@ class CombatController extends ChangeNotifier {
   bool activatePower() {
     final activated = _playerController.activatePower();
     if (activated) {
+      AudioService.instance.playPowerupSound();
       notifyListeners();
     }
     return activated;
@@ -258,12 +274,16 @@ class CombatController extends ChangeNotifier {
   /// Pausa el juego
   void pause() {
     _isPaused = true;
+    _playerController.stopAutoAttack();
+    _enemyController.stopAutoAttack();
     notifyListeners();
   }
 
   /// Reanuda el juego
   void resume() {
     _isPaused = false;
+    _playerController.startAutoAttack();
+    _enemyController.startAutoAttack();
     notifyListeners();
   }
 
@@ -273,7 +293,9 @@ class CombatController extends ChangeNotifier {
     _worldManager.reset();
     
     // Reiniciar al nivel 1
+    _enemiesDefeatedThisLevel = 0;
     _enemyController.resetForLevel(1, _worldManager.currentElement);
+    _playerController.reset();
     
     _playerController.startAutoAttack();
     _enemyController.startAutoAttack();

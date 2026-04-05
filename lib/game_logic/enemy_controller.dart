@@ -12,6 +12,8 @@ enum AttackPattern {
   radial, // Círculo completo de proyectiles
   spiral, // Espiral rotante
   aimed, // Apunta al jugador
+  floralDance, // FASE 2: Danza Floral (Radial + Senoidal)
+  chaoticStars, // FASE 3: Lluvia Caótica con zona central segura
 }
 
 /// Controlador que maneja la lógica del enemigo
@@ -22,6 +24,9 @@ class EnemyController {
   Timer? _attackTimer;
   double _attackCooldown = 0;
   double _spiralRotation = 0; // Para patrones de espiral
+  double _time = 0; // Tiempo local para mover al jefe y animaciones senoidales
+  Offset? _spawnPosition; // Posición inicial para calcular movimientos oscilatorios
+  
   AttackPattern _currentPattern = AttackPattern.simple;
   int _attackCount = 0; // Contador de ataques para variar patrones
   
@@ -46,6 +51,9 @@ class EnemyController {
   void update(double deltaTime) {
     if (!_enemy.isAlive) return;
     
+    // Sumar tiempo acumulado para cálculos matemáticos puristas
+    _time += deltaTime;
+
     // Actualizar cooldown de ataque
     if (_attackCooldown > 0) {
       _attackCooldown -= deltaTime;
@@ -56,25 +64,50 @@ class EnemyController {
     if (_spiralRotation >= 360) {
       _spiralRotation -= 360;
     }
+
+    // Movimiento del Jefe
+    if (_enemy.isBoss) {
+      if (_spawnPosition == null) {
+        _spawnPosition = _enemy.position;
+      }
+      
+      // REGLA 1: Movimiento oscilatorio de Boss en la parte superior
+      // Ecuación de Seno con amplitud de 100 píxeles.
+      final newX = _spawnPosition!.dx + math.sin(_time * 1.5) * 100;
+      _enemy.position = Offset(newX, _enemy.position.dy);
+    }
   }
   
   /// Selecciona el patrón de ataque basado en el nivel del enemigo
   AttackPattern _selectPattern(int level) {
-    // Aumentar complejidad según el nivel
+    if (_enemy.isBoss) {
+      // Regla 2: Fases del Jefe basadas en HP
+      double hpRatio = _enemy.health / _enemy.maxHealth;
+      
+      if (hpRatio > 0.6) {
+        // Fase 1: Espiral y Abanico
+        return _attackCount % 2 == 0 ? AttackPattern.spiral : AttackPattern.fan;
+      } else if (hpRatio > 0.3) {
+        // Fase 2: Danza Floral
+        return AttackPattern.floralDance;
+      } else {
+        // Fase 3 (Desesperación): Lluvia de Estrellas Caóticas
+        return AttackPattern.chaoticStars;
+      }
+    }
+
+    // Aumentar complejidad según el nivel para enemigos normales
     if (level < 5) {
-      // Niveles 1-4: Solo simple y fan básico
       return _attackCount % 3 == 0 ? AttackPattern.fan : AttackPattern.simple;
     } else if (level < 15) {
-      // Niveles 5-14: Simple, fan y aimed
       final patterns = [AttackPattern.simple, AttackPattern.fan, AttackPattern.aimed];
       return patterns[_attackCount % patterns.length];
     } else if (level < 30) {
-      // Niveles 15-29: Todo excepto espiral
       final patterns = [AttackPattern.fan, AttackPattern.radial, AttackPattern.aimed];
       return patterns[_attackCount % patterns.length];
     } else {
-      // Nivel 30+: Todos los patrones incluyendo espiral
-      final patterns = AttackPattern.values;
+      // Normal enemies don't use boss phases
+      final patterns = [AttackPattern.simple, AttackPattern.fan, AttackPattern.radial, AttackPattern.spiral, AttackPattern.aimed];
       return patterns[_attackCount % patterns.length];
     }
   }
@@ -178,6 +211,29 @@ class EnemyController {
               damage: damage,
             );
           }
+          break;
+          
+        case AttackPattern.floralDance:
+          // FASE 2: Patrón Danza Floral (Radial con velocidad senoidal)
+          _projectileSystem.spawnFloralDance(
+            position: position,
+            damage: damage,
+            bulletCount: _enemy.isBoss ? 16 : 8,
+            baseSpeed: params['speed'] * 0.5, // Velocidad base más manejable
+            time: _time,
+          );
+          break;
+          
+        case AttackPattern.chaoticStars:
+          // FASE 3: Desesperación. Disparos caóticos, pero respetando la Safe Zone.
+          // Se disparan muy rápido.
+          _projectileSystem.spawnChaoticStars(
+            position: position,
+            damage: damage,
+            bulletCount: 12,
+            speed: params['speed'] * 1.5, // Mucho más rápido
+            time: _time,
+          );
           break;
       }
       

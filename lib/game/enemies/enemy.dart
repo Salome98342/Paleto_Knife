@@ -1,115 +1,156 @@
-import 'dart:ui' as ui;
-import 'package:flame/components.dart';
+﻿import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../paleto_game.dart';
+import '../../controllers/world_controller.dart' show AmalgamData;
 
-/// Enemy component with simple sprite rendering
-/// 
-/// Features:
-/// - Autonomous movement
-/// - Collision detection ready
-/// - Different behavior patterns
-class EnemyComponent extends SpriteComponent
-    with HasGameReference<PaletoGame> {
+class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame> {
+  bool isActive = false;
+  double moveSpeed = 50.0;
+  Vector2 velocity = Vector2.zero();
   
-  final double moveSpeed;
-  final String enemyType;
+  double hp = 10.0; // Puntos de vida
   
-  // Dirección de movimiento
-  Vector2 velocity;
+  // Bullet hell variables
+  double _shootTimer = 0.0;
+  double _shootInterval = 2.0; // Cambiarï¿½ segï¿½n el tipo
+  double _currentRotation = 0.0;
+  
+  // Tipo de patrï¿½n
+  int _patternType = 0; // 0 = aimed, 1 = spiral, 2 = radial
+  
+  late Paint _paint;
+  late TextPaint _textPaint;
+  String _amalgamName = "";
 
-  EnemyComponent({
-    required Vector2 position,
-    this.moveSpeed = 100.0,
-    this.enemyType = 'basic',
-  })  : velocity = Vector2.zero(),
-        super(
-          position: position,
-          size: Vector2(80, 80),
-          anchor: Anchor.center,
-        );
-
-  @override
-  Future<void> onLoad() async {
-    await super.onLoad();
-
-    // Create placeholder sprite
-    _createPlaceholder();
-
-    // Inicializar movimiento aleatorio
-    _initializeMovement();
-
-    // Configurar prioridad de renderizado
-    priority = 8;
-  }
-
-  /// Crea un placeholder visual cuando no hay sprites disponibles
-  void _createPlaceholder() {
-    final paint = Paint()..color = Colors.red;
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    
-    // Dibujar un círculo rojo como enemigo
-    canvas.drawCircle(
-      const Offset(40, 40),
-      40,
-      paint,
+  EnemyComponent() : super(size: Vector2(40, 40), anchor: Anchor.center) {
+    _paint = Paint()..color = Colors.red;
+    _textPaint = TextPaint(
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Courier',
+        shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+      ),
     );
-    
-    final picture = recorder.endRecording();
-    final image = picture.toImageSync(80, 80);
-    
-    sprite = Sprite(image);
   }
 
-  /// Inicializa el movimiento del enemigo con dirección aleatoria
-  void _initializeMovement() {
+  void spawn(Vector2 startPos, int type, AmalgamData amalgamData) {
+    position.setFrom(startPos);
+    _patternType = type;
+    _amalgamName = amalgamData.name;
+    
+    // Assign random color based on name hash
+    final hash = amalgamData.name.hashCode;
+    final r = Random(hash + 1);
+    final color = Color.fromARGB(
+      255, 
+      r.nextInt(256), 
+      r.nextInt(256), 
+      r.nextInt(256)
+    );
+    _paint.color = color;
+    isActive = true;
+    _shootTimer = 0;
+    
+    // Escalar HP segÃºn la ola actual del juego
+    hp = 5.0 + (game.currentWave * 5.0); 
+    
+    // Configurar velocidad inicial
     final random = Random();
     final angle = random.nextDouble() * 2 * pi;
     velocity = Vector2(cos(angle), sin(angle)) * moveSpeed;
+    
+    // Balancear dificultad del patrï¿½n segï¿½n tipo
+    if (_patternType == 1) { // Spiral
+      _shootInterval = 0.2; 
+    } else if (_patternType == 2) { // Radial
+      _shootInterval = 1.5;
+    } else {
+      _shootInterval = 1.0;
+    }
+  }
+
+  void despawn() {
+    isActive = false;
+  }
+
+  bool takeDamage(double amount) {
+    hp -= amount;
+    if (hp <= 0) {
+      return true; // Muerto
+    }
+    return false; // Sigue vivo
   }
 
   @override
   void update(double dt) {
+    if (!isActive) return;
     super.update(dt);
 
-    // Mover el enemigo
     position.add(velocity * dt);
-
-    // Rebotar en los bordes de la pantalla
     _bounceOffWalls();
+
+    // Lï¿½gica de disparo Bullet Hell
+    _shootTimer += dt;
+    if (_shootTimer >= _shootInterval) {
+      _shootTimer = 0;
+      _executeAttackPattern();
+    }
   }
 
-  /// Hace que el enemigo rebote en los bordes de la pantalla
+  void _executeAttackPattern() {
+    if (_patternType == 0) {
+      // Aimed
+      final playerPos = game.player.position;
+      final direction = (playerPos - position).normalized();
+      game.spawnBullet(position, direction * 150.0, isPlayer: false);
+    } 
+    else if (_patternType == 1) {
+      // Spiral
+      _currentRotation += 0.5; // Avanzar rotaciï¿½n
+      final direction = Vector2(cos(_currentRotation), sin(_currentRotation));
+      game.spawnBullet(position, direction * 120.0, isPlayer: false);
+    }
+    else if (_patternType == 2) {
+      // Radial (Nova)
+      int bullets = 12;
+      double step = (2 * pi) / bullets;
+      for (int i = 0; i < bullets; i++) {
+        final angle = i * step;
+        final direction = Vector2(cos(angle), sin(angle));
+        game.spawnBullet(position, direction * 100.0, isPlayer: false);
+      }
+    }
+  }
+
   void _bounceOffWalls() {
     final halfWidth = size.x / 2;
     final halfHeight = size.y / 2;
 
-    // Rebotar en los bordes horizontales
     if (position.x < halfWidth || position.x > game.size.x - halfWidth) {
       velocity.x = -velocity.x;
-      // Ajustar posición para evitar que se quede atascado
       position.x = position.x.clamp(halfWidth, game.size.x - halfWidth);
     }
 
-    // Rebotar en los bordes verticales
     if (position.y < halfHeight || position.y > game.size.y - halfHeight) {
       velocity.y = -velocity.y;
-      // Ajustar posición para evitar que se quede atascado
       position.y = position.y.clamp(halfHeight, game.size.y - halfHeight);
     }
   }
 
-  /// Método para recibir daño (preparado para futura implementación)
-  void takeDamage(int damage) {
-    // TODO: Implementar sistema de vida y muerte
-    debugPrint('Enemy took $damage damage');
-  }
-
-  /// Método para destruir el enemigo
-  void destroy() {
-    removeFromParent();
-    // TODO: Agregar efectos de muerte/explosión
+  @override
+  void render(Canvas canvas) {
+    if (!isActive) return;
+    canvas.drawRect(size.toRect(), _paint);
+    _textPaint.render(
+      canvas, 
+      _amalgamName, 
+      Vector2(size.x / 2, -15),
+      anchor: Anchor.bottomCenter,
+    );
   }
 }
+
+

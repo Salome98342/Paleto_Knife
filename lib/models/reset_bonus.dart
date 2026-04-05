@@ -1,5 +1,3 @@
-import 'dart:math';
-
 /// Modelo de bonificación de reinicio
 /// Almacena los bonos permanentes obtenidos al reiniciar
 class ResetBonus {

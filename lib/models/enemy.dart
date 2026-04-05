@@ -153,8 +153,8 @@ class Enemy {
     tier = newTier ?? tier;
     modifiers = newModifiers ?? modifiers;
     
-    // FÓRMULA BASE DEL DOCUMENTO: healthBase = 20 * (1.23 ^ nivel)
-    double baseHealth = 20.0 * pow(1.23, level);
+    // FÓRMULA BASE ACTUALIZADA: healthBase plana más escalado suave
+    double baseHealth = 10.0 + (level * 2);
     
     // Multiplicadores por tier
     switch (tier) {
@@ -162,13 +162,13 @@ class Enemy {
         baseHealth *= 1.0;
         break;
       case EnemyTier.elite:
-        baseHealth *= 5.0;
+        baseHealth *= 2.0;
         break;
       case EnemyTier.miniBoss:
-        baseHealth *= 15.0;
+        baseHealth *= 3.0;
         break;
       case EnemyTier.boss:
-        baseHealth *= 50.0;
+        baseHealth *= 5.0;
         break;
     }
     
@@ -215,7 +215,6 @@ class Enemy {
     
     // Determinar tier según reglas del documento
     EnemyTier tier;
-    int levelInWorld = (level - 1) % 10 + 1; // 1-10
     
     if (level % 10 == 0) {
       // Cada 10 niveles: Chef de Temporada (100% garantizado)

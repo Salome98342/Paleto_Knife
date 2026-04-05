@@ -1,77 +1,44 @@
-import 'dart:ui' as ui;
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+
 import '../paleto_game.dart';
 
-/// Bullet/Projectile component
-/// 
-/// Features:
-/// - Moves in a specific direction
-/// - Auto-destroys when off-screen
-/// - Collision detection ready
-class BulletComponent extends SpriteComponent
-    with HasGameReference<PaletoGame> {
-  
-  final Vector2 direction;
-  final double speed;
+class BulletComponent extends PositionComponent with HasGameReference<PaletoGame> {
+  bool isActive = false;
+  Vector2 velocity = Vector2.zero();
+  bool isPlayerBullet = true; // True if it hurts enemies, false if it hurts player
+  late Paint _paint;
 
-  BulletComponent({
-    required Vector2 position,
-    required this.direction,
-    this.speed = 500.0,
-  }) : super(
-          position: position,
-          size: Vector2(20, 40),
-          anchor: Anchor.center,
-        );
-
-  @override
-  Future<void> onLoad() async {
-    await super.onLoad();
-
-    // Create placeholder sprite
-    _createPlaceholder();
-
-    // Configurar prioridad de renderizado
-    priority = 5;
+  BulletComponent() : super(size: Vector2(10, 10), anchor: Anchor.center) {
+    _paint = Paint()..color = Colors.yellow;
   }
 
-  /// Crea un placeholder visual cuando no hay sprites disponibles
-  void _createPlaceholder() {
-    final paint = Paint()..color = Colors.yellowAccent;
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    
-    // Dibujar un rectángulo amarillo como proyectil
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, 20, 40),
-      paint,
-    );
-    
-    final picture = recorder.endRecording();
-    final image = picture.toImageSync(20, 40);
-    
-    sprite = Sprite(image);
+  void shoot(Vector2 startPos, Vector2 vel, {bool isPlayer = true}) {
+    position.setFrom(startPos);
+    velocity.setFrom(vel);
+    isPlayerBullet = isPlayer;
+    isActive = true;
+    _paint.color = isPlayer ? Colors.yellow : Colors.redAccent;
   }
 
   @override
   void update(double dt) {
-    super.update(dt);
+    if (!isActive) return;
+    
+    position.add(velocity * dt);
 
-    // Mover el proyectil en la dirección especificada
-    position.add(direction.normalized() * speed * dt);
-
-    // Destruir el proyectil si sale de la pantalla
-    if (_isOutOfBounds()) {
-      removeFromParent();
+    // Destruir el proyectil si sale de la pantalla extendida (pooling)
+    if (position.x < -50 ||
+        position.x > game.size.x + 50 ||
+        position.y < -50 ||
+        position.y > game.size.y + 50) {
+      isActive = false;
     }
   }
 
-  /// Verifica si el proyectil está fuera de los límites de la pantalla
-  bool _isOutOfBounds() {
-    return position.x < -size.x ||
-        position.x > game.size.x + size.x ||
-        position.y < -size.y ||
-        position.y > game.size.y + size.y;
+  @override
+  void render(Canvas canvas) {
+    if (!isActive) return;
+    canvas.drawCircle(Offset(size.x / 2, size.y / 2), size.x / 2, _paint);
   }
 }

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'screens/menu_screen.dart';
+import 'package:provider/provider.dart';
+
+import 'screens/main_layout.dart';
+import 'controllers/game_controller.dart';
+import 'controllers/economy_controller.dart';
+import 'controllers/world_controller.dart';
+import 'services/audio_service.dart';
 
 // Paleta pixel art global
 class PixelColors {
@@ -18,7 +24,7 @@ class PixelColors {
   static const textDim = Color(0xFF8888AA);
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -30,7 +36,20 @@ void main() {
       statusBarIconBrightness: Brightness.light,
     ),
   );
-  runApp(const KnifeClickerApp());
+  
+  // Inicialización de servicios críticos
+  await AudioService.init();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => GameController()..initialize()),
+        ChangeNotifierProvider(create: (_) => EconomyController()),
+        ChangeNotifierProvider(create: (_) => WorldController()),
+      ],
+      child: const KnifeClickerApp(),
+    ),
+  );
 }
 
 class KnifeClickerApp extends StatelessWidget {
@@ -138,7 +157,7 @@ class KnifeClickerApp extends StatelessWidget {
           color: PixelColors.accent,
         ),
       ),
-      home: const MenuScreen(),
+      home: const MainLayout(),
     );
   }
 }

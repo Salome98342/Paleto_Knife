@@ -181,6 +181,65 @@ class ProjectileSystem {
   }
 
   /// Actualiza todos los proyectiles
+  /// Crea un patrón de Danza Floral (Radial + Senoidal)
+  void spawnFloralDance({
+    required Offset position,
+    required double damage,
+    required int bulletCount,
+    required double baseSpeed,
+    required double time,
+  }) {
+    final angleStep = 360.0 / bulletCount;
+    final rotationOffset = time * 30.0; 
+
+    for (int i = 0; i < bulletCount; i++) {
+        final angle = rotationOffset + (i * angleStep);
+        final speedMod = math.sin((angle * 5) * math.pi / 180.0);
+        final finalSpeed = baseSpeed + (speedMod * 100).abs();
+
+        final projectile = Projectile.withAngle(
+          id: 'bullet_${_projectileIdCounter++}',
+          position: position,
+          angleInDegrees: angle,
+          speed: finalSpeed,
+          damage: damage,
+          isPlayerProjectile: false,
+        );
+        _projectiles.add(projectile);
+    }
+  }
+
+  /// Crea un patrón "Lluvia de Estrellas Caóticas" con Safe Zone
+  void spawnChaoticStars({
+    required Offset position,
+    required double damage,
+    required int bulletCount,
+    required double speed,
+    required double time,
+  }) {
+    final angleStep = 180.0 / bulletCount;
+    
+    for (int i = 0; i <= bulletCount; i++) {
+        final angle = i * angleStep;
+        
+        // SAFE ZONE: No dispares en un área cónica justo debajo
+        if (angle > 75 && angle < 105) continue;
+
+        final chaoticWobble = math.sin(time * 10 + i) * 15; 
+        final finalAngle = angle + chaoticWobble;
+
+        final projectile = Projectile.withAngle(
+          id: 'bullet_${_projectileIdCounter++}',
+          position: position,
+          angleInDegrees: finalAngle,
+          speed: speed + (math.cos(time + i)*50),
+          damage: damage,
+          isPlayerProjectile: false,
+        );
+        _projectiles.add(projectile);
+    }
+  }
+
   void update(double deltaTime, Size screenSize) {
     // Actualizar posiciones
     for (var projectile in _projectiles) {

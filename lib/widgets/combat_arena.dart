@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:flame/widgets.dart';
+import 'package:flame/sprite.dart';
+import 'package:flame/components.dart'; // Para Vector2
 import '../models/player.dart';
 import '../models/enemy.dart';
 import '../models/projectile.dart';
@@ -9,12 +12,14 @@ class CombatArena extends StatelessWidget {
   final Player player;
   final Enemy enemy;
   final List<Projectile> projectiles;
+  final bool isPaused;
 
   const CombatArena({
     super.key,
     required this.player,
     required this.enemy,
     required this.projectiles,
+    this.isPaused = false,
   });
 
   @override
@@ -353,65 +358,18 @@ class CombatArena extends StatelessWidget {
                   ),
                 ),
               
-              // Cuerpo del enemigo
-              Container(
+              // Cuerpo del enemigo agitando el sprite
+              SizedBox(
                 width: enemySize,
                 height: enemySize,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      elementColor.withOpacity(0.9),
-                      elementColor.withOpacity(0.6),
-                      elementColor.withOpacity(0.4),
-                    ],
+                child: SpriteAnimationWidget.asset(
+                  playing: !isPaused,
+                  path: 'enemigo.png', // Flame by default looks in assets/images/
+                  data: SpriteAnimationData.sequenced(
+                    amount: 4,
+                    stepTime: 0.15,
+                    textureSize: Vector2(1003 / 4, 249),
                   ),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: elementColor,
-                    width: isBoss ? 4 : 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: elementColor.withOpacity(0.5),
-                      blurRadius: 15,
-                      spreadRadius: 3,
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Emoji del elemento (grande)
-                    Text(
-                      enemy.element.getEmoji(),
-                      style: TextStyle(
-                        fontSize: isBoss ? 50 : 40,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Icono de peligro superpuesto
-                    Positioned(
-                      bottom: isBoss ? 5 : 2,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.warning,
-                          color: Colors.red.shade400,
-                          size: isBoss ? 20 : 16,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ),
               

@@ -1,128 +1,80 @@
-import 'dart:ui' as ui;
-import 'package:flame/components.dart';
-import 'package:flame/events.dart';
+﻿import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import '../paleto_game.dart';
-import '../components/bullet.dart';
 
-/// Player component - handles the player character behavior in the game
-/// 
-/// Features:
-/// - Touch-to-move controls
-/// - Automatic projectile shooting
-/// - Screen boundary detection
-/// - Simple sprite rendering
-class PlayerComponent extends SpriteComponent
-    with HasGameReference<PaletoGame>, TapCallbacks {
-  
+class PlayerComponent extends PositionComponent with HasGameReference<PaletoGame> {
+  double shootCooldown = 0.0;
+  double _invulnerableTimer = 0.0; // Dash invulnerability
+  double _dashCooldown = 0.0;
+  late Paint _paint;
+
   PlayerComponent({
     required Vector2 position,
   }) : super(
           position: position,
-          size: Vector2(100, 100),
+          size: Vector2(30, 30),
           anchor: Anchor.center,
-        );
-
-  // Movement configuration
-  final double moveSpeed = 300.0;
-  Vector2? targetPosition;
-
-  // Shooting configuration
-  double shootCooldown = 0.0;
-  final double shootInterval = 0.3; // Shoots every 0.3 seconds
-
-  @override
-  Future<void> onLoad() async {
-    await super.onLoad();
-
-    _createPlaceholder();
-
-    priority = 10;
+        ) {
+    _paint = Paint()..color = Colors.blue;
   }
 
-  /// Creates a temporary visual placeholder (blue rectangle)
-  void _createPlaceholder() {
-    final paint = Paint()..color = Colors.blue;
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
+  void dash() {
+    if (_dashCooldown > 0) return;
+    _invulnerableTimer = 1.0; // 1 segundo de invulnerabilidad
+    _dashCooldown = 3.0; // 3 segundos de recarga
+    game.shakeScreen(10.0, 0.2); // Pequeño efecto visual
     
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, 100, 100),
-      paint,
-    );
-    
-    final picture = recorder.endRecording();
-    final image = picture.toImageSync(100, 100);
-    
-    sprite = Sprite(image);
+    // Disparo circular (Nova)
+    int bullets = 16;
+    double step = (2 * math.pi) / bullets;
+    for (int i = 0; i < bullets; i++) {
+        final angle = i * step;
+        final direction = Vector2(math.cos(angle), math.sin(angle));
+        game.spawnBullet(position.clone(), direction * 300.0, isPlayer: true);
+    }
   }
+
+  bool get isInvulnerable => _invulnerableTimer > 0;
 
   @override
   void update(double dt) {
     super.update(dt);
+    if (shootCooldown > 0) shootCooldown -= dt;
+    if (_invulnerableTimer > 0) _invulnerableTimer -= dt;
+    if (_dashCooldown > 0) _dashCooldown -= dt;
 
-    // Update shooting cooldown
-    if (shootCooldown > 0) {
-      shootCooldown -= dt;
+    if (isInvulnerable) {
+      // Efecto parpadeo
+      _paint.color = Colors.cyanAccent.withOpacity(0.5);
+    } else {
+      _paint.color = Colors.blue;
     }
 
-    // Move towards target position (touch controls)
-    if (targetPosition != null) {
-      final direction = targetPosition! - position;
-      final distance = direction.length;
-
-      if (distance < 5) {
-        // Reached target
-        targetPosition = null;
-      } else {
-        // Move towards target
-        final velocity = direction.normalized() * moveSpeed * dt;
-        position.add(velocity);
-      }
-    }
-
-    // Keep player within screen bounds
     _keepInBounds();
 
-    // Auto-shoot projectiles
     if (shootCooldown <= 0) {
       _shoot();
-      shootCooldown = shootInterval;
+      shootCooldown = game.getPlayerFireRate != null ? game.getPlayerFireRate!() : 0.3;
     }
   }
 
-  /// Keeps the player within screen boundaries
   void _keepInBounds() {
     final halfWidth = size.x / 2;
     final halfHeight = size.y / 2;
-
-    if (position.x < halfWidth) {
-      position.x = halfWidth;
-    } else if (position.x > game.size.x - halfWidth) {
-      position.x = game.size.x - halfWidth;
-    }
-
-    if (position.y < halfHeight) {
-      position.y = halfHeight;
-    } else if (position.y > game.size.y - halfHeight) {
-      position.y = game.size.y - halfHeight;
-    }
+    if (position.x < halfWidth) position.x = halfWidth;
+    if (position.x > game.size.x - halfWidth) position.x = game.size.x - halfWidth;
+    if (position.y < halfHeight) position.y = halfHeight;
+    if (position.y > game.size.y - halfHeight) position.y = game.size.y - halfHeight;
   }
 
-  /// Shoots a projectile upwards
   void _shoot() {
-    final bullet = BulletComponent(
-      position: position.clone(),
-      direction: Vector2(0, -1), // Shoot upwards
-    );
-    
-    game.add(bullet);
+    game.spawnBullet(position.clone(), Vector2(0, -500), isPlayer: true);
   }
 
   @override
-  void onTapDown(TapDownEvent event) {
-    super.onTapDown(event);
-    // Set target position when screen is tapped
-    targetPosition = event.localPosition;
+  void render(Canvas canvas) {
+    canvas.drawRect(size.toRect(), _paint);
   }
 }
+

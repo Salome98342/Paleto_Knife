@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// Modelo del jugador (Chef Maestro)
 class Player {
-  static const double spriteWidth = 50.0;
-  static const double spriteHeight = 60.0;
-  static const double hitboxWidth = 34.0;
-  static const double hitboxHeight = 46.0;
+  static const double spriteWidth = 85.0;
+  static const double spriteHeight = 100.0;
+  static const double hitboxWidth = 35.0;
+  static const double hitboxHeight = 55.0;
 
   Offset position; // Posición en pantalla
   double health; // Vida actual

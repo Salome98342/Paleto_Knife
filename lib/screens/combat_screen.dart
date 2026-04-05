@@ -6,6 +6,9 @@ import '../main.dart';
 import '../models/element_type.dart';
 import '../widgets/combat_arena.dart';
 import '../widgets/power_button.dart';
+import '../services/audio_service.dart';
+
+import 'settings_dialog.dart';
 
 /// Pantalla principal del modo combate
 class CombatScreen extends StatefulWidget {
@@ -88,7 +91,7 @@ class _CombatScreenState extends State<CombatScreen> {
       case ElementType.master:
         return 'MAESTRO';
       case ElementType.neutral:
-        return 'NEUTRO';
+        return '';
     }
   }
   
@@ -116,14 +119,14 @@ class _CombatScreenState extends State<CombatScreen> {
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         // Movimiento libre en la arena
-        onPanStart: (details) {
+        onPanStart: _combatController.isPaused ? null : (details) {
           _combatController.movePlayerToPosition(details.localPosition);
         },
-        onPanUpdate: (details) {
+        onPanUpdate: _combatController.isPaused ? null : (details) {
           _combatController.handlePlayerDrag(details);
         },
         // Tap para disparar poder (alternativa al botón)
-        onDoubleTap: () {
+        onDoubleTap: _combatController.isPaused ? null : () {
           _combatController.activatePower();
         },
         child: Stack(
@@ -134,6 +137,7 @@ class _CombatScreenState extends State<CombatScreen> {
               player: player,
               enemy: enemy,
               projectiles: _combatController.projectiles,
+              isPaused: _combatController.isPaused,
             ),
           ),
           
@@ -143,10 +147,7 @@ class _CombatScreenState extends State<CombatScreen> {
               padding: const EdgeInsets.all(16),
               child: Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: PixelColors.bgPanel.withOpacity(0.55),
-                  border: Border.all(color: PixelColors.border, width: 2),
-                ),
+                decoration: const BoxDecoration(), // Quitamos el marco gris opaco
                 child: Column(
                   children: [
                   // Información del mundo
@@ -162,7 +163,7 @@ class _CombatScreenState extends State<CombatScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: PixelColors.bgPanel,
+                            color: Colors.transparent,
                             border: Border.all(color: PixelColors.accent, width: 2),
                           ),
                           child: Row(
@@ -193,7 +194,7 @@ class _CombatScreenState extends State<CombatScreen> {
                               vertical: 7,
                             ),
                             decoration: BoxDecoration(
-                              color: PixelColors.bgPanel,
+                              color: Colors.transparent,
                               border: Border.all(color: PixelColors.accent, width: 2),
                             ),
                             child: Row(
@@ -215,6 +216,33 @@ class _CombatScreenState extends State<CombatScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
+                          // Botón de ajustes (Música)
+                          GestureDetector(
+                            onTap: () {
+                              _combatController.pause();
+                              AudioService.instance.playSettingsMusic();
+                              showDialog(
+                                context: context,
+                                builder: (_) => const SettingsDialog(),
+                              ).then((_) {
+                                _combatController.resume();
+                                AudioService.instance.playGameplayMusic();
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(color: PixelColors.border, width: 2),
+                              ),
+                              child: const Icon(
+                                Icons.settings,
+                                color: PixelColors.text,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           // Botón de pausa
                           GestureDetector(
                             onTap: () {
@@ -227,7 +255,7 @@ class _CombatScreenState extends State<CombatScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: PixelColors.bgPanel,
+                                color: Colors.transparent,
                                 border: Border.all(color: PixelColors.border, width: 2),
                               ),
                               child: Icon(
@@ -254,7 +282,7 @@ class _CombatScreenState extends State<CombatScreen> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: PixelColors.bgCard,
+                        color: Colors.transparent,
                         border: Border.all(
                           color: Color(enemy.element.getColor()).withOpacity(0.75),
                           width: 2,
@@ -336,34 +364,6 @@ class _CombatScreenState extends State<CombatScreen> {
                   // Botón de poder especial e instrucciones
                   Column(
                     children: [
-                      // Instrucción de movimiento
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: PixelColors.bgCard,
-                          border: Border.all(color: PixelColors.border, width: 2),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.touch_app, color: PixelColors.textDim, size: 14),
-                            const SizedBox(width: 8),
-                            Text(
-                              'ARRASTRA LIBRE',
-                              style: GoogleFonts.pressStart2p(
-                                color: PixelColors.textDim,
-                                fontSize: 6.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 12),
-                      
                       // Botón de poder especial
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -524,6 +524,7 @@ class _CombatScreenState extends State<CombatScreen> {
                 ),
               ),
             ),
+          
         ],
       ),
       ),
