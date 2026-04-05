@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
+import '../controllers/economy_controller.dart';
+import '../controllers/chef_controller.dart';
 import 'gacha_reveal_overlay.dart';
 
 class GachaStoreView extends StatelessWidget {
@@ -98,12 +101,36 @@ class GachaStoreView extends StatelessWidget {
   Widget _buildBuyButton(BuildContext context, String amount, int cost, Color color, String rarityInfo) {
     return GestureDetector(
       onTap: () {
-        showDialog(
-          context: context,
-          barrierColor: Colors.black87, 
-          barrierDismissible: false, 
-          builder: (_) => GachaRevealOverlay(rarityColor: color, rarityName: rarityInfo),
-        );
+        final eco = context.read<EconomyController>();
+        final chefController = context.read<ChefController>();
+        
+        if (eco.gems >= cost) {
+          eco.spendGems(cost);
+          
+          final isChef = rarityInfo.contains("Cofre"); // Para distinguir Cuchillos luego si se añaden.
+          final rollAmount = amount == "1x" ? 1 : 10;
+          
+          final results = chefController.rollGacha(isChef, rollAmount);
+          
+          showDialog(
+            context: context,
+            barrierColor: Colors.black87, 
+            barrierDismissible: false, 
+            builder: (_) => GachaRevealOverlay(
+              rarityColor: color, 
+              rarityName: rarityInfo,
+              results: results,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("No tienes suficientes gemas", style: RetroStyle.font(size: 10, color: Colors.white)),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 1),
+            )
+          );
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),

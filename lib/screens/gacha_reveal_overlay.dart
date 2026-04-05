@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/retro_style.dart';
+import '../controllers/chef_controller.dart';
 
-class GachaRevealOverlay extends StatelessWidget {
+class GachaRevealOverlay extends StatefulWidget {
   final Color rarityColor;
   final String rarityName;
+  final List<RollResult> results;
 
   const GachaRevealOverlay({
     super.key,
     required this.rarityColor,
     required this.rarityName,
+    required this.results,
   });
 
   @override
+  State<GachaRevealOverlay> createState() => _GachaRevealOverlayState();
+}
+
+class _GachaRevealOverlayState extends State<GachaRevealOverlay> {
+  int currentIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
+    if (widget.results.isEmpty) return const SizedBox();
+
+    final currentResult = widget.results[currentIndex];
+    final entity = currentResult.entity;
+    final isDup = !currentResult.isNew;
+    final tokens = currentResult.tokensGranted;
+
     const int dropDuration = 500;
     const int shakeWait = 200;
     const int shakeDuration = 600;
@@ -22,6 +39,7 @@ class GachaRevealOverlay extends StatelessWidget {
     const int revealTime = silhouetteWait + 1200; 
 
     return Material(
+      key: ValueKey(currentIndex),
       color: Colors.transparent,
       child: Stack(
         alignment: Alignment.center,
@@ -29,7 +47,7 @@ class GachaRevealOverlay extends StatelessWidget {
           Container(
             width: 250,
             height: 250,
-            color: rarityColor,
+            color: widget.rarityColor,
           )
           .animate(delay: revealTime.ms)
           .fadeIn(duration: 400.ms)
@@ -38,7 +56,7 @@ class GachaRevealOverlay extends StatelessWidget {
           .animate(onPlay: (controller) => controller.repeat())
           .rotate(duration: 4.seconds),
 
-          const Icon(Icons.person, size: 150, color: Colors.white)
+          Icon(entity.isChef ? Icons.person : Icons.restaurant, size: 150, color: Colors.white)
           .animate(delay: flashTime.ms) 
           .fadeIn(duration: 100.ms)
           .tint(color: Colors.black, begin: 1.0, end: 1.0, duration: 1.ms) 
@@ -50,7 +68,7 @@ class GachaRevealOverlay extends StatelessWidget {
 
           Container(
             width: 100, height: 100,
-            decoration: RetroStyle.box(color: rarityColor),
+            decoration: RetroStyle.box(color: widget.rarityColor),
             child: const Icon(Icons.all_inbox, size: 50, color: Colors.white),
           )
           .animate()
@@ -78,16 +96,26 @@ class GachaRevealOverlay extends StatelessWidget {
                   decoration: RetroStyle.box(color: Colors.white),
                   child: Column(
                     children: [
-                      Text("¡NUEVO HÉROE!", style: RetroStyle.font(size: 14, color: RetroStyle.primary)),
+                      Text(
+                        entity.name.toUpperCase(), 
+                        style: RetroStyle.font(size: 14, color: RetroStyle.primary)
+                      ),
                       const SizedBox(height: 8),
-                      Text("Héroe Aleatorio ($rarityName)", style: RetroStyle.font(size: 10)),
+                      Text(
+                        "${entity.rarity.name.toUpperCase()} ${entity.isChef ? 'CHEF' : 'CUCHILLO'} ${isDup ? '\n¡DUPLICADO!' : ''}", 
+                        textAlign: TextAlign.center,
+                        style: RetroStyle.font(size: 10)
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildStatLine("ATK", "150", Colors.red),
-                          _buildStatLine("SPD", "95", Colors.green),
-                          _buildStatLine("HP", "300", Colors.blue),
+                          _buildStatLine("ATK", "${entity.baseDamage}", Colors.red),
+                          _buildStatLine("FIRE RT", "${entity.baseFireRate.toStringAsFixed(2)}", Colors.green),
+                          if (isDup)
+                            _buildStatLine("TOKENS", "+$tokens", Colors.purpleAccent)
+                          else
+                            _buildStatLine("NEW!", "", Colors.amberAccent)
                         ],
                       )
                     ],
@@ -96,13 +124,24 @@ class GachaRevealOverlay extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () {
+                    if (currentIndex < widget.results.length - 1) {
+                      setState(() {
+                         currentIndex++;
+                      });
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: RetroStyle.box(color: RetroStyle.accent),
                     child: Center(
-                      child: Text("¡EQUIPAR!", style: RetroStyle.font(size: 12)),
+                      child: Text(
+                        currentIndex < widget.results.length - 1 ? "SIGUIENTE" : "¡EQUIPAR!", 
+                        style: RetroStyle.font(size: 12)
+                      ),
                     ),
                   ),
                 )
