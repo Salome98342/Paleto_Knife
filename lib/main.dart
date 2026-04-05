@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +7,7 @@ import 'screens/main_layout.dart';
 import 'controllers/game_controller.dart';
 import 'controllers/economy_controller.dart';
 import 'controllers/world_controller.dart';
+import 'controllers/chef_controller.dart';
 import 'services/audio_service.dart';
 
 // Paleta pixel art global
@@ -37,7 +38,7 @@ void main() async {
     ),
   );
   
-  // Inicialización de servicios críticos
+  // InicializaciÃ³n de servicios crÃ­ticos
   await AudioService.init();
 
   runApp(
@@ -46,6 +47,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => GameController()..initialize()),
         ChangeNotifierProvider(create: (_) => EconomyController()),
         ChangeNotifierProvider(create: (_) => WorldController()),
+        ChangeNotifierProvider(create: (_) => ChefController()),
       ],
       child: const KnifeClickerApp(),
     ),
@@ -161,3 +163,4 @@ class KnifeClickerApp extends StatelessWidget {
     );
   }
 }
+

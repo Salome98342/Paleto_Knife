@@ -9,6 +9,7 @@ import '../widgets/game_over_overlay.dart';
 import '../widgets/pause_menu_overlay.dart';
 import '../controllers/economy_controller.dart';
 import '../controllers/world_controller.dart';
+import '../controllers/chef_controller.dart';
 import '../services/audio_service.dart';
 
 class GameplayScreen extends StatefulWidget {
@@ -37,19 +38,19 @@ class _GameplayScreenState extends State<GameplayScreen> {
       },
       getPlayerFireRate: () {
         if (mounted) {
-          return context.read<EconomyController>().currentFireRate;
+          return context.read<ChefController>().activeChef.currentFireRate;
         }
         return 0.3;
       },
       onEnemyKilled: (level) {
         if (mounted) {
           context.read<EconomyController>().addCoinsFromEnemy(level);
-          AudioService.instance.playCoinCollect();
+          try { AudioService.instance.playCoinCollect(); } catch (_) {}
         }
       },
       getPlayerDamage: () {
         if (mounted) {
-          return context.read<EconomyController>().currentDamage;
+          return context.read<ChefController>().activeChef.currentDamage;
         }
         return 10.0;
       },

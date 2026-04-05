@@ -73,6 +73,14 @@ class EconomyController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void spendCoins(int amount) {
+    if (_coins >= amount) {
+      _coins -= amount;
+      _saveData();
+      notifyListeners();
+    }
+  }
+
   void addCoinsFromEnemy(int wave) {
     // Sincronizar la wave actual con la UI
     if (_currentWave != wave) {
