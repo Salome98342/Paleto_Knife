@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
 import '../controllers/economy_controller.dart';
+import '../services/ad_service.dart';
 import '../controllers/chef_controller.dart';
 import 'gacha_reveal_overlay.dart';
 
@@ -22,16 +23,39 @@ class GachaStoreView extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         
-        // --- SECCIÓN: OFERTAS DEL DÍA ---
+        // --- SECCION: OFERTAS DEL DIA ---
         _buildSectionTitle("OFERTAS DIARIAS", Icons.local_offer),
-        _buildOfferCard(context, "Ficha Épica Aleatoria", "Obtén fragmentos garantizados", Icons.card_giftcard, 500),
+        _buildOfferCard(context, "Ficha Epica Aleatoria", "Obten fragmentos garantizados", Icons.card_giftcard, 500),
         const SizedBox(height: 32),
 
-        // --- SECCIÓN: RECLUTAMIENTO DE CHEFS ---
-        _buildSectionTitle("RECLUTAR CHEFS", Icons.group_add),
+        // --- SECCION: RECLUTAMIENTO DE CHEFS ---
+        _buildSectionTitle(
+          "RECLUTAR CHEFS", 
+          Icons.group_add, 
+          actionView: Builder(
+            builder: (ctx) => GestureDetector(
+              onTap: () => _showProbabilities(ctx),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: RetroStyle.accent.withValues(alpha: 0.2),
+                  border: Border.all(color: RetroStyle.accent),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, size: 12, color: RetroStyle.accent),
+                    const SizedBox(width: 4),
+                    Text("TASAS", style: RetroStyle.font(size: 8, color: RetroStyle.accent)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
         _buildChestCard(
           context,
-          name: "Cofre Común (Chef)",
+          name: "Cofre Comun (Chef)",
           color: Colors.grey,
           icon: Icons.inventory_2,
           cost1x: 100,
@@ -51,7 +75,7 @@ class GachaStoreView extends StatelessWidget {
         const SizedBox(height: 20),
         _buildChestCard(
           context,
-          name: "Cofre Épico (Chef)",
+          name: "Cofre Epico (Chef)",
           color: Colors.purple,
           icon: Icons.all_inbox,
           cost1x: 800,
@@ -60,11 +84,34 @@ class GachaStoreView extends StatelessWidget {
         ).animate(delay: 300.ms).slideX(begin: 0.5).fadeIn(),
         const SizedBox(height: 32),
 
-        // --- SECCIÓN: FORJA DE CUCHILLOS ---
-        _buildSectionTitle("FORJA DE CUCHILLOS", Icons.restaurant),
+        // --- SECCION: FORJA DE CUCHILLOS ---
+        _buildSectionTitle(
+          "FORJA DE CUCHILLOS", 
+          Icons.restaurant, 
+          actionView: Builder(
+            builder: (ctx) => GestureDetector(
+              onTap: () => _showProbabilities(ctx),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: RetroStyle.accent.withValues(alpha: 0.2),
+                  border: Border.all(color: RetroStyle.accent),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, size: 12, color: RetroStyle.accent),
+                    const SizedBox(width: 4),
+                    Text("TASAS", style: RetroStyle.font(size: 8, color: RetroStyle.accent)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
         _buildChestCard(
           context,
-          name: "Cofre Común (Arma)",
+          name: "Cofre Comun (Arma)",
           color: Colors.grey,
           icon: Icons.hardware,
           cost1x: 100,
@@ -84,7 +131,7 @@ class GachaStoreView extends StatelessWidget {
         const SizedBox(height: 20),
         _buildChestCard(
           context,
-          name: "Cofre Épico (Arma)",
+          name: "Cofre Epico (Arma)",
           color: Colors.purple,
           icon: Icons.handyman,
           cost1x: 800,
@@ -93,18 +140,20 @@ class GachaStoreView extends StatelessWidget {
         ).animate(delay: 300.ms).slideX(begin: -0.5).fadeIn(),
         const SizedBox(height: 32),
 
-        // --- SECCIÓN: BANCO / PREMIUM ---
+        // --- SECCION: BANCO / PREMIUM ---
         _buildSectionTitle("BANCO / PREMIUM", Icons.account_balance),
+        _buildAdCard(context, "Anuncio con Recompensa", "Recompensa: +10 Gemas", Icons.play_circle_fill),
+        const SizedBox(height: 16),
         _buildExchangeCard(context, "Saco de Monedas", "+10,000 Monedas", Icons.monetization_on, 100, isGemsCost: true),
         const SizedBox(height: 16),
-        _buildExchangeCard(context, "Puñado de Gemas", "+500 Gemas", Icons.diamond, 1, isGemsCost: false, isRealMoney: true),
+        _buildExchangeCard(context, "Punado de Gemas", "+500 Gemas", Icons.diamond, 1, isGemsCost: false, isRealMoney: true),
         _buildExchangeCard(context, "Cofre de Gemas", "+5,000 Gemas", Icons.diamond, 5, isGemsCost: false, isRealMoney: true),
         const SizedBox(height: 40),
       ],
     );
   }
 
-  Widget _buildSectionTitle(String title, IconData icon) {
+  Widget _buildSectionTitle(String title, IconData icon, {Widget? actionView}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -112,6 +161,10 @@ class GachaStoreView extends StatelessWidget {
           Icon(icon, color: RetroStyle.primary, size: 24),
           const SizedBox(width: 8),
           Text(title, style: RetroStyle.font(size: 14, color: RetroStyle.textDark)),
+          if (actionView != null) ...[
+            const SizedBox(width: 8),
+            actionView,
+          ],
           const SizedBox(width: 8),
           Expanded(child: Divider(color: RetroStyle.primary, thickness: 2)),
         ],
@@ -200,17 +253,17 @@ class GachaStoreView extends StatelessWidget {
 
               if (isRealMoney) {
                 // Simular compra exitosa con dinero real (modo testing)
-                if (name.contains("Puñado")) {
+                if (name.contains("Punado")) {
                   eco.addGems(500);
                 } else if (name.contains("Cofre")) {
                   eco.addGems(5000);
                 }
-                RetroStyle.showSuccess(context, "¡$subtitle COMPRADOS!\nGRACIAS :)");
+                RetroStyle.showSuccess(context, "!$subtitle COMPRADOS!\nGRACIAS :)");
               } else if (isGemsCost) {
                 // Comprando con Gemas
                 if (eco.gems >= cost) {
                   eco.spendGems(cost);
-                  // Añadir lo prometido (hack simple para el SACO DE MONEDAS que cuesta 100 y da +10,000)
+                  // Anadir lo prometido (hack simple para el SACO DE MONEDAS que cuesta 100 y da +10,000)
                   if (name.contains("Monedas")) {
                     eco.addCoins(10000);
                   }
@@ -242,6 +295,65 @@ class GachaStoreView extends StatelessWidget {
     );
   }
 
+  Widget _buildAdCard(BuildContext context, String name, String subtitle, IconData icon) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: RetroStyle.box(color: RetroStyle.panel).copyWith(
+        border: Border.all(color: Colors.amberAccent, width: 2),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 32, color: Colors.amberAccent)
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .scaleXY(end: 1.1, duration: 800.ms),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: RetroStyle.font(size: 12, color: RetroStyle.textDark)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: RetroStyle.font(size: 10, color: RetroStyle.primary)),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: RetroStyle.accent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+            ),
+            onPressed: () {
+              final adService = AdService();
+              if (adService.isAdLoaded) {
+                adService.showRewardedAd(
+                  onRewardEarned: (amount) {
+                    final eco = context.read<EconomyController>();
+                    eco.addGems(amount);
+                    RetroStyle.showSuccess(context, "+$amount GEMAS OBTENIDAS", icon: Icons.diamond);
+                  },
+                  onAdClosed: () {
+                    // Acciones adicionales si necesitas
+                  }
+                );
+              } else {
+                RetroStyle.showInsufficient(context, "ANUNCIO NO DISPONIBLE. INTENTA MAS TARDE.");
+              }
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.play_arrow, size: 14, color: Colors.white),
+                const SizedBox(width: 4),
+                Text("VER", style: RetroStyle.font(size: 12, color: Colors.white)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildChestCard(
     BuildContext context, {
     required String name,
@@ -252,32 +364,75 @@ class GachaStoreView extends StatelessWidget {
     required bool isChef,
   }) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
-      decoration: RetroStyle.box(color: RetroStyle.panel).copyWith(
-        border: Border.all(color: color, width: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: [
+            color.withValues(alpha: 0.8),
+            color.withValues(alpha: 0.3),
+            Colors.black.withValues(alpha: 0.9),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.4),
+            blurRadius: 10,
+            spreadRadius: 2,
+          )
+        ],
+        border: Border.all(color: color, width: 2),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              Icon(icon, size: 48, color: color)
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .slideY(begin: -0.1, end: 0.1, duration: 1.seconds),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  name,
-                  style: RetroStyle.font(size: 12, color: RetroStyle.textDark),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black45,
+                  border: Border.all(color: color, width: 2),
+                  boxShadow: [
+                    BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 15)
+                  ]
                 ),
+                child: Icon(icon, size: 40, color: Colors.white)
+                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .slideY(begin: -0.1, end: 0.1, duration: 1.seconds)
+                  .shimmer(duration: 1500.ms, color: color),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.toUpperCase(),
+                      style: RetroStyle.font(size: 14, color: Colors.white)
+                          .copyWith(
+                            shadows: [Shadow(color: color, blurRadius: 10)]
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isChef ? "Desbloquea chefs y sus habilidades" : "Forja equipamiento para tu equipo",
+                      style: RetroStyle.font(size: 8, color: Colors.white70),
+                    )
+                  ]
+                )
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: _buildBuyButton(context, "1x", cost1x, color, name, isChef)),
+              Expanded(child: _buildBuyButton(context, "1 TIRADA", cost1x, color, name, isChef)),
               const SizedBox(width: 16),
-              Expanded(child: _buildBuyButton(context, "10x", cost10x, color, name, isChef)),
+              Expanded(child: _buildBuyButton(context, "10 TIRADAS", cost10x, color, name, isChef)),
             ],
           ),
         ],
@@ -294,9 +449,9 @@ class GachaStoreView extends StatelessWidget {
         if (eco.gems >= cost) {
           eco.spendGems(cost);
           
-          final rollAmount = amount == "1x" ? 1 : 10;
+          final rollAmount = amount.contains("1 ") || amount == "1x" ? 1 : 10;
           
-          final results = chefController.rollGacha(isChef, rollAmount);
+          final results = chefController.rollGacha(isChef, rollAmount, rarityInfo, eco);
           
           showDialog(
             context: context,
@@ -314,16 +469,24 @@ class GachaStoreView extends StatelessWidget {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: RetroStyle.box(color: Colors.white),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          gradient: const LinearGradient(
+            colors: [Colors.black87, Colors.black],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
+        ),
         child: Column(
           children: [
-            Text("Comprar $amount", style: RetroStyle.font(size: 8)),
+            Text(amount, style: RetroStyle.font(size: 9, color: Colors.white)),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.diamond, color: Colors.purpleAccent, size: 12),
-                Text(" $cost", style: RetroStyle.font(size: 10)),
+                const Icon(Icons.diamond, color: Colors.purpleAccent, size: 14),
+                Text(" $cost", style: RetroStyle.font(size: 12, color: Colors.amber)),
               ],
             )
           ],
@@ -331,4 +494,90 @@ class GachaStoreView extends StatelessWidget {
       ),
     ).animate(target: 1).scaleXY(end: 1, duration: 100.ms);
   }
+
+  void _showProbabilities(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.transparent,
+        contentPadding: EdgeInsets.zero,
+        content: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: RetroStyle.box(color: RetroStyle.panel).copyWith(
+            border: Border.all(color: RetroStyle.accent, width: 4),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "PROBABILIDADES OBTENCION", 
+                style: RetroStyle.font(size: 14, color: RetroStyle.accent),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              _buildProbRow("COFRE COMUN", Colors.grey, ["Comun: 90%", "Raro: 10%"]),
+              _buildProbRow("COFRE RARO", Colors.blue, ["Comun: 60%", "Raro: 30%", "Epico: 10%"]),
+              _buildProbRow("COFRE EPICO", Colors.purple, ["Raro: 60%", "Epico: 30%", "Legendario: 10%"]),
+              _buildProbRow("COFRE LEGENDARIO", Colors.orange, ["Epico: 70%", "Legendario: 30%"]),
+              
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.2),
+                  border: Border.all(color: Colors.amber),
+                ),
+                child: Column(
+                  children: [
+                    Text("- SISTEMA PITY -", style: RetroStyle.font(size: 10, color: Colors.amber)),
+                    const SizedBox(height: 4),
+                    Text("Cada 50 tiradas: Epico (SSR) Garantizado", style: RetroStyle.font(size: 8, color: Colors.white), textAlign: TextAlign.center),
+                    const SizedBox(height: 2),
+                    Text("Cada 100 tiradas: Legendario (UR) Garantizado", style: RetroStyle.font(size: 8, color: Colors.white), textAlign: TextAlign.center),
+                  ],
+                )
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: RetroStyle.primary),
+                onPressed: () => Navigator.pop(ctx),
+                child: Text("ENTENDIDO", style: RetroStyle.font(size: 10, color: Colors.white)),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProbRow(String name, Color color, List<String> rates) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.black45,
+        border: Border(left: BorderSide(color: color, width: 4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(name, style: RetroStyle.font(size: 10, color: color)),
+          ),
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: rates.map((r) => Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(r, style: RetroStyle.font(size: 8, color: Colors.white70)),
+              )).toList(),
+            ),
+          )
+        ],
+      )
+    );
+  }
+
 }

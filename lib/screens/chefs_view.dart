@@ -15,6 +15,7 @@ class ChefsView extends StatefulWidget {
 
 class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  GachaRarity? _selectedRarity;
 
   @override
   void initState() {
@@ -49,6 +50,34 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0, left: 16.0, right: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('FILTRA:', style: RetroStyle.font(size: 10, color: Colors.white70)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: DropdownButton<GachaRarity?>(
+                  isExpanded: true,
+                value: _selectedRarity,
+                dropdownColor: Colors.black87,
+                icon: const Icon(Icons.filter_list, color: RetroStyle.accent),
+                underline: const SizedBox(),
+                style: RetroStyle.font(size: 10, color: RetroStyle.accent),
+                items: [
+                  const DropdownMenuItem(value: null, child: Text('TODOS')),
+                  ...GachaRarity.values.map((r) => DropdownMenuItem(
+                        value: r,
+                        child: Text(r.name.toUpperCase(), style: TextStyle(color: _getRarityColor(r))),
+                      )),
+                ],
+                onChanged: (val) => setState(() => _selectedRarity = val),
+                ),
+              ),
+            ],
+          ),
+        ),
         Expanded(
           child: TabBarView(
             controller: _tabController,
@@ -64,7 +93,9 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
 
   Widget _buildEntityGrid(BuildContext context, bool isChef) {
     final chefState = context.watch<ChefController>();
-    final list = isChef ? chefState.chefs : chefState.knives;
+    final list = (isChef ? chefState.chefs : chefState.knives)
+        .where((e) => _selectedRarity == null || e.rarity == _selectedRarity)
+        .toList();
 
     // Agrupar por rareza
     Map<GachaRarity, List<GachaEntity>> grouped = {};
