@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
@@ -75,7 +75,7 @@ class WorldView extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text("LOCALIZACIÓN: ", style: RetroStyle.font(size: 10, color: Colors.black)),
+                      Text("LOCALIZACIÃ“N: ", style: RetroStyle.font(size: 10, color: Colors.black)),
                       Expanded(child: Text(loc.name, style: RetroStyle.font(size: 12, color: RetroStyle.primary))),
                       if (loc.isAlert)
                         const Icon(Icons.warning, color: Colors.red, size: 16)
@@ -84,6 +84,37 @@ class WorldView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(loc.description, style: RetroStyle.font(size: 8, color: Colors.grey.shade800)),
+                  
+                  const SizedBox(height: 12),
+                  // Barra de liberación
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("ESTADO DE LIBERACIÓN:", style: RetroStyle.font(size: 10, color: Colors.black)),
+                      const SizedBox(height: 4),
+                      Container(
+                        height: 15,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          border: Border.all(color: Colors.black, width: 2),
+                        ),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: (world.getLiberation(loc.name) / 100.0).clamp(0.0, 1.0),
+                          child: Container(color: Colors.green),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("${world.getLiberation(loc.name).toStringAsFixed(0)}% LIBERADO", style: RetroStyle.font(size: 8, color: Colors.green.shade800)),
+                          Text("${(100.0 - world.getLiberation(loc.name)).toStringAsFixed(0)}% RESTANTE", style: RetroStyle.font(size: 8, color: Colors.red.shade800)),
+                        ],
+                      ),
+                    ],
+                  ),
                   
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.0),
@@ -130,3 +161,5 @@ class WorldView extends StatelessWidget {
     );
   }
 }
+
+

@@ -8,9 +8,11 @@ class PlayerComponent extends PositionComponent with HasGameReference<PaletoGame
   double _invulnerableTimer = 0.0; // Dash invulnerability
   double _dashCooldown = 0.0;
   late Paint _paint;
+  final IconData? icon;
 
   PlayerComponent({
     required Vector2 position,
+    this.icon,
   }) : super(
           position: position,
           size: Vector2(30, 30),
@@ -74,7 +76,27 @@ class PlayerComponent extends PositionComponent with HasGameReference<PaletoGame
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(size.toRect(), _paint);
+    if (icon != null) {
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: String.fromCharCode(icon!.codePoint),
+          style: TextStyle(
+            fontSize: size.x,
+            fontFamily: icon!.fontFamily,
+            package: icon!.fontPackage,
+            color: _paint.color,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset((size.x - textPainter.width) / 2, (size.y - textPainter.height) / 2),
+      );
+    } else {
+      canvas.drawRect(size.toRect(), _paint);
+    }
   }
 }
 

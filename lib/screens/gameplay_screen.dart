@@ -6,6 +6,7 @@ import '../game/paleto_game.dart';
 import '../widgets/hud_overlay.dart';
 import '../widgets/upgrade_shop_overlay.dart';
 import '../widgets/game_over_overlay.dart';
+import '../widgets/wave_clear_overlay.dart';
 import '../widgets/pause_menu_overlay.dart';
 import '../controllers/economy_controller.dart';
 import '../controllers/world_controller.dart';
@@ -25,9 +26,14 @@ class _GameplayScreenState extends State<GameplayScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EconomyController>().setMaxHp(context.read<ChefController>().activeChef.currentHp);
+    });
+    
     _game = PaletoGame(
       locationData: context.read<WorldController>().selectedLocation,
-      onPlayerTakeDamage: (amount) {
+      playerIcon: context.read<ChefController>().activeChef.icon,
+      onPlayerTakeDamage: (double amount) {
         if (mounted) {
           context.read<EconomyController>().takeDamage(amount);
           if (context.read<EconomyController>().playerHp <= 0) {
@@ -42,15 +48,15 @@ class _GameplayScreenState extends State<GameplayScreen> {
         }
         return 0.3;
       },
-      onEnemyKilled: (level) {
+      onEnemyKilled: (wave, isBoss) {
         if (mounted) {
-          context.read<EconomyController>().addCoinsFromEnemy(level);
+          context.read<EconomyController>().addRewardsFromEnemy(wave, isBoss: isBoss);
           try { AudioService.instance.playCoinCollect(); } catch (_) {}
         }
       },
       getPlayerDamage: () {
         if (mounted) {
-          return context.read<ChefController>().activeChef.currentDamage;
+          return context.read<ChefController>().getTotalDamage(context.read<WorldController>().selectedLocation.name);
         }
         return 10.0;
       },
@@ -68,6 +74,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
         overlayBuilderMap: {
           'HUD': (context, game) => HudOverlay(game: game),
           'UpgradeShop': (context, game) => UpgradeShopOverlay(game: game),
+          'WaveClear': (context, game) => WaveClearOverlay(game: game),
           'GameOver': (context, game) => GameOverOverlay(game: game),
           'PauseMenu': (context, game) => PauseMenuOverlay(game: game),
         },
@@ -76,6 +83,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
     );
   }
 }
+
 
 
 

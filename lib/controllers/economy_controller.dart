@@ -9,10 +9,16 @@ class EconomyController extends ChangeNotifier {
   int _currentWave = 1;
   int _damageStat = 1;
   int _fireRateStat = 1;
+  
+  // Quest and Stats tracking
+  int _monstersKilled = 0;
+  int _chefsLeveledUp = 0;
+  int _gamesPlayed = 0;
+  int _coinsSpent = 0;
 
   // Variables de Vida de la sesión actual
-  int _maxHp = 3;
-  int _playerHp = 3;
+  double _maxHp = 100.0;
+  double _playerHp = 100.0;
   
   // Variables de sesión para el overlay de "Game Over"
   int _sessionCoins = 0;
@@ -26,9 +32,16 @@ class EconomyController extends ChangeNotifier {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     _coins = prefs.getInt('coins') ?? 0;
-    _gems = prefs.getInt('gems') ?? 2000; // Diamantes iniciales para pruebas, luego cambialo a 0
+    _gems = prefs.getInt('gems') ?? 0;
     _damageStat = prefs.getInt('damageStat') ?? 1;
     _fireRateStat = prefs.getInt('fireRateStat') ?? 1;
+    
+    // Quest stats 
+    _monstersKilled = prefs.getInt('monstersKilled') ?? 0;
+    _chefsLeveledUp = prefs.getInt('chefsLeveledUp') ?? 0;
+    _gamesPlayed = prefs.getInt('gamesPlayed') ?? 0;
+    _coinsSpent = prefs.getInt('coinsSpent') ?? 0;
+
     // Iniciamos la wave en 1 cada vez que se abre la app (Mecánica Roguelite/Idle)
     _currentWave = 1;
     _playerHp = _maxHp; // Reiniciar vida
@@ -36,12 +49,20 @@ class EconomyController extends ChangeNotifier {
   }
 
   // Guardado de datos
+  Future<void> saveProgress() => _saveData();
+  
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('coins', _coins);
     await prefs.setInt('gems', _gems); // Añadido
     await prefs.setInt('damageStat', _damageStat);
     await prefs.setInt('fireRateStat', _fireRateStat);
+
+    // Quest stats
+    await prefs.setInt('monstersKilled', _monstersKilled);
+    await prefs.setInt('chefsLeveledUp', _chefsLeveledUp);
+    await prefs.setInt('gamesPlayed', _gamesPlayed);
+    await prefs.setInt('coinsSpent', _coinsSpent);
     // No guardamos la currentWave para que el jugador vuelva a farmear desde el inicio
   }
 
@@ -51,10 +72,15 @@ class EconomyController extends ChangeNotifier {
   int get currentWave => _currentWave;
   int get damageStat => _damageStat;
   int get fireRateStat => _fireRateStat;
-  int get playerHp => _playerHp;
-  int get maxHp => _maxHp;
+  double get playerHp => _playerHp;
+  double get maxHp => _maxHp;
   int get sessionCoins => _sessionCoins;
   int get sessionGems => _sessionGems;
+
+  int get monstersKilled => _monstersKilled;
+  int get chefsLeveledUp => _chefsLeveledUp;
+  int get gamesPlayed => _gamesPlayed;
+  int get coinsSpent => _coinsSpent;
 
   // Crecimiento exponencial
   int get upgradeCost => (50 * math.pow(1.25, _damageStat - 1)).toInt();
@@ -66,12 +92,20 @@ class EconomyController extends ChangeNotifier {
   // Cadencia (Shoot interval) arranca en 0.3s y baja hasta min 0.05s
   double get currentFireRate => math.max(0.05, 0.3 - ((_fireRateStat - 1) * 0.02));
 
-  void takeDamage(int amount) {
-    _playerHp = math.max(0, _playerHp - amount);
+  void setMaxHp(double hp) {
+    _maxHp = hp;
+    _playerHp = hp;
+    notifyListeners();
+  }
+
+  void takeDamage(double amount) {
+    _playerHp = math.max(0.0, _playerHp - amount);
     notifyListeners();
   }
 
   void resetRun() {
+    _gamesPlayed++; // Se jugó otra partida
+    _saveData();
     _playerHp = _maxHp;
     _currentWave = 1;
     _sessionCoins = 0;
@@ -88,9 +122,16 @@ class EconomyController extends ChangeNotifier {
   void spendCoins(int amount) {
     if (_coins >= amount) {
       _coins -= amount;
+      _coinsSpent += amount; // Para la quest
       _saveData();
       notifyListeners();
     }
+  }
+
+  void recordChefLevelUp() {
+    _chefsLeveledUp++;
+    _saveData();
+    notifyListeners();
   }
 
   void addGems(int amount) {
@@ -108,6 +149,7 @@ class EconomyController extends ChangeNotifier {
   }
 
   void addRewardsFromEnemy(int wave, {bool isBoss = false}) {
+    _monstersKilled++; // Incrementamos el stat de monstruos eliminados
     if (_currentWave != wave) {
       _currentWave = wave;
       _saveData();

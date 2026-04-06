@@ -18,6 +18,7 @@ class GachaEntity {
 
   final double baseDamage;
   final double baseFireRate; 
+  final double baseHp;
 
   int level;
   bool isUnlocked;
@@ -35,6 +36,7 @@ class GachaEntity {
     required this.weakAgainst,
     required this.baseDamage,
     required this.baseFireRate,
+    this.baseHp = 100.0,
     this.level = 1,
     this.isUnlocked = false,
     this.tokens = 0,
@@ -51,12 +53,22 @@ class GachaEntity {
 
   int get tokensNeededToUpgrade {
     if (level >= maxLevel) return -1;
-    int multiplier = rarity == GachaRarity.Legendary ? 3 : rarity == GachaRarity.Epic ? 2 : 1;
-    return level * 10 * multiplier;
+    // Multiplicador único por Rareza (x1, x2, x4, x10)
+    int multiplier = rarity == GachaRarity.Legendary ? 10 : rarity == GachaRarity.Epic ? 4 : rarity == GachaRarity.Rare ? 2 : 1;
+    // Por ejemplo: Nivel 1 Raro = 1 * 5 * 2 = 10 Tokens. Nivel 1 Legendario = 1 * 5 * 10 = 50 tokens.
+    return level * 5 * multiplier;
+  }
+
+  int get coinsNeededToUpgrade {
+    if (level >= maxLevel) return -1;
+    // El coste de monedas será estricamente proporcional a la rareza y el nivel usando una base de oro (e.g. x100)
+    int multiplier = rarity == GachaRarity.Legendary ? 10 : rarity == GachaRarity.Epic ? 4 : rarity == GachaRarity.Rare ? 2 : 1;
+    return level * 250 * multiplier;
   }
 
   double get currentDamage => baseDamage + (level * (isChef ? 2 : 5));
-  double get currentFireRate => math.max(0.05, baseFireRate * (1 - (level * 0.02))); 
+  double get currentFireRate => math.max(0.05, baseFireRate * (1 - (level * 0.02)));
+  double get currentHp => baseHp + (level * 15.0); 
 
   String get rarityName => rarity.toString().split('.').last;
   
@@ -98,12 +110,12 @@ class ChefController extends ChangeNotifier {
   void _initializeData() {
     allEntities = [
       // CHEFS
-      GachaEntity(id: 'c1', name: 'Aprendiz', rarity: GachaRarity.Common, icon: Icons.person, isChef: true, lore: 'Chef básico.', favoredLocation: 'Ninguna', strongAgainst: 'Nada', weakAgainst: 'Todo', baseDamage: 10.0, baseFireRate: 0.3, isUnlocked: true),
-      GachaEntity(id: 'c2', name: 'Cocinero de Comida Rápida', rarity: GachaRarity.Common, icon: Icons.fastfood, isChef: true, lore: 'Rápido pero descuidado.', favoredLocation: 'América', strongAgainst: 'Grasa', weakAgainst: 'Verduras', baseDamage: 12.0, baseFireRate: 0.35),
-      GachaEntity(id: 'c3', name: 'Sushi Ninja', rarity: GachaRarity.Rare, icon: Icons.cut, isChef: true, lore: 'Cortes precisos.', favoredLocation: 'Asia', strongAgainst: 'Arroz', weakAgainst: 'Grasa', baseDamage: 15.0, baseFireRate: 0.25),
-      GachaEntity(id: 'c4', name: 'Maestro Parrillero', rarity: GachaRarity.Rare, icon: Icons.outdoor_grill, isChef: true, lore: 'Fuego y carne.', favoredLocation: 'América', strongAgainst: 'Carne', weakAgainst: 'Dulces', baseDamage: 18.0, baseFireRate: 0.28),
-      GachaEntity(id: 'c5', name: 'Vegan-Borg', rarity: GachaRarity.Epic, icon: Icons.smart_toy, isChef: true, lore: 'Rayos de clorofila.', favoredLocation: 'América', strongAgainst: 'Grasa', weakAgainst: 'Magia', baseDamage: 25.0, baseFireRate: 0.4),
-      GachaEntity(id: 'c6', name: 'Croissant Hunter', rarity: GachaRarity.Legendary, icon: Icons.kebab_dining, isChef: true, lore: 'Leyenda de Francia.', favoredLocation: 'Europa', strongAgainst: 'Carbohidratos', weakAgainst: 'Asiático', baseDamage: 40.0, baseFireRate: 0.20),
+      GachaEntity(id: 'c1', name: 'Aprendiz', rarity: GachaRarity.Common, icon: Icons.person, isChef: true, lore: 'Chef básico.', favoredLocation: 'Ninguna', strongAgainst: 'Nada', weakAgainst: 'Todo', baseDamage: 10.0, baseFireRate: 0.3, baseHp: 100.0, isUnlocked: true),
+      GachaEntity(id: 'c2', name: 'Cocinero de Comida Rápida', rarity: GachaRarity.Common, icon: Icons.fastfood, isChef: true, lore: 'Rápido pero descuidado.', favoredLocation: 'América', strongAgainst: 'Grasa', weakAgainst: 'Verduras', baseDamage: 12.0, baseFireRate: 0.35, baseHp: 80.0),
+      GachaEntity(id: 'c3', name: 'Sushi Ninja', rarity: GachaRarity.Rare, icon: Icons.cut, isChef: true, lore: 'Cortes precisos.', favoredLocation: 'Asia', strongAgainst: 'Arroz', weakAgainst: 'Grasa', baseDamage: 15.0, baseFireRate: 0.25, baseHp: 120.0),
+      GachaEntity(id: 'c4', name: 'Maestro Parrillero', rarity: GachaRarity.Rare, icon: Icons.outdoor_grill, isChef: true, lore: 'Fuego y carne.', favoredLocation: 'América', strongAgainst: 'Carne', weakAgainst: 'Dulces', baseDamage: 18.0, baseFireRate: 0.28, baseHp: 150.0),
+      GachaEntity(id: 'c5', name: 'Vegan-Borg', rarity: GachaRarity.Epic, icon: Icons.smart_toy, isChef: true, lore: 'Rayos de clorofila.', favoredLocation: 'América', strongAgainst: 'Grasa', weakAgainst: 'Magia', baseDamage: 25.0, baseFireRate: 0.4, baseHp: 180.0),
+      GachaEntity(id: 'c6', name: 'Croissant Hunter', rarity: GachaRarity.Legendary, icon: Icons.kebab_dining, isChef: true, lore: 'Leyenda de Francia.', favoredLocation: 'Europa', strongAgainst: 'Carbohidratos', weakAgainst: 'Asiático', baseDamage: 40.0, baseFireRate: 0.20, baseHp: 250.0),
       
       // KNIVES
       GachaEntity(id: 'k1', name: 'Cuchillo de Mesa', rarity: GachaRarity.Common, icon: Icons.kitchen, isChef: false, lore: 'Sin filo.', favoredLocation: '', strongAgainst: '', weakAgainst: '', baseDamage: 5.0, baseFireRate: 0.0, isUnlocked: true), // unlocked default
@@ -155,11 +167,20 @@ class ChefController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool tryUpgrade(GachaEntity e) {
-    int cost = e.tokensNeededToUpgrade;
-    if (cost > 0 && e.tokens >= cost && e.level < e.maxLevel) {
-      e.tokens -= cost;
+  bool tryUpgrade(GachaEntity e, {required dynamic ecoController}) {
+    int tokenCost = e.tokensNeededToUpgrade;
+    int coinCost = e.coinsNeededToUpgrade;
+    // Check if player has enough tokens and coins
+    if (tokenCost > 0 && e.tokens >= tokenCost && ecoController.coins >= coinCost && e.level < e.maxLevel) {
+      e.tokens -= tokenCost;
+      ecoController.spendCoins(coinCost);
       e.level += 1;
+      if (e.isChef) {
+        // Registrar subida de nivel de chef para misiones
+        try {
+          ecoController.recordChefLevelUp();
+        } catch (_) {}
+      }
       _saveData(e);
       notifyListeners();
       return true;
@@ -181,15 +202,16 @@ class ChefController extends ChangeNotifier {
         bool wasUnlocked = rolled.isUnlocked;
         int tokensGranted = 0;
 
-        if (!wasUnlocked) {
-            rolled.isUnlocked = true;
-        } else {
-            // Is Duplicate
-            if (rolled.rarity == GachaRarity.Rare) tokensGranted = 5;
+        // Otorgar siempre los tokens si ya estaba desbloqueado
+        if (wasUnlocked) {
+            if (rolled.rarity == GachaRarity.Common) tokensGranted = 2; // Añadido que los comunes den tokens también
+            else if (rolled.rarity == GachaRarity.Rare) tokensGranted = 5;
             else if (rolled.rarity == GachaRarity.Epic) tokensGranted = 15;
             else if (rolled.rarity == GachaRarity.Legendary) tokensGranted = 50;
             
             rolled.tokens += tokensGranted;
+        } else {
+            rolled.isUnlocked = true;
         }
 
         _saveData(rolled);
@@ -201,35 +223,29 @@ class ChefController extends ChangeNotifier {
   }
 
   GachaEntity _performSingleRoll(List<GachaEntity> pool, math.Random rand) {
-      // Common → 65%, Rare → 24%, Epic → 9%, Legendary → 2%
+      // Common → 50%, Rare → 30%, Epic → 15%, Legendary → 5% (Subida la probabilidad de cosas buenas)
       while(true) {
         double roll = rand.nextDouble() * 100;
         GachaRarity targetRarity;
         
-        if (roll < 65) targetRarity = GachaRarity.Common;
-        else if (roll < 89) targetRarity = GachaRarity.Rare;
-        else if (roll < 98) targetRarity = GachaRarity.Epic;
+        if (roll < 50) targetRarity = GachaRarity.Common;
+        else if (roll < 80) targetRarity = GachaRarity.Rare;
+        else if (roll < 95) targetRarity = GachaRarity.Epic;
         else targetRarity = GachaRarity.Legendary;
 
         var matchingPool = pool.where((e) => e.rarity == targetRarity).toList();
         if (matchingPool.isEmpty) continue; // Si no hay en este pool (ej extremo), reintenta.
         
-        // Regla: No hay duplicados en Comunes
-        if (targetRarity == GachaRarity.Common) {
-            var lockedCommons = matchingPool.where((e) => !e.isUnlocked).toList();
-            if (lockedCommons.isEmpty) {
-                // Si ya tiene todos los comunes, le mejoramos forzadamente a Raro o superior mediante otro reroll sin comunes
-                continue; 
-            } else {
-                return lockedCommons[rand.nextInt(lockedCommons.length)];
-            }
-        } else {
-            return matchingPool[rand.nextInt(matchingPool.length)];
-        }
+        // Regla cambiada: Los comunes pueden salir duplicados para dar tokens de mejora
+        return matchingPool[rand.nextInt(matchingPool.length)];
       }
   }
 
-  double getTotalDamage() {
-      return activeChef.currentDamage + activeKnife.currentDamage;
+  double getTotalDamage(String location) {
+      double d = activeChef.currentDamage + activeKnife.currentDamage;
+      if (activeChef.favoredLocation == location) {
+          d *= 1.5;
+      }
+      return d;
   }
 }

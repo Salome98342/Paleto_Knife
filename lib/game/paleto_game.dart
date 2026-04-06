@@ -13,13 +13,15 @@ import '../controllers/world_controller.dart';
 
 class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
   final LocationData locationData;
-  final Function(int)? onEnemyKilled;
-  final Function(int)? onPlayerTakeDamage;
+  final IconData? playerIcon;
+  final Function(int wave, bool isBoss)? onEnemyKilled;
+  final Function(double)? onPlayerTakeDamage;
   final double Function()? getPlayerDamage;
   final double Function()? getPlayerFireRate;
   
   PaletoGame({
     required this.locationData,
+    this.playerIcon,
     this.onEnemyKilled,
     this.getPlayerDamage,
     this.onPlayerTakeDamage,
@@ -38,9 +40,22 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
   // Sistema de Olas (Waves)
   int currentWave = 1;
   int enemiesKilledInWave = 0;
-  int enemiesToKillNextWave = 5;
+  int enemiesToKillNextWave = 15;
+  int enemiesSpawnedInWave = 0;
   double _enemySpawnTimer = 0.0;
   double get _currentSpawnInterval => math.max(0.5, 3.0 - (currentWave * 0.2));
+
+  bool _isSpawningBoss = false;
+  bool _showBossAlert = false;
+  final TextPaint _alertPaint = TextPaint(
+    style: const TextStyle(
+      color: Colors.redAccent,
+      fontSize: 36,
+      fontWeight: FontWeight.bold,
+      fontFamily: 'PressStart2P',
+      shadows: [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(2, 2))],
+    ),
+  );
 
   // Screen shake
   double _shakeIntensity = 0.0;
@@ -61,6 +76,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
 
     player = PlayerComponent(
       position: Vector2(size.x / 2, size.y * 0.8),
+      icon: playerIcon,
     );
     await add(player);
 
@@ -93,6 +109,16 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
         final starSize = (i % 3 + 1).toDouble();
         canvas.drawRect(Rect.fromLTWH(x, y, starSize, starSize), _starPaint);
     }
+    
+    if (_showBossAlert) {
+      _alertPaint.render(
+        canvas,
+        "¡ALERTA DE\n  JEFE!",
+        Vector2(size.x / 2, size.y / 2.5),
+        anchor: Anchor.center,
+      );
+    }
+
     super.render(canvas);
     canvas.restore();
   }
@@ -127,23 +153,48 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
   }
 
   void _spawnEnemy() {
+    if (enemiesSpawnedInWave > enemiesToKillNextWave) return; // Esperar a que muera el jefe
+    final isBoss = enemiesSpawnedInWave == enemiesToKillNextWave;
+
+    if (isBoss && !_isSpawningBoss) {
+      _isSpawningBoss = true;
+      _showBossAlert = true;
+      
+      Future.delayed(const Duration(seconds: 3), () {
+        _showBossAlert = false;
+        try {
+          final enemy = _enemyPool.firstWhere((e) => !e.isActive);
+          final randomX = (math.Random().nextDouble() * (size.x - 80)) + 40;
+          final randomAmalgam = locationData.amalgams[math.Random().nextInt(locationData.amalgams.length)];
+
+          int patternLimit = 1;
+          if (currentWave >= 3) patternLimit = 2; // Espirales
+          if (currentWave >= 6) patternLimit = 3; // Radiales
+          
+          final pattern = math.Random().nextInt(patternLimit); 
+          enemy.spawn(Vector2(randomX, 50), pattern, randomAmalgam, isBoss: true);
+          enemiesSpawnedInWave++;
+        } catch (e) {}
+      });
+      return;
+    } else if (isBoss && _isSpawningBoss) {
+      return;
+    }
+
     try {
       final enemy = _enemyPool.firstWhere((e) => !e.isActive);
       final randomX = (math.Random().nextDouble() * (size.x - 80)) + 40;
       
-      // Select random amalgam from the continent
       final randomAmalgam = locationData.amalgams[math.Random().nextInt(locationData.amalgams.length)];
 
-      // La dificultad de los patrones aumenta con la ola
       int patternLimit = 1;
       if (currentWave >= 3) patternLimit = 2; // Espirales
-      if (currentWave >= 6) patternLimit = 3; // Radiales completos
+      if (currentWave >= 6) patternLimit = 3; // Radiales
       
       final pattern = math.Random().nextInt(patternLimit); 
-      enemy.spawn(Vector2(randomX, 50), pattern, randomAmalgam);
-    } catch (e) {
-      // Ignorar si el pool de enemigos estÃ¡ lleno
-    }
+      enemy.spawn(Vector2(randomX, 50), pattern, randomAmalgam, isBoss: isBoss);
+      enemiesSpawnedInWave++;
+    } catch (e) {}
   }
 
   void spawnBullet(Vector2 pos, Vector2 vel, {bool isPlayer = true}) {
@@ -176,20 +227,29 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
             
             if (isDead) {
               // Efecto visual de muerte
-                shakeScreen(8.0, 0.15); // Shake at death
-              enemy.despawn();
-              
-              // ProgresiÃ³n de Olas
-              enemiesKilledInWave++;
-              if (enemiesKilledInWave >= enemiesToKillNextWave) {
-                currentWave++;
-                enemiesKilledInWave = 0;
-                enemiesToKillNextWave += (currentWave * 2); // Crece la cant. por ola
-              }
+              shakeScreen(enemy.isBoss ? 15.0 : 8.0, 0.15); // Más shake si es jefe
               
               if (onEnemyKilled != null) {
-                // Mandar el "nivel" como la Wave actual para escalar monedas
-                onEnemyKilled!(currentWave); 
+                // Mandar el nivel y si es jefe a Flutter para la economía
+                onEnemyKilled!(currentWave, enemy.isBoss); 
+              }
+
+              enemy.despawn();
+              
+              // Progresión de Olas
+              enemiesKilledInWave++;
+              // +1 por el jefe
+              if (enemiesKilledInWave >= enemiesToKillNextWave + 1) {
+                _isSpawningBoss = false;
+                _showBossAlert = false;
+                currentWave++;
+                enemiesKilledInWave = 0;
+                enemiesSpawnedInWave = 0;
+                enemiesToKillNextWave += (currentWave * 5); // Olas más largas
+                Future.delayed(const Duration(seconds: 3), () {
+                  pauseEngine();
+                  overlays.add('WaveClear');
+                });
               }
             }
             break; 
@@ -199,7 +259,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
         if (!player.isInvulnerable && _checkCircleCollision(bullet, player)) {
           bullet.isActive = false; shakeScreen(15.0, 0.3); ExplosionHelper.spawn(this, player.position, color: Colors.blueAccent);
           if (onPlayerTakeDamage != null) {
-            onPlayerTakeDamage!(1);
+            onPlayerTakeDamage!(15.0 + (currentWave * 5.0));
           }
         }
       }
@@ -231,7 +291,8 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
   void resetGame() {
     currentWave = 1;
     enemiesKilledInWave = 0;
-    enemiesToKillNextWave = 5;
+    enemiesSpawnedInWave = 0;
+    enemiesToKillNextWave = 15;
     
     for (var b in _bulletPool) {
       b.isActive = false;
@@ -243,6 +304,10 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     player.position = Vector2(size.x / 2, size.y * 0.8);
   }
 }
+
+
+
+
 
 
 

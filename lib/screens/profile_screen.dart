@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../controllers/economy_controller.dart';
 import '../controllers/game_controller.dart';
+import '../controllers/chef_controller.dart';
 import '../main.dart';
 
 /// Pantalla de Perfil - Stats, Reinicio, Configuración
@@ -38,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showResetDialog() {
     final resetState = widget.gameController.gameState.resetState;
     final tokensToGain = resetState.calculateTokensForReset(widget.gameController.currentLevel);
-    final canReset = widget.gameController.currentLevel >= 100;
+    final canReset = resetState.canReset(widget.gameController.currentLevel);
 
     showDialog(
       context: context,
@@ -55,11 +58,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 12),
               const Text(
-                'Perderás:\n• Nivel actual\n• Oro\n\nConservarás:\n• Técnicas\n• Sous-chefs\n• Equipo',
+                'Perderás:\n• Nivel actual\n• Oro\n\nConservarás:\n• Técnicas\n• Sous-chefs\n• Equipo\n• Monedas y Gemas',
               ),
             ] else ...[
               const Text(
-                'Necesitas estar en nivel 100 o superior para reiniciar.',
+                'Necesitas estar en nivel 150 o superior para reiniciar.',
                 style: TextStyle(color: Colors.red),
               ),
             ],
@@ -131,6 +134,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final gameState = widget.gameController.gameState;
     final resetState = gameState.resetState;
+    final ecoController = context.watch<EconomyController>();
+    final chefController = context.watch<ChefController>();
 
     return Scaffold(
       backgroundColor: PixelColors.bg,
@@ -146,23 +151,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: PixelColors.bgPanel,
                   border: Border(bottom: BorderSide(color: PixelColors.accent, width: 2)),
                 ),
-                child: Column(
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    const Icon(Icons.person, size: 62, color: PixelColors.accent),
-                    const SizedBox(height: 8),
-                    Text(
-                      'CHEF MAESTRO',
-                      style: GoogleFonts.pressStart2p(
-                        fontSize: 11,
-                        color: PixelColors.accent,
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: PixelColors.text),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ),
-                    Text(
-                      'NIVEL ${widget.gameController.currentLevel}',
-                      style: GoogleFonts.pressStart2p(
-                        color: PixelColors.textDim,
-                        fontSize: 8,
-                      ),
+                    Column(
+                      children: [
+                        Icon(chefController.activeChef.icon, size: 62, color: PixelColors.accent),
+                        const SizedBox(height: 8),
+                        Text(
+                          chefController.activeChef.name.toUpperCase(),
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 11,
+                            color: PixelColors.accent,
+                          ),
+                        ),
+                        Text(
+                          'NIVEL ${widget.gameController.currentLevel}',
+                          style: GoogleFonts.pressStart2p(
+                            color: PixelColors.textDim,
+                            fontSize: 8,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -220,6 +238,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           label: 'Bonus de Oro',
                           value: '+${(widget.gameController.goldBonus * 100).toStringAsFixed(1)}%',
                           color: Colors.amber,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'STATS MINIJUEGO',
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 7,
+                            color: PixelColors.textDim,
+                          ),
+                        ),
+                        const Divider(),
+                        _StatRow(
+                          icon: Icons.favorite,
+                          label: 'Vida Máxima',
+                          value: chefController.activeChef.currentHp.toInt().toString(),
+                          color: Colors.red,
+                        ),
+                        _StatRow(
+                          icon: Icons.sports_martial_arts,
+                          label: 'Daño Total (Chef + Arma)',
+                          value: chefController.getTotalDamage('').toStringAsFixed(1),
+                          color: Colors.orange,
+                        ),
+                        _StatRow(
+                          icon: Icons.timer,
+                          label: 'Cadencia',
+                          value: '${chefController.activeChef.currentFireRate.toStringAsFixed(2)}s',
+                          color: Colors.blueAccent,
                         ),
                       ],
                     ),
@@ -322,10 +367,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.amber,
                         ),
                         _StatRow(
+                          icon: Icons.circle,
+                          label: 'Monedas',
+                          value: ecoController.coins.toString(),
+                          color: Colors.yellow,
+                        ),
+                        _StatRow(
+                          icon: Icons.diamond,
+                          label: 'Gemas',
+                          value: ecoController.gems.toString(),
+                          color: Colors.purpleAccent,
+                        ),
+                        _StatRow(
                           icon: Icons.restaurant,
                           label: 'Fragmentos de Cuchillo',
                           value: widget.gameController.knifeFragments.toString(),
                           color: Colors.grey,
+                        ),
+                        _StatRow(
+                          icon: Icons.inventory,
+                          label: 'Cofres de Reliquia',
+                          value: widget.gameController.relicChests.toString(),
+                          color: Colors.brown,
+                        ),
+                        _StatRow(
+                          icon: Icons.favorite,
+                          label: 'Corazones de Culto',
+                          value: widget.gameController.cultHearts.toString(),
+                          color: Colors.redAccent,
                         ),
                       ],
                     ),

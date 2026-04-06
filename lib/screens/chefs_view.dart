@@ -66,13 +66,42 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
     final chefState = context.watch<ChefController>();
     final list = isChef ? chefState.chefs : chefState.knives;
 
-    return GridView.count(
+    // Agrupar por rareza
+    Map<GachaRarity, List<GachaEntity>> grouped = {};
+    for (var rarity in GachaRarity.values.reversed) {
+      grouped[rarity] = list.where((e) => e.rarity == rarity).toList();
+    }
+
+    return ListView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 100, top: 16),
-      crossAxisCount: 2,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: 0.70,
-      children: list.map((e) => _buildChefCard(context, e, chefState, isChef)).toList(),
+      children: grouped.entries.map((entry) {
+        if (entry.value.isEmpty) return const SizedBox();
+        Color rarityColor = _getRarityColor(entry.key);
+        String label = entry.key.name.toUpperCase();
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                label,
+                style: RetroStyle.font(color: rarityColor, size: 14),
+              ),
+            ),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.70,
+              children: entry.value.map((e) => _buildChefCard(context, e, chefState, isChef)).toList(),
+            ),
+            const SizedBox(height: 24),
+          ],
+        );
+      }).toList(),
     ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2);
   }
 
@@ -84,10 +113,7 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
     return GestureDetector(
       onTap: () {
         if (!entity.isUnlocked) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("${isChef ? 'Chef' : 'Cuchillo'} bloqueado. Desbloquéalo en la Tienda / Gacha.", style: RetroStyle.font(size: 10, color: Colors.white)),
-            backgroundColor: RetroStyle.background,
-          ));
+          RetroStyle.showInsufficient(context, "${isChef ? 'CHEF' : 'CUCHILLO'} BLOQUEADO.\nCONSIGUELO EN\nLA TIENDA GACHA.");
           return;
         }
         try {
@@ -157,8 +183,9 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
             final activeEntity = isChef ? cController.activeChef : cController.activeKnife;
             bool isActive = activeEntity.id == currentEntity.id;
             int upgradeCost = currentEntity.tokensNeededToUpgrade;
+            int coinCost = currentEntity.coinsNeededToUpgrade;
             bool isMaxLevel = currentEntity.level >= currentEntity.maxLevel;
-            bool canUpgrade = (upgradeCost > 0) && (currentEntity.tokens >= upgradeCost) && !isMaxLevel;
+            bool canUpgrade = (upgradeCost > 0) && (currentEntity.tokens >= upgradeCost) && (eco.coins >= coinCost) && !isMaxLevel;
 
             return Dialog(
               backgroundColor: Colors.transparent,
@@ -174,14 +201,26 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
                       // Header
                       Row(
                         children: [
-                          Icon(currentEntity.icon, size: 40, color: Colors.white),
+                          Icon(currentEntity.icon, size: 40, color: Colors.white)
+                            .animate(key: ValueKey(currentEntity.level)) // Reactiva animación de scale si sube de nivel
+                            .scaleXY(begin: 1.5, end: 1.0, duration: 400.ms, curve: Curves.elasticOut)
+                            .then()
+                            .shimmer(duration: 600.ms, color: Colors.yellowAccent),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(currentEntity.name, style: RetroStyle.font(size: 14, color: Colors.white)),
-                                Text("Nivel: ${currentEntity.level} | ${currentEntity.rarityName}", style: RetroStyle.font(size: 10, color: _getRarityColor(currentEntity.rarity))),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Text("Lv. ${currentEntity.level} ", style: RetroStyle.font(size: 12, color: Colors.amberAccent))
+                                      .animate(key: ValueKey("level_${currentEntity.level}"))
+                                      .slideY(begin: -0.5, duration: 300.ms),
+                                    Text("| ${currentEntity.rarityName}", style: RetroStyle.font(size: 8, color: _getRarityColor(currentEntity.rarity))),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -202,8 +241,8 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
                       const SizedBox(height: 16),
 
                       // Stats
-                      _buildStatRow("Daño Base:", currentEntity.currentDamage.toStringAsFixed(1)),
-                      _buildStatRow("Vel. Ataque:", "${currentEntity.currentFireRate.toStringAsFixed(2)}s"),
+                      _buildStatRow("Daño Base:", currentEntity.currentDamage.toStringAsFixed(1), currentEntity.level),
+                      _buildStatRow("Vel. Ataque:", "${currentEntity.currentFireRate.toStringAsFixed(2)}s", currentEntity.level),
                       const SizedBox(height: 16),
 
                       // Elementos & Ventajas
@@ -222,28 +261,47 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
                               onTap: () {
                                 if (canUpgrade) {
                                   try { AudioService.instance.playCoinCollect(); } catch (_) {}
-                                  cController.tryUpgrade(currentEntity);
+                                  cController.tryUpgrade(currentEntity, ecoController: eco);
+                                } else if (!isMaxLevel) {
+                                  if (currentEntity.tokens < upgradeCost) {
+                                    RetroStyle.showInsufficient(context, "FALTAN ${upgradeCost - currentEntity.tokens} TOKENS");
+                                  } else {
+                                    RetroStyle.showInsufficient(context, "FALTAN ${coinCost - eco.coins} MONEDAS");
+                                  }
                                 }
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                                 decoration: RetroStyle.box(
                                   color: canUpgrade ? RetroStyle.accent : Colors.grey,
+                                ).copyWith(
+                                  boxShadow: canUpgrade ? [
+                                    BoxShadow(color: RetroStyle.accent.withOpacity(0.6), blurRadius: 12, spreadRadius: 4)
+                                  ] : null,
                                 ),
                                 child: Column(
                                   children: [
-                                    Text(isMaxLevel ? "MAX LEVEL" : "MEJORAR", style: RetroStyle.font(size: 10)),
-                                    if (!isMaxLevel)
+                                    Text(isMaxLevel ? "MÁX. NIVEL" : "MEJORAR", style: RetroStyle.font(size: 10)),
+                                    if (!isMaxLevel) ...[
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.generating_tokens, size: 12, color: Colors.yellowAccent),
-                                          Text(" ${currentEntity.tokens}/$upgradeCost", style: RetroStyle.font(size: 10)),
+                                          const Icon(Icons.generating_tokens, size: 12, color: Colors.indigo),
+                                          Text(" ${currentEntity.tokens}/$upgradeCost", style: RetroStyle.font(size: 10, color: currentEntity.tokens >= upgradeCost ? Colors.indigo : Colors.red)),
                                         ],
                                       ),
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.monetization_on, size: 12, color: Colors.yellow),
+                                          Text(" $coinCost", style: RetroStyle.font(size: 10, color: eco.coins >= coinCost ? Colors.yellow : Colors.red)),
+                                        ],
+                                      ),
+                                    ],
                                   ],
                                 ),
-                              ),
+                              ).animate(target: canUpgrade ? 1 : 0).shimmer(duration: 1200.ms, color: Colors.white54),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -262,7 +320,7 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
                                 child: Center(
                                   child: Text(
                                     isActive ? "EN USO" : "EQUIPAR",
-                                    style: RetroStyle.font(size: 12, color: Colors.white),
+                                    style: RetroStyle.font(size: 10, color: Colors.white),
                                   ),
                                 ),
                               ),
@@ -290,14 +348,17 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildStatRow(String label, String value) {
+  Widget _buildStatRow(String label, String value, int animKey) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: RetroStyle.font(size: 10, color: Colors.white)),
-          Text(value, style: RetroStyle.font(size: 12, color: Colors.amber)),
+          Text(value, style: RetroStyle.font(size: 12, color: Colors.amber))
+            .animate(key: ValueKey("stat_${animKey}_$label"))
+            .scaleXY(begin: 1.5, end: 1.0, duration: 400.ms, curve: Curves.easeOutBack)
+            .tint(color: Colors.white, duration: 200.ms),
         ],
       ),
     );
@@ -335,3 +396,4 @@ class _ChefsViewState extends State<ChefsView> with SingleTickerProviderStateMix
     }
   }
 }
+

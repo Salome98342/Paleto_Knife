@@ -4,6 +4,7 @@ import '../controllers/economy_controller.dart';
 import '../game_logic/app_theme.dart';
 import '../services/audio_service.dart' as import_audio;
 import 'bouncy_game_button.dart';
+import 'retro_style.dart';
 
 class UpgradeShopOverlay extends StatelessWidget {
   final dynamic game;
@@ -113,6 +114,8 @@ class UpgradeShopOverlay extends StatelessWidget {
                     if (success) {
                       import_audio.AudioService.instance.playPowerupSound();
                     }
+                  } else {
+                    RetroStyle.showInsufficient(context, "MONEDAS INSUFICIENTES");
                   }
                 },
                 child: Container(
@@ -201,6 +204,8 @@ class UpgradeShopOverlay extends StatelessWidget {
                     if (success) {
                       import_audio.AudioService.instance.playPowerupSound();
                     }
+                  } else {
+                    RetroStyle.showInsufficient(context, "MONEDAS INSUFICIENTES");
                   }
                 },
                 child: Container(

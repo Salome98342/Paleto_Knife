@@ -3,11 +3,16 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
 import '../controllers/world_controller.dart';
+import '../controllers/economy_controller.dart';
+import '../controllers/chef_controller.dart';
 import 'chefs_view.dart';
 import 'quests_view.dart';
 import 'gacha_store_view.dart';
 import 'gameplay_screen.dart'; // Import for RPG
 import 'world_view.dart'; // Import for World Map
+import 'profile_screen.dart';
+import 'settings_dialog.dart';
+import '../controllers/game_controller.dart';
 import '../services/audio_service.dart'; // Import for audios if needed
 
 class MainLayout extends StatefulWidget {
@@ -71,23 +76,48 @@ class _MainLayoutState extends State<MainLayout> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: RetroStyle.box(color: Colors.grey.shade300),
-          child: const Icon(Icons.person, size: 30),
-        ).animate().slideY(begin: -1, duration: 400.ms, curve: Curves.easeOutBack),
+        Consumer<ChefController>(
+          builder: (context, chefController, child) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProfileScreen(
+                      gameController: Provider.of<GameController>(context, listen: false),
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: RetroStyle.box(color: Colors.grey.shade300),
+                child: Icon(chefController.activeChef.icon, size: 30, color: RetroStyle.primary),
+              ),
+            ).animate().slideY(begin: -1, duration: 400.ms, curve: Curves.easeOutBack);
+          }
+        ),
 
-        Row(
-          children: [
-            _buildCurrencyIndicator(Icons.monetization_on, "1250", RetroStyle.accent),
-            const SizedBox(width: 8),
-            _buildCurrencyIndicator(Icons.diamond, "45", Colors.purpleAccent),
-          ],
+        Consumer<EconomyController>(
+          builder: (context, eco, child) {
+            return Row(
+              children: [
+                _buildCurrencyIndicator(Icons.monetization_on, "${eco.coins}", RetroStyle.accent),
+                const SizedBox(width: 8),
+                _buildCurrencyIndicator(Icons.diamond, "${eco.gems}", Colors.purpleAccent),
+              ],
+            );
+          }
         ).animate().slideY(begin: -1, duration: 500.ms, curve: Curves.easeOutBack),
 
         GestureDetector(
-          onTap: () {}, 
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const SettingsDialog(),
+            );
+          }, 
           child: Container(
             width: 40,
             height: 40,

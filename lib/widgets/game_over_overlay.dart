@@ -34,7 +34,61 @@ class GameOverOverlay extends StatelessWidget {
                 'Wave alcanzada: ${eco.currentWave}',
                 style: RetroStyle.font(color: Colors.white, size: 10),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
+
+              // Ganancias de la partida
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black45,
+                  border: Border.all(color: Colors.grey.shade800),
+                ),
+                child: Column(
+                  children: [
+                    Text("RECOMPENSAS DE LA RUN", style: RetroStyle.font(color: Colors.white, size: 8)),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                         Row(
+                           children: [
+                             const Icon(Icons.monetization_on, color: Colors.yellow, size: 16)
+                                .animate(onPlay: (c) => c.repeat(reverse: true))
+                                .scaleXY(end: 1.2, duration: 400.ms),
+                             const SizedBox(width: 4),
+                             TweenAnimationBuilder<int>(
+                               tween: IntTween(begin: 0, end: eco.sessionCoins),
+                               duration: const Duration(seconds: 2),
+                               curve: Curves.easeOutQuart,
+                               builder: (context, value, child) {
+                                  return Text("+$value", style: RetroStyle.font(color: Colors.yellow, size: 12));
+                               }
+                             ),
+                           ],
+                         ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.5),
+                         if (eco.sessionGems > 0)
+                           Row(
+                             children: [
+                               const Icon(Icons.diamond, color: Colors.purpleAccent, size: 16)
+                                .animate(onPlay: (c) => c.repeat(reverse: true))
+                                .scaleXY(end: 1.2, duration: 400.ms),
+                               const SizedBox(width: 4),
+                               TweenAnimationBuilder<int>(
+                                tween: IntTween(begin: 0, end: eco.sessionGems),
+                                duration: const Duration(seconds: 2),
+                                curve: Curves.easeOutQuart,
+                                builder: (context, value, child) {
+                                   return Text("+$value", style: RetroStyle.font(color: Colors.purpleAccent, size: 12));
+                                }
+                               ),
+                             ],
+                           ).animate(delay: 500.ms).fadeIn(duration: 500.ms).slideX(begin: 0.5),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               
               GestureDetector(
                 onTap: () {
@@ -45,7 +99,7 @@ class GameOverOverlay extends StatelessWidget {
                 },
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: RetroStyle.box(color: RetroStyle.accent),
                   child: Center(
                     child: Text(
@@ -54,7 +108,30 @@ class GameOverOverlay extends StatelessWidget {
                     ),
                   ),
                 ),
-              ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 1.seconds),
+              ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 1.5.seconds),
+              
+              const SizedBox(height: 12),
+
+              GestureDetector(
+                onTap: () {
+                  eco.resetRun(); // Para que asegure reiniciarla
+                  game.overlays.remove('GameOver');
+                  game.resumeEngine();
+                  // Navegar de vuelta al menú, se asume pop si están empujando la ruta o Navigator.of(context).pushReplacement
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: RetroStyle.box(color: Colors.grey.shade400),
+                  child: Center(
+                    child: Text(
+                      'SALIR AL MENÚ',
+                      style: RetroStyle.font(color: RetroStyle.textDark, size: 14),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ).animate().slideY(begin: 1.0, end: 0.0, curve: Curves.easeOutBack, duration: 600.ms),

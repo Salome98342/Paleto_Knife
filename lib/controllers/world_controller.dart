@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AmalgamData {
   final String name;
@@ -34,13 +35,41 @@ class WorldController extends ChangeNotifier {
   ];
 
   late LocationData selectedLocation;
+  
+  Map<String, double> liberationProgress = {};
 
   WorldController() {
     selectedLocation = locations.first;
+    _loadData();
   }
 
   void selectLocation(LocationData loc) {
     selectedLocation = loc;
+    notifyListeners();
+  }
+
+  void addLiberation(String locationName, double amount) {
+    liberationProgress[locationName] = ((liberationProgress[locationName] ?? 0.0) + amount).clamp(0.0, 100.0);
+    _saveData();
+    notifyListeners();
+  }
+
+  double getLiberation(String locationName) {
+    return liberationProgress[locationName] ?? 0.0;
+  }
+
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (var key in liberationProgress.keys) {
+      prefs.setDouble('liberation_$key', liberationProgress[key]!);
+    }
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (var loc in locations) {
+      liberationProgress[loc.name] = prefs.getDouble('liberation_${loc.name}') ?? 0.0;
+    }
     notifyListeners();
   }
 }

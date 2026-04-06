@@ -60,25 +60,30 @@ class HudOverlay extends StatelessWidget {
   Widget _buildHealthAndWaveInfo() {
     return Consumer<EconomyController>(
       builder: (context, economy, child) {
-        int hp = (economy.playerHp > 0) ? economy.playerHp : 0;
-        int maxHp = economy.maxHp > 0 ? economy.maxHp : 1;
+        double hp = economy.playerHp;
+        double maxHp = economy.maxHp > 0 ? economy.maxHp : 1.0;
+        double hpPercent = (hp / maxHp).clamp(0.0, 1.0);
         
+        Color healthColor = hpPercent > 0.5 ? Colors.green
+            : hpPercent > 0.25 ? Colors.orange
+            : Colors.red;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-               children: List.generate(maxHp, (index) {
-                return Container(
-                  width: 20,
-                  height: 20,
-                  margin: const EdgeInsets.only(right: 4),
-                  decoration: RetroStyle.box(
-                    color: index < hp ? RetroStyle.primary : Colors.grey.shade800,
-                  ).copyWith(
-                    boxShadow: []
-                  ),
-                ).animate(target: index < hp ? 0 : 1).shimmer(duration: 500.ms);
-              }),
+            Container(
+              width: 120.0,
+              height: 12.0,
+              decoration: RetroStyle.box(color: Colors.grey.shade800),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: 120.0 * hpPercent,
+                  height: double.infinity,
+                  color: healthColor,
+                ),
+              ),
             ),
             const SizedBox(height: 8),
             Container(

@@ -36,9 +36,13 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
     );
   }
 
-  void spawn(Vector2 startPos, int type, AmalgamData amalgamData) {
+  bool isBoss = false;
+  double maxHp = 10.0;
+
+  void spawn(Vector2 startPos, int type, AmalgamData amalgamData, {bool isBoss = false}) {
     position.setFrom(startPos);
     _patternType = type;
+    this.isBoss = isBoss;
     _amalgamName = amalgamData.name;
     
     // Assign random color based on name hash
@@ -54,8 +58,14 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
     isActive = true;
     _shootTimer = 0;
     
-    // Escalar HP segÃºn la ola actual del juego
-    hp = 5.0 + (game.currentWave * 5.0); 
+    if (isBoss) {
+      size = Vector2(80, 80);
+      hp = 200.0 + (game.currentWave * 80.0);
+      _amalgamName = "JEFE: $_amalgamName";
+    } else {
+      size = Vector2(40, 40);
+      hp = 10.0 + (game.currentWave * 12.0); 
+    }
     
     // Configurar velocidad inicial
     final random = Random();
@@ -70,6 +80,14 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
     } else {
       _shootInterval = 1.0;
     }
+
+    if (game.locationData.isAlert) {
+      hp *= 1.5;
+      velocity *= 1.5;
+      _shootInterval *= 0.6;
+    }
+
+    maxHp = hp;
   }
 
   void despawn() {
@@ -150,6 +168,15 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
       Vector2(size.x / 2, -15),
       anchor: Anchor.bottomCenter,
     );
+
+    if (isBoss) {
+      final barWidth = 100.0;
+      final barHeight = 8.0;
+      final barRect = Rect.fromLTWH(size.x / 2 - barWidth / 2, -30, barWidth, barHeight);
+      final hpRect = Rect.fromLTWH(size.x / 2 - barWidth / 2, -30, barWidth * (max(0, hp) / maxHp), barHeight);
+      canvas.drawRect(barRect, Paint()..color = Colors.black);
+      canvas.drawRect(hpRect, Paint()..color = Colors.red);
+    }
   }
 }
 
