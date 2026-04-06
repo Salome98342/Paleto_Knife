@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 /// Widget para mostrar sprites animados (sprite sheets)
 class AnimatedSprite extends StatefulWidget {
   final String assetPath;
-  final int frameCount; // Número de frames en el sprite sheet
-  final double frameWidth; // Ancho de cada frame en píxeles
-  final double frameHeight; // Alto de cada frame en píxeles
+  final int frameCount; // Numero de frames en el sprite sheet
+  final double frameWidth; // Ancho de cada frame en pixeles
+  final double frameHeight; // Alto de cada frame en pixeles
   final double fps; // Frames por segundo
-  final bool loop; // Si la animación debe repetirse
-  final double displayWidth; // Ancho de visualización
-  final double displayHeight; // Alto de visualización
+  final bool loop; // Si la animacion debe repetirse
+  final double displayWidth; // Ancho de visualizacion
+  final double displayHeight; // Alto de visualizacion
 
   const AnimatedSprite({
     super.key,
@@ -36,7 +36,7 @@ class _AnimatedSpriteState extends State<AnimatedSprite>
   void initState() {
     super.initState();
     
-    // Configurar el controller para la animación
+    // Configurar el controller para la animacion
     final duration = Duration(milliseconds: (1000 / widget.fps * widget.frameCount).round());
     
     _controller = AnimationController(
@@ -53,7 +53,7 @@ class _AnimatedSpriteState extends State<AnimatedSprite>
       }
     });
 
-    // Iniciar animación
+    // Iniciar animacion
     if (widget.loop) {
       _controller.repeat();
     } else {

@@ -41,7 +41,7 @@ class CombatArena extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // Efecto de partículas elementales (decoración)
+              // Efecto de particulas elementales (decoracion)
               ..._buildElementalParticles(enemy.element, constraints.biggest),
               
               // Proyectiles
@@ -59,7 +59,7 @@ class CombatArena extends StatelessWidget {
     );
   }
   
-  /// Obtiene colores de fondo según el elemento
+  /// Obtiene colores de fondo segun el elemento
   List<Color> _getBackgroundColors(ElementType element) {
     switch (element) {
       case ElementType.fire:
@@ -75,7 +75,7 @@ class CombatArena extends StatelessWidget {
     }
   }
   
-  /// Crea partículas decorativas según el elemento
+  /// Crea particulas decorativas segun el elemento
   List<Widget> _buildElementalParticles(ElementType element, Size arenaSize) {
     final particles = <Widget>[];
     final random = math.Random(element.hashCode);
@@ -158,7 +158,7 @@ class CombatArena extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
-              // Glow effect cuando power está activo
+              // Glow effect cuando power esta activo
               if (player.powerActive)
                 Container(
                   width: 70,
@@ -373,7 +373,7 @@ class CombatArena extends StatelessWidget {
                 ),
               ),
               
-              // Partículas flotantes alrededor
+              // Particulas flotantes alrededor
               if (isBoss) ..._buildBossParticles(enemySize, elementColor),
             ],
           ),
@@ -382,7 +382,7 @@ class CombatArena extends StatelessWidget {
     );
   }
   
-  /// Crea partículas flotantes alrededor del boss
+  /// Crea particulas flotantes alrededor del boss
   List<Widget> _buildBossParticles(double size, Color color) {
     return [
       Positioned(
@@ -503,7 +503,7 @@ class CombatArena extends StatelessWidget {
     );
   }
 
-  /// Obtiene el color de la barra de vida según el porcentaje
+  /// Obtiene el color de la barra de vida segun el porcentaje
   Color _getHealthColor(double percentage) {
     if (percentage > 0.6) return Colors.green;
     if (percentage > 0.3) return Colors.orange;

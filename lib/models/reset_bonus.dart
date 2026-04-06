@@ -1,4 +1,4 @@
-/// Modelo de bonificación de reinicio
+/// Modelo de bonificacion de reinicio
 /// Almacena los bonos permanentes obtenidos al reiniciar
 class ResetBonus {
   final String id;
@@ -37,8 +37,8 @@ class ResetBonus {
     return [
       ResetBonus(
         id: 'damage_bonus',
-        name: 'Bonus de Daño',
-        description: '+5% de daño permanente por reinicio',
+        name: 'Bonus de Dano',
+        description: '+5% de dano permanente por reinicio',
         type: ResetBonusType.damage,
       ),
       ResetBonus(
@@ -56,7 +56,7 @@ class ResetBonus {
     ];
   }
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -67,7 +67,7 @@ class ResetBonus {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory ResetBonus.fromJson(Map<String, dynamic> json) {
     return ResetBonus(
       id: json['id'],
@@ -107,15 +107,15 @@ enum ResetBonusType {
 }
 
 /// Modelo de estado de reinicio y tokens
-/// SEGÚN DOCUMENTO:
+/// SEGUN DOCUMENTO:
 /// - Disponible desde nivel 150+
 /// - Tokens = floor(nivel / 150)
-/// - Bonificaciones automáticas por cada reinicio:
-///   +5% daño, +3% oro, +2% velocidad
+/// - Bonificaciones automaticas por cada reinicio:
+///   +5% dano, +3% oro, +2% velocidad
 class ResetState {
   int totalResets; // Cantidad total de reinicios realizados
   int resetTokens; // Tokens de reinicio disponibles
-  int highestLevelReached; // Nivel más alto alcanzado (registro histórico)
+  int highestLevelReached; // Nivel mas alto alcanzado (registro historico)
 
   ResetState({
     this.totalResets = 0,
@@ -123,11 +123,11 @@ class ResetState {
     this.highestLevelReached = 1,
   });
 
-  /// Calcula los tokens que se obtendrían al reiniciar ahora
-  /// FÓRMULA DOCUMENTO: floor(nivel / 150)
+  /// Calcula los tokens que se obtendrian al reiniciar ahora
+  /// FORMULA DOCUMENTO: floor(nivel / 150)
   int calculateTokensForReset(int currentLevel) {
     if (currentLevel < 150) return 0;
-    return currentLevel ~/ 150; // División entera (floor)
+    return currentLevel ~/ 150; // Division entera (floor)
   }
 
   /// Verifica si se puede reiniciar
@@ -144,7 +144,7 @@ class ResetState {
     int tokensEarned = calculateTokensForReset(currentLevel);
     resetTokens += tokensEarned;
     
-    // Actualizar estadísticas
+    // Actualizar estadisticas
     totalResets++;
     if (currentLevel > highestLevelReached) {
       highestLevelReached = currentLevel;
@@ -154,12 +154,12 @@ class ResetState {
   }
 
   /// Bonificaciones totales actuales
-  /// SEGÚN DOCUMENTO: +5% daño, +3% oro, +2% velocidad por reinicio
+  /// SEGUN DOCUMENTO: +5% dano, +3% oro, +2% velocidad por reinicio
   double get totalDamageBonus => 0.05 * totalResets;
   double get totalGoldBonus => 0.03 * totalResets;
   double get totalSpeedBonus => 0.02 * totalResets;
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'totalResets': totalResets,
@@ -168,7 +168,7 @@ class ResetState {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory ResetState.fromJson(Map<String, dynamic> json) {
     return ResetState(
       totalResets: json['totalResets'] ?? 0,

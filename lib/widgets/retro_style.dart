@@ -31,6 +31,8 @@ class RetroStyle {
       fontSize: size,
       color: color,
       height: 1.5,
+    ).copyWith(
+      fontFamilyFallback: ['Roboto', 'sans-serif'],
     );
   }
 
@@ -42,7 +44,7 @@ class RetroStyle {
       barrierLabel: 'Dismiss',
       transitionDuration: 300.ms,
       pageBuilder: (context, anim1, anim2) {
-        // Auto cerrar el dialog despuës de 1.5 segundos
+        // Auto cerrar el dialog despues de 1.5 segundos
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (Navigator.of(context).canPop()) {
             Navigator.of(context).pop();
@@ -133,8 +135,7 @@ class RetroStyle {
                 ),
               ).animate()
                 .scaleXY(begin: 0.1, end: 1.0, curve: Curves.elasticOut, duration: 800.ms)
-                .rotate(begin: 0.05, end: 0, duration: 500.ms)
-                .tint(color: Colors.white, duration: 200.ms),
+                .rotate(begin: 0.05, end: 0, duration: 500.ms),
             ),
           ),
         );

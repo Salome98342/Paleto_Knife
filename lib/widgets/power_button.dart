@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Widget del botón de poder especial
+/// Widget del boton de poder especial
 class PowerButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isActive;
   final bool isOnCooldown;
   final double cooldownProgress; // 0.0 a 1.0
-  final double activeDuration; // Duración restante del poder activo
-  final double? powerDuration; // Duración total del poder
+  final double activeDuration; // Duracion restante del poder activo
+  final double? powerDuration; // Duracion total del poder
 
   const PowerButton({
     super.key,
@@ -46,7 +46,7 @@ class PowerButton extends StatelessWidget {
             ),
           ),
           
-          // Botón principal
+          // Boton principal
           Container(
             width: 70,
             height: 70,

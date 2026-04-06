@@ -75,7 +75,7 @@ class WorldView extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text("LOCALIZACIÃ“N: ", style: RetroStyle.font(size: 10, color: Colors.black)),
+                      Text("LOCALIZACION: ", style: RetroStyle.font(size: 10, color: Colors.black)),
                       Expanded(child: Text(loc.name, style: RetroStyle.font(size: 12, color: RetroStyle.primary))),
                       if (loc.isAlert)
                         const Icon(Icons.warning, color: Colors.red, size: 16)
@@ -85,12 +85,23 @@ class WorldView extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(loc.description, style: RetroStyle.font(size: 8, color: Colors.grey.shade800)),
                   
+                  const SizedBox(height: 8),
+                   Row(
+                    children: [
+                      Text("ENTORNO / VENTAJA: ", style: RetroStyle.font(size: 8, color: Colors.black)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                         color: loc.elementColor.withOpacity(0.2),
+                         child: Text(loc.recommendedElement, style: RetroStyle.font(size: 8, color: loc.elementColor)),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 12),
-                  // Barra de liberación
+                  // Barra de liberacion
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("ESTADO DE LIBERACIÓN:", style: RetroStyle.font(size: 10, color: Colors.black)),
+                      Text("ESTADO DE LIBERACION:", style: RetroStyle.font(size: 10, color: Colors.black)),
                       const SizedBox(height: 4),
                       Container(
                         height: 15,
@@ -140,9 +151,29 @@ class WorldView extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(a.name, style: RetroStyle.font(size: 8, color: RetroStyle.primary)),
+                                    Row(
+                                      children: [
+                                        Text(a.name, style: RetroStyle.font(size: 8, color: RetroStyle.primary)),
+                                        if (a.isBoss) ...[
+                                           const SizedBox(width: 4),
+                                           Container(
+                                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                             color: Colors.red,
+                                             child: Text("JEFE", style: RetroStyle.font(size: 6, color: Colors.white)),
+                                           ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 1.0, end: 1.1, duration: 400.ms),
+                                        ],
+                                      ],
+                                    ),
                                     const SizedBox(height: 4),
                                     Text(a.description, style: RetroStyle.font(size: 6, color: Colors.black87)),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Text("Elemento: \${a.element}", style: RetroStyle.font(size: 6, color: Colors.grey.shade600)),
+                                        const SizedBox(width: 8),
+                                        Text("Debilidad: \${a.weakness}", style: RetroStyle.font(size: 6, color: Colors.orange.shade700)),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),

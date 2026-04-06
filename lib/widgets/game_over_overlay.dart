@@ -117,7 +117,7 @@ class GameOverOverlay extends StatelessWidget {
                   eco.resetRun(); // Para que asegure reiniciarla
                   game.overlays.remove('GameOver');
                   game.resumeEngine();
-                  // Navegar de vuelta al menú, se asume pop si están empujando la ruta o Navigator.of(context).pushReplacement
+                  // Navegar de vuelta al menu, se asume pop si estan empujando la ruta o Navigator.of(context).pushReplacement
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 child: Container(
@@ -126,7 +126,7 @@ class GameOverOverlay extends StatelessWidget {
                   decoration: RetroStyle.box(color: Colors.grey.shade400),
                   child: Center(
                     child: Text(
-                      'SALIR AL MENÚ',
+                      'SALIR AL MENU',
                       style: RetroStyle.font(color: RetroStyle.textDark, size: 14),
                     ),
                   ),

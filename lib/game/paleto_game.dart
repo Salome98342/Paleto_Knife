@@ -28,7 +28,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     this.getPlayerFireRate,
   });
 
-  // Cámara Parallax Offset
+  // Camara Parallax Offset
   double backgroundOffsetY = 0.0;
   
   late PlayerComponent player;
@@ -47,13 +47,14 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
 
   bool _isSpawningBoss = false;
   bool _showBossAlert = false;
+  double _bossAlertTimer = 0.0;
   final TextPaint _alertPaint = TextPaint(
     style: const TextStyle(
       color: Colors.redAccent,
       fontSize: 36,
       fontWeight: FontWeight.bold,
       fontFamily: 'PressStart2P',
-      shadows: [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(2, 2))],
+      shadows: [Shadow(color: Colors.black, blurRadius: 4, offset: Offset(2, 2)), Shadow(color: Colors.red, blurRadius: 10, offset: Offset(0, 0))],
     ),
   );
 
@@ -111,12 +112,25 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     }
     
     if (_showBossAlert) {
-      _alertPaint.render(
+      final scale = 1.0 + 0.1 * math.sin(_bossAlertTimer * 10);
+      final opacity = 0.5 + 0.5 * math.sin(_bossAlertTimer * 15).abs();
+      
+      canvas.save();
+      canvas.translate(size.x / 2, size.y / 2.5);
+      canvas.scale(scale);
+      
+      final style = _alertPaint.style;
+      final pulsatingPaint = TextPaint(
+        style: style.copyWith(color: style.color!.withOpacity(opacity))
+      );
+      
+      pulsatingPaint.render(
         canvas,
-        "¡ALERTA DE\n  JEFE!",
-        Vector2(size.x / 2, size.y / 2.5),
+        "!PELIGRO EXTREMO!\nEL JEFE HA LLEGADO",
+        Vector2.zero(),
         anchor: Anchor.center,
       );
+      canvas.restore();
     }
 
     super.render(canvas);
@@ -130,6 +144,11 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
       if (_shakeTimer <= 0) {
         _shakeIntensity = 0.0;
       }
+    }
+    if (_showBossAlert) {
+      _bossAlertTimer += dt;
+    } else {
+      _bossAlertTimer = 0.0;
     }
     
     super.update(dt);
@@ -202,7 +221,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
       final bullet = _bulletPool.firstWhere((b) => !b.isActive);
       bullet.shoot(pos, vel, isPlayer: isPlayer);
     } catch (e) {
-      // Ignorar si el pool de balas estÃ¡ lleno
+      // Ignorar si el pool de balas esta lleno
     }
   }
 
@@ -227,16 +246,16 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
             
             if (isDead) {
               // Efecto visual de muerte
-              shakeScreen(enemy.isBoss ? 15.0 : 8.0, 0.15); // Más shake si es jefe
+              shakeScreen(enemy.isBoss ? 15.0 : 8.0, 0.15); // Mas shake si es jefe
               
               if (onEnemyKilled != null) {
-                // Mandar el nivel y si es jefe a Flutter para la economía
+                // Mandar el nivel y si es jefe a Flutter para la economia
                 onEnemyKilled!(currentWave, enemy.isBoss); 
               }
 
               enemy.despawn();
               
-              // Progresión de Olas
+              // Progresion de Olas
               enemiesKilledInWave++;
               // +1 por el jefe
               if (enemiesKilledInWave >= enemiesToKillNextWave + 1) {
@@ -245,7 +264,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
                 currentWave++;
                 enemiesKilledInWave = 0;
                 enemiesSpawnedInWave = 0;
-                enemiesToKillNextWave += (currentWave * 5); // Olas más largas
+                enemiesToKillNextWave += (currentWave * 5); // Olas mas largas
                 Future.delayed(const Duration(seconds: 3), () {
                   pauseEngine();
                   overlays.add('WaveClear');

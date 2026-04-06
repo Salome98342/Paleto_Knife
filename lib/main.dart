@@ -9,6 +9,7 @@ import 'controllers/economy_controller.dart';
 import 'controllers/world_controller.dart';
 import 'controllers/chef_controller.dart';
 import 'services/audio_service.dart';
+import 'services/ad_service.dart';
 
 // Paleta pixel art global
 class PixelColors {
@@ -38,8 +39,9 @@ void main() async {
     ),
   );
   
-  // InicializaciÃ³n de servicios crÃ­ticos
+  // Inicializacion de servicios cri­ticos
   await AudioService.init();
+  await AdService().initConfigs();
 
   runApp(
     MultiProvider(

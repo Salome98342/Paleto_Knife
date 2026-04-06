@@ -4,7 +4,7 @@ import 'dart:math' as math;
 
 class EconomyController extends ChangeNotifier {
   int _coins = 0;
-  int _gems = 0; // Añadido
+  int _gems = 0; // Anadido
   int _playerLevel = 1;
   int _currentWave = 1;
   int _damageStat = 1;
@@ -16,11 +16,11 @@ class EconomyController extends ChangeNotifier {
   int _gamesPlayed = 0;
   int _coinsSpent = 0;
 
-  // Variables de Vida de la sesión actual
+  // Variables de Vida de la sesion actual
   double _maxHp = 100.0;
   double _playerHp = 100.0;
   
-  // Variables de sesión para el overlay de "Game Over"
+  // Variables de sesion para el overlay de "Game Over"
   int _sessionCoins = 0;
   int _sessionGems = 0;
 
@@ -42,7 +42,7 @@ class EconomyController extends ChangeNotifier {
     _gamesPlayed = prefs.getInt('gamesPlayed') ?? 0;
     _coinsSpent = prefs.getInt('coinsSpent') ?? 0;
 
-    // Iniciamos la wave en 1 cada vez que se abre la app (Mecánica Roguelite/Idle)
+    // Iniciamos la wave en 1 cada vez que se abre la app (Mecanica Roguelite/Idle)
     _currentWave = 1;
     _playerHp = _maxHp; // Reiniciar vida
     notifyListeners();
@@ -54,7 +54,7 @@ class EconomyController extends ChangeNotifier {
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('coins', _coins);
-    await prefs.setInt('gems', _gems); // Añadido
+    await prefs.setInt('gems', _gems); // Anadido
     await prefs.setInt('damageStat', _damageStat);
     await prefs.setInt('fireRateStat', _fireRateStat);
 
@@ -67,7 +67,7 @@ class EconomyController extends ChangeNotifier {
   }
 
   int get coins => _coins;
-  int get gems => _gems; // Añadido
+  int get gems => _gems; // Anadido
   int get playerLevel => _playerLevel;
   int get currentWave => _currentWave;
   int get damageStat => _damageStat;
@@ -86,7 +86,7 @@ class EconomyController extends ChangeNotifier {
   int get upgradeCost => (50 * math.pow(1.25, _damageStat - 1)).toInt();
   int get fireRateUpgradeCost => (75 * math.pow(1.3, _fireRateStat - 1)).toInt();
   
-  // Crecimiento polinómico del daño
+  // Crecimiento polinomico del dano
   double get currentDamage => 10.0 + (_damageStat * 1.5);
 
   // Cadencia (Shoot interval) arranca en 0.3s y baja hasta min 0.05s
@@ -104,7 +104,7 @@ class EconomyController extends ChangeNotifier {
   }
 
   void resetRun() {
-    _gamesPlayed++; // Se jugó otra partida
+    _gamesPlayed++; // Se jugo otra partida
     _saveData();
     _playerHp = _maxHp;
     _currentWave = 1;

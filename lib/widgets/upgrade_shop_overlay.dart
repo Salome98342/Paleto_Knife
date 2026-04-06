@@ -19,7 +19,7 @@ class UpgradeShopOverlay extends StatelessWidget {
           width: MediaQuery.of(context).size.width * 0.85,
           padding: const EdgeInsets.all(20),
           decoration: AppTheme.cardDecoration.copyWith(
-            color: AppTheme.surface.withOpacity(0.95), // Casi sólido
+            color: AppTheme.surface.withOpacity(0.95), // Casi solido
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -106,7 +106,7 @@ class UpgradeShopOverlay extends StatelessWidget {
                 ),
               ),
               
-              // BotÃ³n de Compra
+              // Boton de Compra
               BouncyGameButton(
                 onPressed: () {
                   if (canAfford) {
@@ -184,7 +184,7 @@ class UpgradeShopOverlay extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'DAÑO',
+                      'DANO',
                       style: AppTheme.numberStyleSmall.copyWith(color: AppTheme.textMain, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
@@ -196,7 +196,7 @@ class UpgradeShopOverlay extends StatelessWidget {
                 ),
               ),
               
-              // Botón de Compra
+              // Boton de Compra
               BouncyGameButton(
                 onPressed: () {
                   if (canAfford) {

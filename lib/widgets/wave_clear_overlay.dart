@@ -32,7 +32,7 @@ class WaveClearOverlay extends StatelessWidget {
               const SizedBox(height: 20),
               
               Text(
-                '¡Buen trabajo! ¿Qué deseas hacer?',
+                '!Buen trabajo! ?Que deseas hacer?',
                 style: RetroStyle.font(color: Colors.white, size: 10),
                 textAlign: TextAlign.center,
               ),

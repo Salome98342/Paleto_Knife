@@ -4,7 +4,7 @@ import '../controllers/game_controller.dart';
 import '../main.dart';
 import '../models/sous_chef.dart';
 
-/// Pantalla de la Cocina - Gestión de Sous-chefs
+/// Pantalla de la Cocina - Gestion de Sous-chefs
 class KitchenScreen extends StatefulWidget {
   final GameController gameController;
 
@@ -79,7 +79,7 @@ class _KitchenScreenState extends State<KitchenScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '🍳 COCINA',
+                    ' COCINA',
                     style: GoogleFonts.pressStart2p(
                       fontSize: 13,
                       color: PixelColors.accent,

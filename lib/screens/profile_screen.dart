@@ -6,7 +6,7 @@ import '../controllers/game_controller.dart';
 import '../controllers/chef_controller.dart';
 import '../main.dart';
 
-/// Pantalla de Perfil - Stats, Reinicio, Configuración
+/// Pantalla de Perfil - Stats, Reinicio, Configuracion
 class ProfileScreen extends StatefulWidget {
   final GameController gameController;
 
@@ -46,19 +46,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('🔄 Reinicio (Prestige)'),
+        title: const Text(' Reinicio (Prestige)'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (canReset) ...[
               Text(
-                'Al reiniciar obtendrás ${tokensToGain.toStringAsFixed(0)} tokens de reinicio.',
+                'Al reiniciar obtendras ${tokensToGain.toStringAsFixed(0)} tokens de reinicio.',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               const Text(
-                'Perderás:\n• Nivel actual\n• Oro\n\nConservarás:\n• Técnicas\n• Sous-chefs\n• Equipo\n• Monedas y Gemas',
+                'Perderas:\n- Nivel actual\n- Oro\n\nConservaras:\n- Tecnicas\n- Sous-chefs\n- Equipo\n- Monedas y Gemas',
               ),
             ] else ...[
               const Text(
@@ -80,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('¡Reinicio completado!'),
+                    content: Text('!Reinicio completado!'),
                     backgroundColor: Colors.green,
                   ),
                 );
@@ -99,10 +99,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('⚠️ Reinicio Completo'),
+        title: const Text(' Reinicio Completo'),
         content: const Text(
-          '¿Estás seguro de que quieres borrar TODO el progreso?\n\n'
-          'Esta acción NO se puede deshacer.',
+          '?Estas seguro de que quieres borrar TODO el progreso?\n\n'
+          'Esta accion NO se puede deshacer.',
         ),
         actions: [
           TextButton(
@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const Divider(),
                         _StatRow(
                           icon: Icons.flash_on,
-                          label: 'Daño Base',
+                          label: 'Dano Base',
                           value: widget.gameController.baseDamage.toStringAsFixed(1),
                           color: Colors.red,
                         ),
@@ -217,19 +217,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         _StatRow(
                           icon: Icons.star,
-                          label: 'Probabilidad de Crítico',
+                          label: 'Probabilidad de Critico',
                           value: '${(widget.gameController.critChance * 100).toStringAsFixed(1)}%',
                           color: Colors.orange,
                         ),
                         _StatRow(
                           icon: Icons.auto_awesome,
-                          label: 'Multiplicador de Crítico',
+                          label: 'Multiplicador de Critico',
                           value: '${widget.gameController.critMultiplier.toStringAsFixed(2)}x',
                           color: Colors.purple,
                         ),
                         _StatRow(
                           icon: Icons.gps_fixed,
-                          label: 'Precisión',
+                          label: 'Precision',
                           value: '${(widget.gameController.accuracy * 100).toStringAsFixed(1)}%',
                           color: Colors.green,
                         ),
@@ -250,13 +250,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const Divider(),
                         _StatRow(
                           icon: Icons.favorite,
-                          label: 'Vida Máxima',
+                          label: 'Vida Maxima',
                           value: chefController.activeChef.currentHp.toInt().toString(),
                           color: Colors.red,
                         ),
                         _StatRow(
                           icon: Icons.sports_martial_arts,
-                          label: 'Daño Total (Chef + Arma)',
+                          label: 'Dano Total (Chef + Arma)',
                           value: chefController.getTotalDamage('').toStringAsFixed(1),
                           color: Colors.orange,
                         ),
@@ -319,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         _StatRow(
                           icon: Icons.trending_up,
-                          label: 'Nivel Más Alto',
+                          label: 'Nivel Mas Alto',
                           value: resetState.highestLevelReached.toString(),
                         ),
                         const SizedBox(height: 12),

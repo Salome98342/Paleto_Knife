@@ -48,7 +48,7 @@ class ProjectileSystem {
     _projectiles.add(projectile);
   }
   
-  /// Crea un patrón radial de proyectiles (360 grados)
+  /// Crea un patron radial de proyectiles (360 grados)
   void spawnRadialPattern({
     required Offset position,
     required double damage,
@@ -72,14 +72,14 @@ class ProjectileSystem {
     }
   }
   
-  /// Crea un patrón de abanico (fan spread)
+  /// Crea un patron de abanico (fan spread)
   void spawnFanPattern({
     required Offset position,
     required double damage,
     required int bulletCount,
     required double speed,
     double centerAngle = 90, // Apunta hacia abajo por defecto
-    double spreadAngle = 60, // Ángulo total del abanico
+    double spreadAngle = 60, // Angulo total del abanico
   }) {
     if (bulletCount == 1) {
       final projectile = Projectile.withAngle(
@@ -111,13 +111,13 @@ class ProjectileSystem {
     }
   }
   
-  /// Crea un patrón de espiral
+  /// Crea un patron de espiral
   void spawnSpiralPattern({
     required Offset position,
     required double damage,
     required int bulletCount,
     required double speed,
-    required double spiralRotation, // Ángulo de rotación de la espiral
+    required double spiralRotation, // Angulo de rotacion de la espiral
   }) {
     final angleStep = 360.0 / bulletCount;
     
@@ -135,16 +135,16 @@ class ProjectileSystem {
     }
   }
   
-  /// Crea un patrón dirigido hacia el jugador
+  /// Crea un patron dirigido hacia el jugador
   void spawnAimedPattern({
     required Offset position,
     required Offset targetPosition,
     required double damage,
     required int bulletCount,
     required double speed,
-    double spreadAngle = 0, // Dispersión alrededor del objetivo
+    double spreadAngle = 0, // Dispersion alrededor del objetivo
   }) {
-    // Calcular ángulo hacia el jugador
+    // Calcular angulo hacia el jugador
     final dx = targetPosition.dx - position.dx;
     final dy = targetPosition.dy - position.dy;
     final baseAngle = math.atan2(dy, dx) * 180 / math.pi;
@@ -162,7 +162,7 @@ class ProjectileSystem {
       return;
     }
     
-    // Crear spreaddebido alrededor del ángulo base
+    // Crear spreaddebido alrededor del angulo base
     final angleStep = spreadAngle / (bulletCount - 1);
     final startAngle = baseAngle - (spreadAngle / 2);
     
@@ -181,7 +181,7 @@ class ProjectileSystem {
   }
 
   /// Actualiza todos los proyectiles
-  /// Crea un patrón de Danza Floral (Radial + Senoidal)
+  /// Crea un patron de Danza Floral (Radial + Senoidal)
   void spawnFloralDance({
     required Offset position,
     required double damage,
@@ -209,7 +209,7 @@ class ProjectileSystem {
     }
   }
 
-  /// Crea un patrón "Lluvia de Estrellas Caóticas" con Safe Zone
+  /// Crea un patron "Lluvia de Estrellas Caoticas" con Safe Zone
   void spawnChaoticStars({
     required Offset position,
     required double damage,
@@ -222,7 +222,7 @@ class ProjectileSystem {
     for (int i = 0; i <= bulletCount; i++) {
         final angle = i * angleStep;
         
-        // SAFE ZONE: No dispares en un área cónica justo debajo
+        // SAFE ZONE: No dispares en un area conica justo debajo
         if (angle > 75 && angle < 105) continue;
 
         final chaoticWobble = math.sin(time * 10 + i) * 15; 
@@ -246,7 +246,7 @@ class ProjectileSystem {
       if (projectile.isActive) {
         projectile.update(deltaTime);
         
-        // Desactivar proyectiles fuera de los límites
+        // Desactivar proyectiles fuera de los limites
         if (projectile.isOutOfBounds(screenSize)) {
           projectile.isActive = false;
         }
@@ -257,7 +257,7 @@ class ProjectileSystem {
     _projectiles.removeWhere((p) => !p.isActive);
   }
 
-  /// Verifica colisiones de proyectiles del jugador con un rectángulo
+  /// Verifica colisiones de proyectiles del jugador con un rectangulo
   List<Projectile> checkPlayerProjectileCollisions(Rect targetRect) {
     final hits = <Projectile>[];
     
@@ -271,7 +271,7 @@ class ProjectileSystem {
     return hits;
   }
 
-  /// Verifica colisiones de proyectiles enemigos con un rectángulo
+  /// Verifica colisiones de proyectiles enemigos con un rectangulo
   List<Projectile> checkEnemyProjectileCollisions(Rect targetRect) {
     final hits = <Projectile>[];
     
@@ -290,6 +290,6 @@ class ProjectileSystem {
     _projectiles.clear();
   }
 
-  /// Obtiene el número total de proyectiles activos
+  /// Obtiene el numero total de proyectiles activos
   int get activeCount => _projectiles.where((p) => p.isActive).length;
 }

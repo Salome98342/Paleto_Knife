@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Widget que muestra las estadísticas principales del jugador
+/// Widget que muestra las estadisticas principales del jugador
 class StatsPanel extends StatelessWidget {
   final double points;
   final double pointsPerClick;
@@ -17,7 +17,7 @@ class StatsPanel extends StatelessWidget {
     required this.totalClicks,
   });
 
-  /// Formatea números grandes de manera legible
+  /// Formatea numeros grandes de manera legible
   String _formatNumber(double number) {
     if (number >= 1000000000) {
       return '${(number / 1000000000).toStringAsFixed(2)}B';
@@ -85,7 +85,7 @@ class StatsPanel extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             
-            // Estadísticas secundarias
+            // Estadisticas secundarias
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -131,7 +131,7 @@ class StatsPanel extends StatelessWidget {
   }
 }
 
-/// Widget auxiliar para mostrar una estadística individual
+/// Widget auxiliar para mostrar una estadistica individual
 class _StatItem extends StatelessWidget {
   final IconData icon;
   final String label;

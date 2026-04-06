@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import 'projectile_system.dart';
 
-/// Controlador que maneja toda la lógica del jugador
+/// Controlador que maneja toda la logica del jugador
 class PlayerController {
   Player _player;
   final ProjectileSystem _projectileSystem;
@@ -74,13 +74,13 @@ class PlayerController {
       double attackSpeedMultiplier = _player.powerActive ? 1.5 : 1.0;
       _attackCooldown = 1.0 / (_player.attackSpeed * attackSpeedMultiplier);
       
-      // Verificar precisión (si el ataque acierta)
+      // Verificar precision (si el ataque acierta)
       if (!_player.rollAccuracy()) {
         // Miss! No crear proyectil
         return false;
       }
       
-      // Crear proyectil con daño calculado
+      // Crear proyectil con dano calculado
       _projectileSystem.spawnPlayerProjectile(
         position: Offset(
           _player.position.dx,
@@ -94,7 +94,7 @@ class PlayerController {
     return false;
   }
 
-  /// Inicia el ataque automático
+  /// Inicia el ataque automatico
   void startAutoAttack() {
     _attackTimer?.cancel();
     
@@ -106,13 +106,13 @@ class PlayerController {
     );
   }
 
-  /// Detiene el ataque automático
+  /// Detiene el ataque automatico
   void stopAutoAttack() {
     _attackTimer?.cancel();
     _attackTimer = null;
   }
 
-  /// Recibe daño
+  /// Recibe dano
   void takeDamage(double damage) {
     _player.takeDamage(damage);
   }
@@ -122,7 +122,7 @@ class PlayerController {
     _player.heal(amount);
   }
 
-  /// Verifica si el jugador está vivo
+  /// Verifica si el jugador esta vivo
   bool get isAlive => _player.isAlive;
 
   /// Reinicia el jugador
@@ -131,12 +131,12 @@ class PlayerController {
     _attackCooldown = 0;
   }
 
-  /// Actualiza las estadísticas del jugador para un nuevo mundo
+  /// Actualiza las estadisticas del jugador para un nuevo mundo
   void upgradeForWorld(int worldLevel) {
-    // Aumentar estadísticas base por nivel de mundo
+    // Aumentar estadisticas base por nivel de mundo
     _player = _player.copyWith(
       attackSpeed: 1.0 + (worldLevel - 1) * 0.1, // +10% por nivel
-      baseDamage: 10.0 + (worldLevel - 1) * 2, // +2 daño por nivel
+      baseDamage: 10.0 + (worldLevel - 1) * 2, // +2 dano por nivel
       maxHealth: 100.0 + (worldLevel - 1) * 20, // +20 HP por nivel
     );
     _player.health = _player.maxHealth; // Restaurar vida completa

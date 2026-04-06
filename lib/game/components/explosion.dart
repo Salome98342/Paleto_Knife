@@ -13,7 +13,7 @@ class ExplosionHelper {
         position: position,
         particle: Particle.generate(
           count: 20,
-          lifespan: 0.4, // Duración muy corta, ágil
+          lifespan: 0.4, // Duracion muy corta, agil
           generator: (i) {
             final angle = random.nextDouble() * 2 * math.pi;
             final speed = random.nextDouble() * 150 + 50;
@@ -24,9 +24,9 @@ class ExplosionHelper {
                 renderer: (canvas, particle) {
                   final paint = Paint()
                     ..color = color.withOpacity(1.0 - particle.progress)
-                    ..blendMode = BlendMode.screen; // Da un brillo de neón (Game feel)
+                    ..blendMode = BlendMode.screen; // Da un brillo de neon (Game feel)
                   
-                  // El círculo se hace más pequeño al ir desapareciendo
+                  // El circulo se hace mas pequeno al ir desapareciendo
                   final radius = 4.0 * (1.0 - particle.progress);
                   canvas.drawCircle(Offset.zero, radius, paint);
                 },

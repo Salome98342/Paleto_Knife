@@ -9,8 +9,8 @@ class Projectile {
   double velocityY; // Velocidad vertical
   double damage;
   bool isPlayerProjectile; // true = del jugador, false = del enemigo
-  bool isActive; // Si el proyectil está activo en pantalla
-  double? angle; // Ángulo de rotación visual (para bullet hell)
+  bool isActive; // Si el proyectil esta activo en pantalla
+  double? angle; // Angulo de rotacion visual (para bullet hell)
 
   Projectile({
     required this.id,
@@ -29,7 +29,7 @@ class Projectile {
     }
   }
   
-  /// Constructor para proyectiles con dirección angular (bullet hell)
+  /// Constructor para proyectiles con direccion angular (bullet hell)
   factory Projectile.withAngle({
     required String id,
     required Offset position,
@@ -50,7 +50,7 @@ class Projectile {
     );
   }
 
-  /// Actualiza la posición del proyectil
+  /// Actualiza la posicion del proyectil
   void update(double deltaTime) {
     position = Offset(
       position.dx + (velocityX * deltaTime),
@@ -58,7 +58,7 @@ class Projectile {
     );
   }
 
-  /// Verifica si el proyectil está fuera de los límites de la pantalla
+  /// Verifica si el proyectil esta fuera de los limites de la pantalla
   bool isOutOfBounds(Size screenSize) {
     return position.dy < -50 || 
            position.dy > screenSize.height + 50 ||
@@ -66,7 +66,7 @@ class Projectile {
            position.dx > screenSize.width + 50;
   }
 
-  /// Verifica colisión con un rectángulo
+  /// Verifica colision con un rectangulo
   bool collidesWith(Rect targetRect) {
     final projectileRect = Rect.fromCenter(
       center: position,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/upgrade.dart';
 
 /// Widget que muestra una tarjeta de mejora
-/// Incluye nombre, descripción, nivel y costo
+/// Incluye nombre, descripcion, nivel y costo
 class UpgradeCard extends StatelessWidget {
   final Upgrade upgrade;
   final double playerPoints;
@@ -18,7 +18,7 @@ class UpgradeCard extends StatelessWidget {
   /// Determina si el jugador puede comprar esta mejora
   bool get canAfford => playerPoints >= upgrade.currentCost;
 
-  /// Obtiene el color del borde según el tipo de upgrade
+  /// Obtiene el color del borde segun el tipo de upgrade
   Color _getBorderColor() {
     switch (upgrade.type) {
       case UpgradeType.clickPower:
@@ -30,7 +30,7 @@ class UpgradeCard extends StatelessWidget {
     }
   }
 
-  /// Obtiene el icono según el tipo de upgrade
+  /// Obtiene el icono segun el tipo de upgrade
   IconData _getIcon() {
     switch (upgrade.type) {
       case UpgradeType.clickPower:
@@ -42,7 +42,7 @@ class UpgradeCard extends StatelessWidget {
     }
   }
 
-  /// Formatea números grandes de manera legible
+  /// Formatea numeros grandes de manera legible
   String _formatNumber(double number) {
     if (number >= 1000000) {
       return '${(number / 1000000).toStringAsFixed(1)}M';
@@ -88,7 +88,7 @@ class UpgradeCard extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               
-              // Información
+              // Informacion
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

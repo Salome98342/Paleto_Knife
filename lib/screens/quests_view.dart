@@ -12,7 +12,7 @@ class QuestsView extends StatefulWidget {
 }
 
 class _QuestsViewState extends State<QuestsView> {
-  // Lista simulada de misiones con estados de "reclamado". En el futuro vendrán de un backend o controller.
+  // Lista simulada de misiones con estados de "reclamado". En el futuro vendran de un backend o controller.
   final Map<String, bool> _claimedStatus = {};
 
   @override
@@ -44,7 +44,7 @@ class _QuestsViewState extends State<QuestsView> {
             child: TabBarView(
               children: [
                 _buildDailyQuests(eco),
-                _buildDailyQuests(eco), // Placeholder para otras pestañas
+                _buildDailyQuests(eco), // Placeholder para otras pestanas
                 _buildDailyQuests(eco), // Placeholder
               ],
             ),
@@ -206,7 +206,7 @@ class _QuestsViewState extends State<QuestsView> {
 
                           RetroStyle.showSuccess(
                             context, 
-                            "!MISIÓN CUMPLIDA!\n+$reward ${isGems ? 'GEMAS' : 'MONEDAS'}",
+                            "!MISION CUMPLIDA!\n+$reward ${isGems ? 'GEMAS' : 'MONEDAS'}",
                             icon: isGems ? Icons.diamond : Icons.monetization_on,
                           );
                         },

@@ -31,7 +31,7 @@ class _CombatScreenState extends State<CombatScreen> {
     super.initState();
     _combatController = CombatController();
     
-    // Inicializar después del primer frame para tener el tamaño correcto
+    // Inicializar despues del primer frame para tener el tamano correcto
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final size = MediaQuery.of(context).size;
       _combatController.initialize(size, gameController: widget.gameController);
@@ -96,8 +96,8 @@ class _CombatScreenState extends State<CombatScreen> {
   }
   
   bool _hasElementalAdvantage(ElementType enemyElement) {
-    // Por ahora retorna false. En el futuro aquí se podría calcular
-    // la ventaja elemental basándose en el elemento del jugador vs enemigo
+    // Por ahora retorna false. En el futuro aqui se podria calcular
+    // la ventaja elemental basandose en el elemento del jugador vs enemigo
     // Por ejemplo: Fuego > Tierra > Agua > Fuego
     return false; // TODO: implementar sistema de ventaja elemental del jugador
   }
@@ -125,7 +125,7 @@ class _CombatScreenState extends State<CombatScreen> {
         onPanUpdate: _combatController.isPaused ? null : (details) {
           _combatController.handlePlayerDrag(details);
         },
-        // Tap para disparar poder (alternativa al botón)
+        // Tap para disparar poder (alternativa al boton)
         onDoubleTap: _combatController.isPaused ? null : () {
           _combatController.activatePower();
         },
@@ -150,7 +150,7 @@ class _CombatScreenState extends State<CombatScreen> {
                 decoration: const BoxDecoration(), // Quitamos el marco gris opaco
                 child: Column(
                   children: [
-                  // Información del mundo
+                  // Informacion del mundo
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -216,7 +216,7 @@ class _CombatScreenState extends State<CombatScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // Botón de ajustes (Música)
+                          // Boton de ajustes (Musica)
                           GestureDetector(
                             onTap: () {
                               _combatController.pause();
@@ -243,7 +243,7 @@ class _CombatScreenState extends State<CombatScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // Botón de pausa
+                          // Boton de pausa
                           GestureDetector(
                             onTap: () {
                               if (_combatController.isPaused) {
@@ -273,7 +273,7 @@ class _CombatScreenState extends State<CombatScreen> {
                   ),
                                     const SizedBox(height: 12),
                   
-                  // Información del elemento del enemigo
+                  // Informacion del elemento del enemigo
                   if (enemy.isAlive)
                     Container(
                       constraints: const BoxConstraints(maxWidth: 280),
@@ -361,10 +361,10 @@ class _CombatScreenState extends State<CombatScreen> {
                     ),
                                     const Spacer(),
                   
-                  // Botón de poder especial e instrucciones
+                  // Boton de poder especial e instrucciones
                   Column(
                     children: [
-                      // Botón de poder especial
+                      // Boton de poder especial
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -433,7 +433,7 @@ class _CombatScreenState extends State<CombatScreen> {
                       ElevatedButton.icon(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.home),
-                        label: const Text('Menú Principal'),
+                        label: const Text('Menu Principal'),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,

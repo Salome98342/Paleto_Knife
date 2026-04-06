@@ -1,13 +1,13 @@
 import 'element_type.dart';
 
 /// Modelo que representa un mundo/nivel en el juego
-/// Cada mundo tiene 100 niveles y un elemento temático
+/// Cada mundo tiene 100 niveles y un elemento tematico
 class World {
-  final int worldNumber; // Número de mundo (1, 2, 3...)
+  final int worldNumber; // Numero de mundo (1, 2, 3...)
   final String name;
   final String description;
   final ElementType element;
-  final String theme; // Temática culinaria del mundo
+  final String theme; // Tematica culinaria del mundo
   final double difficultyMultiplier; // Multiplicador de dificultad
   final double rewardMultiplier; // Multiplicador de recompensas
   final int startLevel; // Nivel inicial (1, 101, 201, etc.)
@@ -35,24 +35,24 @@ class World {
     return (level - startLevel) / 100.0;
   }
 
-  /// Crea mundos predefinidos según el documento
+  /// Crea mundos predefinidos segun el documento
   static List<World> getDefaultWorlds() {
     return [
-      // Mundo 1: Neutral - Cocina Básica
+      // Mundo 1: Neutral - Cocina Basica
       World(
         worldNumber: 1,
-        name: 'Cocina Básica',
+        name: 'Cocina Basica',
         description: 'Fundamentos culinarios y primeros ingredientes',
         element: ElementType.neutral,
-        theme: 'Temporada de Iniciación',
+        theme: 'Temporada de Iniciacion',
         difficultyMultiplier: 1.0,
         rewardMultiplier: 1.0,
       ),
       
-      // Mundo 2: Agua - Reino Acuático
+      // Mundo 2: Agua - Reino Acuatico
       World(
         worldNumber: 2,
-        name: 'Reino Acuático',
+        name: 'Reino Acuatico',
         description: 'Mariscos y sushi cobran vida en aguas profundas',
         element: ElementType.water,
         theme: 'Temporada del Mar',
@@ -60,11 +60,11 @@ class World {
         rewardMultiplier: 1.5,
       ),
       
-      // Mundo 3: Fuego - Volcán de Lava
+      // Mundo 3: Fuego - Volcan de Lava
       World(
         worldNumber: 3,
-        name: 'Volcán de Lava',
-        description: 'Pizzas ígneas y parrillas ardientes',
+        name: 'Volcan de Lava',
+        description: 'Pizzas igneas y parrillas ardientes',
         element: ElementType.fire,
         theme: 'Temporada del Fuego',
         difficultyMultiplier: 2.0,
@@ -75,7 +75,7 @@ class World {
       World(
         worldNumber: 4,
         name: 'Bosque de Pan',
-        description: 'Golems de masa y vegetales carnívoros',
+        description: 'Golems de masa y vegetales carnivoros',
         element: ElementType.earth,
         theme: 'Temporada de la Tierra',
         difficultyMultiplier: 2.5,

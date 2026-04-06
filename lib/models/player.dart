@@ -7,25 +7,25 @@ class Player {
   static const double hitboxWidth = 35.0;
   static const double hitboxHeight = 55.0;
 
-  Offset position; // Posición en pantalla
+  Offset position; // Posicion en pantalla
   double health; // Vida actual
-  double maxHealth; // Vida máxima
+  double maxHealth; // Vida maxima
   
-  // Estadísticas de combate base
-  double baseDamage; // Daño base por cuchillo
+  // Estadisticas de combate base
+  double baseDamage; // Dano base por cuchillo
   double attackSpeed; // Velocidad de ataque (ataques por segundo)
-  double critChance; // Probabilidad de crítico (0.0 a 1.0)
-  double critMultiplier; // Multiplicador de daño crítico (ej: 2.0 = x2)
-  double accuracy; // Precisión (0.0 a 1.0, reduce misses)
+  double critChance; // Probabilidad de critico (0.0 a 1.0)
+  double critMultiplier; // Multiplicador de dano critico (ej: 2.0 = x2)
+  double accuracy; // Precision (0.0 a 1.0, reduce misses)
   double goldBonus; // Bonus de oro ganado (0.0 = sin bonus, 0.5 = +50%)
   
   // Movimiento
   double movementSpeed; // Velocidad de movimiento horizontal
-  bool isAlive; // Si el jugador está vivo
+  bool isAlive; // Si el jugador esta vivo
   
   // Poder especial
-  bool powerActive; // Si el poder está activo
-  double powerDuration; // Duración del poder en segundos
+  bool powerActive; // Si el poder esta activo
+  double powerDuration; // Duracion del poder en segundos
   double powerCooldown; // Tiempo de cooldown en segundos
   double powerRemainingTime; // Tiempo restante del poder activo
   double powerCooldownRemaining; // Tiempo restante de cooldown
@@ -41,8 +41,8 @@ class Player {
     this.baseDamage = 10,
     this.attackSpeed = 1.0,
     this.critChance = 0.05, // 5% base
-    this.critMultiplier = 2.0, // x2 daño crítico
-    this.accuracy = 0.85, // 85% precisión base
+    this.critMultiplier = 2.0, // x2 dano critico
+    this.accuracy = 0.85, // 85% precision base
     this.goldBonus = 0.0, // Sin bonus inicial
     this.movementSpeed = 300,
     this.isAlive = true,
@@ -66,7 +66,7 @@ class Player {
     position = Offset(newX, position.dy);
   }
 
-  /// Mueve al jugador a una posición objetivo dentro de límites
+  /// Mueve al jugador a una posicion objetivo dentro de limites
   void moveTo(
     Offset target,
     Size screenSize, {
@@ -78,7 +78,7 @@ class Player {
     position = Offset(clampedX, clampedY);
   }
 
-  /// Recibe daño
+  /// Recibe dano
   void takeDamage(double damage) {
     health -= damage;
     if (health <= 0) {
@@ -95,26 +95,26 @@ class Player {
     }
   }
 
-  /// Verifica si el ataque es un crítico
+  /// Verifica si el ataque es un critico
   bool rollCritical() {
     return (DateTime.now().millisecond % 100) / 100.0 < critChance;
   }
 
-  /// Verifica si el ataque acierta (precisión)
+  /// Verifica si el ataque acierta (precision)
   bool rollAccuracy() {
     return (DateTime.now().microsecond % 100) / 100.0 < accuracy;
   }
 
-  /// Calcula el daño de un ataque considerando críticos
+  /// Calcula el dano de un ataque considerando criticos
   double calculateDamage({bool forceCrit = false}) {
     double damage = baseDamage;
     
-    // Aplicar multiplicador de poder si está activo
+    // Aplicar multiplicador de poder si esta activo
     if (powerActive) {
       damage *= 2.0;
     }
     
-    // Aplicar crítico
+    // Aplicar critico
     if (forceCrit || rollCritical()) {
       damage *= critMultiplier;
     }
@@ -179,7 +179,7 @@ class Player {
     }
   }
 
-  /// Obtiene el DPS (Daño Por Segundo) manual del Chef
+  /// Obtiene el DPS (Dano Por Segundo) manual del Chef
   double get dps {
     return baseDamage * attackSpeed * (1 + critChance * (critMultiplier - 1));
   }
@@ -190,7 +190,7 @@ class Player {
     return (health / maxHealth).clamp(0.0, 1.0);
   }
 
-  /// Obtiene el rectángulo de colisión del jugador
+  /// Obtiene el rectangulo de colision del jugador
   Rect getHitbox() {
     return Rect.fromCenter(
       center: position,

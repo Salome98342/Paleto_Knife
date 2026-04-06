@@ -8,7 +8,7 @@ import 'element_type.dart';
 /// Modelo que representa el estado completo del juego
 /// Contiene todos los datos del progreso del jugador
 class GameState {
-  // Recursos básicos
+  // Recursos basicos
   double gold; // Oro actual
   int knifeFragments; // Fragmentos de cuchillo
   
@@ -16,7 +16,7 @@ class GameState {
   int relicChests; // Cofres de Reliquia (necesitas 3 para abrir)
   double relicChestProgress; // Progreso hacia el siguiente cofre (0-1)
   int cultHearts; // Corazones de Culto (necesitas 3 para abrir)
-  double cultHeartProgress; // Progreso hacia el siguiente corazón (0-1)
+  double cultHeartProgress; // Progreso hacia el siguiente corazon (0-1)
   
   // Progreso
   int currentLevel; // Nivel actual (1-500+)
@@ -24,7 +24,7 @@ class GameState {
   int enemiesDefeated; // Total de enemigos derrotados
   int totalClicks; // Total de clicks realizados
   
-  // Estadísticas del Chef
+  // Estadisticas del Chef
   double baseDamage;
   double attackSpeed;
   double critChance;
@@ -33,20 +33,20 @@ class GameState {
   double goldBonus;
   
   // Système de mejoras
-  List<Technique> techniques; // Técnicas del Chef
+  List<Technique> techniques; // Tecnicas del Chef
   List<SousChef> sousChefs; // Sous-chefs disponibles
   
   // Equipamiento
   List<Knife> knives; // Cuchillos coleccionables
   List<Jewel> jewels; // Joyas (collares y anillos)
   List<Relic> relics; // Reliquias para sous-chefs
-  List<Idol> idols; // Ídolos culinarios
+  List<Idol> idols; // Idolos culinarios
   
   // Sistema de reinicio
   ResetState resetState;
   
   // Metadatos
-  DateTime lastSaveTime; // Última vez que se guardó el juego
+  DateTime lastSaveTime; // Ultima vez que se guardo el juego
 
   GameState({
     this.gold = 0,
@@ -103,7 +103,7 @@ class GameState {
     return totalDps;
   }
 
-  /// Aplica las bonificaciones de técnicas a las estadísticas del Chef
+  /// Aplica las bonificaciones de tecnicas a las estadisticas del Chef
   void applyTechniqueBoosts() {
     for (var technique in techniques) {
       if (technique.level == 0) continue;
@@ -131,8 +131,8 @@ class GameState {
     }
     
     // Limitar valores
-    critChance = critChance.clamp(0.0, 0.75); // Máximo 75% crítico
-    accuracy = accuracy.clamp(0.0, 0.99); // Máximo 99% precisión
+    critChance = critChance.clamp(0.0, 0.75); // Maximo 75% critico
+    accuracy = accuracy.clamp(0.0, 0.99); // Maximo 99% precision
   }
 
   /// Aplica las bonificaciones del equipamiento
@@ -182,7 +182,7 @@ class GameState {
       }
     }
     
-    // Ídolo activo
+    // Idolo activo
     var activeIdol = idols.firstWhere(
       (i) => i.isActive,
       orElse: () => idols.first..isActive = false,
@@ -216,7 +216,7 @@ class GameState {
   }
 
   /// Procesa los drops especiales al derrotar un enemigo
-  /// SEGÚN DOCUMENTO:
+  /// SEGUN DOCUMENTO:
   /// - Cofres de Reliquia: 8% por enemigo
   /// - Corazones de Culto: 3% por enemigo
   DropResult processEnemyDrops() {
@@ -233,21 +233,21 @@ class GameState {
       relicChestProgress = 0.0;
     }
     
-    // Si tienes 3 cofres acumulados, obtienes una reliquia automáticamente
+    // Si tienes 3 cofres acumulados, obtienes una reliquia automaticamente
     if (relicChests >= 3) {
       relicChests -= 3;
       newRelic = generateRandomRelic();
       relics.add(newRelic);
     }
     
-    // 3% de chance de corazón de culto
+    // 3% de chance de corazon de culto
     if (random.nextDouble() < 0.03) {
       cultHearts++;
       gotCultHeart = true;
       cultHeartProgress = 0.0;
     }
     
-    // Si tienes 3 corazones acumulados, obtienes un ídolo automáticamente
+    // Si tienes 3 corazones acumulados, obtienes un idolo automaticamente
     if (cultHearts >= 3) {
       cultHearts -= 3;
       newIdol = generateRandomIdol();
@@ -262,14 +262,14 @@ class GameState {
     );
   }
 
-  /// Genera una reliquia aleatoria según el nivel actual
+  /// Genera una reliquia aleatoria segun el nivel actual
   Relic generateRandomRelic() {
     final random = Random();
     
     // Tier basado en mundo actual (1-5)
     int tier = (currentWorld / 2).ceil().clamp(1, 5);
     
-    // Tipo: específica o elemental (50/50)
+    // Tipo: especifica o elemental (50/50)
     bool isElemental = random.nextBool();
     
     String id = 'relic_${DateTime.now().millisecondsSinceEpoch}';
@@ -292,7 +292,7 @@ class GameState {
         isEquipped: false,
       );
     } else {
-      // Reliquia específica (para un sous-chef aleatorio)
+      // Reliquia especifica (para un sous-chef aleatorio)
       final availableChefs = sousChefs.where((c) => c.level > 0).toList();
       if (availableChefs.isEmpty) {
         // Si no hay sous-chefs, crear una elemental por defecto
@@ -314,15 +314,15 @@ class GameState {
     }
   }
 
-  /// Genera un ídolo aleatorio
+  /// Genera un idolo aleatorio
   Idol generateRandomIdol() {
     final random = Random();
     
-    // Tipos de ídolos según documento
+    // Tipos de idolos segun documento
     final idolTypes = [
       {'name': 'Cuchillo Carnicero', 'bonus': IdolBonus.damage, 'value': 1.0, 'penalty': IdolPenalty.crit, 'penaltyValue': 0.5},
       {'name': 'Cuchara de Oro', 'bonus': IdolBonus.gold, 'value': 2.0, 'penalty': IdolPenalty.damage, 'penaltyValue': 0.5},
-      {'name': 'Batidor Relámpago', 'bonus': IdolBonus.speed, 'value': 1.0, 'penalty': IdolPenalty.damage, 'penaltyValue': 0.25},
+      {'name': 'Batidor Relampago', 'bonus': IdolBonus.speed, 'value': 1.0, 'penalty': IdolPenalty.damage, 'penaltyValue': 0.25},
     ];
     
     var selectedType = idolTypes[random.nextInt(idolTypes.length)];

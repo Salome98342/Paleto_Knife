@@ -4,7 +4,7 @@ import '../controllers/game_controller.dart';
 import '../main.dart';
 import '../models/technique.dart';
 
-/// Pantalla de Técnicas - Mejoras del Chef
+/// Pantalla de Tecnicas - Mejoras del Chef
 class TechniquesScreen extends StatefulWidget {
   final GameController gameController;
 
@@ -79,7 +79,7 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '⚔️ TECNICAS',
+                    ' TECNICAS',
                     style: GoogleFonts.pressStart2p(
                       fontSize: 12,
                       color: PixelColors.accent,
@@ -133,7 +133,7 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
                     children: [
                       _StatItem(
                         icon: Icons.flash_on,
-                        label: 'Daño',
+                        label: 'Dano',
                         value: widget.gameController.baseDamage.toStringAsFixed(0),
                         color: Colors.red,
                       ),
@@ -145,7 +145,7 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
                       ),
                       _StatItem(
                         icon: Icons.star,
-                        label: 'Crítico',
+                        label: 'Critico',
                         value: '${(widget.gameController.critChance * 100).toStringAsFixed(0)}%',
                         color: Colors.orange,
                       ),
@@ -155,7 +155,7 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
               ),
             ),
 
-            // Lista de técnicas
+            // Lista de tecnicas
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -292,7 +292,7 @@ class _TechniqueCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               
-              // Información
+              // Informacion
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,7 +337,7 @@ class _TechniqueCard extends StatelessWidget {
                 ),
               ),
               
-              // Botón de compra
+              // Boton de compra
               Column(
                 children: [
                   Container(

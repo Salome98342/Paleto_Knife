@@ -9,7 +9,7 @@ class Knife {
   final KnifeRarity rarity;
   final KnifeAbility ability;
   bool isUnlocked; // Si el jugador lo ha coleccionado
-  bool isEquipped; // Si está equipado actualmente
+  bool isEquipped; // Si esta equipado actualmente
   int abilityLevel; // Nivel de la habilidad (mejora con fragmentos)
   int fragments; // Fragmentos acumulados
 
@@ -25,8 +25,8 @@ class Knife {
     this.fragments = 0,
   });
 
-  /// Obtiene el bono de la habilidad según nivel
-  /// SEGÚN DOCUMENTO:
+  /// Obtiene el bono de la habilidad segun nivel
+  /// SEGUN DOCUMENTO:
   /// - Damage Boost: +10% por nivel
   /// - Critical Boost: +5% por nivel
   /// - Gold Boost: +15% por nivel
@@ -49,7 +49,7 @@ class Knife {
     }
   }
 
-  /// Fragmentos necesarios para subir nivel (según rareza)
+  /// Fragmentos necesarios para subir nivel (segun rareza)
   int get fragmentsNeeded {
     return rarity.fragmentsForUpgrade;
   }
@@ -70,14 +70,14 @@ class Knife {
     fragments += amount;
   }
 
-  /// Cuchillos predefinidos (según documento: 13 skins total)
+  /// Cuchillos predefinidos (segun documento: 13 skins total)
   static List<Knife> getDefaultKnives() {
     return [
       // ===== COMUNES (5 skins) =====
       Knife(
         id: 'basic_knife',
-        name: 'Cuchillo Básico',
-        description: 'El cuchillo estándar del Chef',
+        name: 'Cuchillo Basico',
+        description: 'El cuchillo estandar del Chef',
         rarity: KnifeRarity.common,
         ability: KnifeAbility.damageBoost,
         isUnlocked: true,
@@ -86,7 +86,7 @@ class Knife {
       Knife(
         id: 'paring_knife',
         name: 'Cuchillo Mondador',
-        description: 'Pequeño pero preciso',
+        description: 'Pequeno pero preciso',
         rarity: KnifeRarity.common,
         ability: KnifeAbility.accuracyBoost,
       ),
@@ -107,7 +107,7 @@ class Knife {
       Knife(
         id: 'utility_knife',
         name: 'Cuchillo Multiusos',
-        description: 'Versátil y equilibrado',
+        description: 'Versatil y equilibrado',
         rarity: KnifeRarity.common,
         ability: KnifeAbility.multiStrike,
       ),
@@ -130,12 +130,12 @@ class Knife {
       Knife(
         id: 'boning_knife',
         name: 'Cuchillo Deshuesador',
-        description: 'Flexible y mortífero',
+        description: 'Flexible y mortifero',
         rarity: KnifeRarity.rare,
         ability: KnifeAbility.critBoost,
       ),
       
-      // ===== ÉPICAS (2 skins) =====
+      // ===== EPICAS (2 skins) =====
       Knife(
         id: 'sushi_knife',
         name: 'Cuchillo Sushi',
@@ -154,7 +154,7 @@ class Knife {
       // ===== LEGENDARIAS (2 skins) =====
       Knife(
         id: 'dragon_knife',
-        name: 'Cuchillo del Dragón',
+        name: 'Cuchillo del Dragon',
         description: 'Forjado en fuego legendario',
         rarity: KnifeRarity.legendary,
         ability: KnifeAbility.damageBoost,
@@ -167,7 +167,7 @@ class Knife {
         ability: KnifeAbility.multiStrike,
       ),
       
-      // ===== MÍTICA (1 skin) =====
+      // ===== MITICA (1 skin) =====
       Knife(
         id: 'excalibur_knife',
         name: 'Excalibur Culinario',
@@ -178,7 +178,7 @@ class Knife {
     ];
   }
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -193,7 +193,7 @@ class Knife {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory Knife.fromJson(Map<String, dynamic> json) {
     return Knife(
       id: json['id'],
@@ -216,18 +216,18 @@ class Knife {
 }
 
 /// Rareza de los cuchillos
-/// SEGÚN DOCUMENTO:
-/// - Común: 60% probabilidad, 1 fragmento para mejorar
+/// SEGUN DOCUMENTO:
+/// - Comun: 60% probabilidad, 1 fragmento para mejorar
 /// - Rara: 25% probabilidad, 2 fragmentos para mejorar
-/// - Épica: 10% probabilidad, 5 fragmentos para mejorar
+/// - Epica: 10% probabilidad, 5 fragmentos para mejorar
 /// - Legendaria: 4% probabilidad, 10 fragmentos para mejorar
-/// - Mítica: 1% probabilidad, 25 fragmentos para mejorar
+/// - Mitica: 1% probabilidad, 25 fragmentos para mejorar
 enum KnifeRarity {
-  common('Común', 1.0, 1, 60),
+  common('Comun', 1.0, 1, 60),
   rare('Rara', 1.5, 2, 25),
-  epic('Épica', 2.0, 5, 10),
+  epic('Epica', 2.0, 5, 10),
   legendary('Legendaria', 3.0, 10, 4),
-  mythic('Mítica', 5.0, 25, 1);
+  mythic('Mitica', 5.0, 25, 1);
 
   final String displayName;
   final double multiplier;
@@ -249,7 +249,7 @@ enum KnifeRarity {
       case KnifeRarity.rare:
         return 0xFF2196F3; // Azul
       case KnifeRarity.epic:
-        return 0xFF9C27B0; // Púrpura
+        return 0xFF9C27B0; // Purpura
       case KnifeRarity.legendary:
         return 0xFFFF9800; // Naranja
       case KnifeRarity.mythic:
@@ -259,19 +259,19 @@ enum KnifeRarity {
 }
 
 /// Habilidades de los cuchillos
-/// SEGÚN DOCUMENTO:
-/// - Damage Boost: +10% daño por nivel
-/// - Critical Boost: +5% crítico por nivel
+/// SEGUN DOCUMENTO:
+/// - Damage Boost: +10% dano por nivel
+/// - Critical Boost: +5% critico por nivel
 /// - Gold Boost: +15% oro por nivel
 /// - Attack Speed: +8% velocidad por nivel
 /// - Multi-Strike: +3% probabilidad de doble golpe por nivel
 enum KnifeAbility {
-  damageBoost('Daño aumentado'),
-  critBoost('Crítico aumentado'),
+  damageBoost('Dano aumentado'),
+  critBoost('Critico aumentado'),
   goldBoost('Oro aumentado'),
   speedBoost('Velocidad aumentada'),
-  accuracyBoost('Precisión aumentada'),
-  multiStrike('Golpe múltiple');
+  accuracyBoost('Precision aumentada'),
+  multiStrike('Golpe multiple');
 
   final String displayName;
   const KnifeAbility(this.displayName);
@@ -306,15 +306,15 @@ class Jewel {
       Jewel(
         id: 'power_necklace',
         name: 'Collar del Poder',
-        description: 'Aumenta tu daño',
+        description: 'Aumenta tu dano',
         type: JewelType.necklace,
         stat: JewelStat.damage,
         bonus: 0.20,
       ),
       Jewel(
         id: 'crit_necklace',
-        name: 'Collar Crítico',
-        description: 'Aumenta tu probabilidad de crítico',
+        name: 'Collar Critico',
+        description: 'Aumenta tu probabilidad de critico',
         type: JewelType.necklace,
         stat: JewelStat.critChance,
         bonus: 0.15,
@@ -340,7 +340,7 @@ class Jewel {
     ];
   }
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -354,7 +354,7 @@ class Jewel {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory Jewel.fromJson(Map<String, dynamic> json) {
     return Jewel(
       id: json['id'],
@@ -384,10 +384,10 @@ enum JewelType {
   const JewelType(this.displayName);
 }
 
-/// Estadística que mejora la joya
+/// Estadistica que mejora la joya
 enum JewelStat {
-  damage('Daño'),
-  critChance('Crítico'),
+  damage('Dano'),
+  critChance('Critico'),
   gold('Oro'),
   attackSpeed('Velocidad');
 
@@ -396,14 +396,14 @@ enum JewelStat {
 }
 
 /// Modelo de Reliquia (potencia Sous-chefs)
-/// Según documento: puede ser específica para un sous-chef o elemental
+/// Segun documento: puede ser especifica para un sous-chef o elemental
 class Relic {
   final String id;
   final String name;
   final String description;
-  final int tier; // 1-5 (mayor tier = mayor bonificación)
-  final double damageBonus; // Bono de daño
-  final String? targetSousChefId; // ID del sous-chef que potencia (si es específica)
+  final int tier; // 1-5 (mayor tier = mayor bonificacion)
+  final double damageBonus; // Bono de dano
+  final String? targetSousChefId; // ID del sous-chef que potencia (si es especifica)
   final ElementType? targetElement; // Elemento que potencia (si es elemental)
   bool isEquipped;
 
@@ -418,7 +418,7 @@ class Relic {
     this.isEquipped = false,
   });
 
-  /// Verifica si es una reliquia específica (para un sous-chef concreto)
+  /// Verifica si es una reliquia especifica (para un sous-chef concreto)
   bool get isSpecific => targetSousChefId != null;
 
   /// Verifica si es una reliquia elemental (para elementos)
@@ -427,7 +427,7 @@ class Relic {
   /// Reliquias predefinidas
   static List<Relic> getDefaultRelics() {
     return [
-      // Reliquias específicas tier 1
+      // Reliquias especificas tier 1
       Relic(
         id: 'apprentice_relic',
         name: 'Emblema del Aprendiz',
@@ -465,7 +465,7 @@ class Relic {
     ];
   }
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -479,7 +479,7 @@ class Relic {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory Relic.fromJson(Map<String, dynamic> json) {
     ElementType? element;
     if (json['targetElement'] != null) {
@@ -505,7 +505,7 @@ class Relic {
   }
 }
 
-/// Modelo de Ídolo Culinario (bonus alto con penalización)
+/// Modelo de Idolo Culinario (bonus alto con penalizacion)
 class Idol {
   final String id;
   final String name;
@@ -527,13 +527,13 @@ class Idol {
     this.isActive = false,
   });
 
-  /// Ídolos predefinidos
+  /// Idolos predefinidos
   static List<Idol> getDefaultIdols() {
     return [
       Idol(
         id: 'butcher_idol',
         name: 'Cuchillo Carnicero',
-        description: '+50% daño, -20% defensa',
+        description: '+50% dano, -20% defensa',
         bonusType: IdolBonus.damage,
         bonusValue: 0.50,
         penaltyType: IdolPenalty.defense,
@@ -542,7 +542,7 @@ class Idol {
       Idol(
         id: 'golden_spoon',
         name: 'Cuchara de Oro',
-        description: '+40% oro, -15% daño',
+        description: '+40% oro, -15% dano',
         bonusType: IdolBonus.gold,
         bonusValue: 0.40,
         penaltyType: IdolPenalty.damage,
@@ -550,8 +550,8 @@ class Idol {
       ),
       Idol(
         id: 'lightning_whisk',
-        name: 'Batidor Relámpago',
-        description: '+35% velocidad, -10% crítico',
+        name: 'Batidor Relampago',
+        description: '+35% velocidad, -10% critico',
         bonusType: IdolBonus.speed,
         bonusValue: 0.35,
         penaltyType: IdolPenalty.crit,
@@ -560,7 +560,7 @@ class Idol {
       Idol(
         id: 'michelin_star',
         name: 'Estrella Michelin',
-        description: '+40% daño, -20% velocidad',
+        description: '+40% dano, -20% velocidad',
         bonusType: IdolBonus.damage,
         bonusValue: 0.40,
         penaltyType: IdolPenalty.speed,
@@ -569,7 +569,7 @@ class Idol {
     ];
   }
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -583,7 +583,7 @@ class Idol {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory Idol.fromJson(Map<String, dynamic> json) {
     return Idol(
       id: json['id'],
@@ -604,7 +604,7 @@ class Idol {
   }
 }
 
-/// Bonos de ídolos
+/// Bonos de idolos
 enum IdolBonus {
   damage,
   gold,
@@ -612,7 +612,7 @@ enum IdolBonus {
   crit,
 }
 
-/// Penalizaciones de ídolos
+/// Penalizaciones de idolos
 enum IdolPenalty {
   damage,
   defense,

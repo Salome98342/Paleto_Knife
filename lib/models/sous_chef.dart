@@ -1,7 +1,7 @@
 import 'element_type.dart';
 
-/// Modelo de Sous-chef (ayudante automático)
-/// Los Sous-chefs atacan automáticamente generando DPS pasivo
+/// Modelo de Sous-chef (ayudante automatico)
+/// Los Sous-chefs atacan automaticamente generando DPS pasivo
 class SousChef {
   final String id;
   final String name;
@@ -10,9 +10,9 @@ class SousChef {
   final double baseDps; // DPS base del sous-chef
   final double baseCost; // Costo inicial para contratar
   final double costMultiplier; // Multiplicador por cada nivel
-  final int worldRequirement; // Mundo mínimo para desbloquear
+  final int worldRequirement; // Mundo minimo para desbloquear
   int level; // Nivel actual
-  bool isActive; // Si está activo en uno de los 5 slots
+  bool isActive; // Si esta activo en uno de los 5 slots
   String? relicId; // ID de la reliquia equipada (opcional)
 
   SousChef({
@@ -76,7 +76,7 @@ class SousChef {
       SousChef(
         id: 'apprentice',
         name: 'Chef Aprendiz',
-        description: 'Un principiante entusiasta que ayuda con lo básico',
+        description: 'Un principiante entusiasta que ayuda con lo basico',
         element: ElementType.neutral,
         baseDps: 0.5,
         baseCost: 10,
@@ -87,7 +87,7 @@ class SousChef {
       SousChef(
         id: 'sushiman',
         name: 'Chef Sushiman',
-        description: 'Experto en cocina asiática y técnicas acuáticas',
+        description: 'Experto en cocina asiatica y tecnicas acuaticas',
         element: ElementType.water,
         baseDps: 2.0,
         baseCost: 100,
@@ -109,7 +109,7 @@ class SousChef {
       SousChef(
         id: 'baker',
         name: 'Chef Panadero',
-        description: 'Artesano de masas y repostería',
+        description: 'Artesano de masas y reposteria',
         element: ElementType.earth,
         baseDps: 12.0,
         baseCost: 2500,
@@ -120,7 +120,7 @@ class SousChef {
       SousChef(
         id: 'executive',
         name: 'Chef Ejecutivo',
-        description: 'Domina todas las técnicas culinarias',
+        description: 'Domina todas las tecnicas culinarias',
         element: ElementType.master,
         baseDps: 30.0,
         baseCost: 10000,
@@ -129,7 +129,7 @@ class SousChef {
     ];
   }
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -146,7 +146,7 @@ class SousChef {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory SousChef.fromJson(Map<String, dynamic> json) {
     return SousChef(
       id: json['id'],

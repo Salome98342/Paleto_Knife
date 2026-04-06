@@ -5,7 +5,7 @@ import '../models/technique.dart';
 import '../models/sous_chef.dart';
 import '../services/storage_service.dart';
 
-/// Controlador principal del juego que maneja toda la lógica de progresión
+/// Controlador principal del juego que maneja toda la logica de progresion
 /// Utiliza ChangeNotifier para notificar cambios a la UI
 class GameController extends ChangeNotifier {
   final StorageService _storageService = StorageService();
@@ -49,18 +49,18 @@ class GameController extends ChangeNotifier {
       // TODO: Calcular recompensas offline (oro de sous-chefs mientras la app estaba cerrada)
       _calculateOfflineRewards();
     } else {
-      // Crear un nuevo juego con técnicas base
+      // Crear un nuevo juego con tecnicas base
       _gameState = _createInitialGameState();
     }
     
-    // Iniciar temporizador de guardado automático
+    // Iniciar temporizador de guardado automatico
     _startAutoSaveTimer();
     
     _isInitialized = true;
     notifyListeners();
   }
 
-  /// Crea el estado inicial del juego con las técnicas predefinidas
+  /// Crea el estado inicial del juego con las tecnicas predefinidas
   GameState _createInitialGameState() {
     return GameState(
       // Stats iniciales del Chef
@@ -76,13 +76,13 @@ class GameController extends ChangeNotifier {
       knifeFragments: 0,
       currentLevel: 1,
       
-      // Técnicas base (ver technique.dart para la lista completa)
+      // Tecnicas base (ver technique.dart para la lista completa)
       techniques: Technique.getDefaultTechniques(),
       
       // Sous-chefs (se desbloquean al avanzar)
       sousChefs: [],
       
-      // Cuchillos, joyas, reliquias e ídolos (se desbloquean durante el juego)
+      // Cuchillos, joyas, reliquias e idolos (se desbloquean durante el juego)
       knives: [],
       jewels: [],
       relics: [],
@@ -99,7 +99,7 @@ class GameController extends ChangeNotifier {
     if (secondsOffline > 0) {
       final dps = _gameState.getTotalSousChefDps();
       if (dps > 0) {
-        // Limitar a máximo 4 horas de recompensas offline
+        // Limitar a maximo 4 horas de recompensas offline
         final cappedSeconds = secondsOffline > 14400 ? 14400 : secondsOffline;
         final offlineGold = dps * cappedSeconds;
         
@@ -112,7 +112,7 @@ class GameController extends ChangeNotifier {
     _gameState.lastSaveTime = now;
   }
 
-  /// Añade oro al jugador (llamado cuando derrota enemigos)
+  /// Anade oro al jugador (llamado cuando derrota enemigos)
   void addGold(double amount) {
     final bonusMultiplier = 1.0 + _gameState.goldBonus;
     final finalAmount = amount * bonusMultiplier;
@@ -121,7 +121,7 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Añade fragmentos de cuchillo (llamado cuando derrota jefes)
+  /// Anade fragmentos de cuchillo (llamado cuando derrota jefes)
   void addKnifeFragments(int amount) {
     _gameState.knifeFragments += amount;
     notifyListeners();
@@ -135,7 +135,7 @@ class GameController extends ChangeNotifier {
       // Actualizar el mundo actual (cada 20 niveles)
       _gameState.currentWorld = ((level - 1) ~/ 20) + 1;
       
-      // Actualizar el nivel más alto alcanzado
+      // Actualizar el nivel mas alto alcanzado
       if (level > _gameState.resetState.highestLevelReached) {
         _gameState.resetState.highestLevelReached = level;
       }
@@ -145,23 +145,23 @@ class GameController extends ChangeNotifier {
   }
 
   /// Procesa los drops de un enemigo derrotado
-  /// SEGÚN DOCUMENTO: 8% cofre de reliquia, 3% corazón de culto
+  /// SEGUN DOCUMENTO: 8% cofre de reliquia, 3% corazon de culto
   void processEnemyDefeat(int enemyLevel) {
     final dropResult = _gameState.processEnemyDrops();
     
     if (dropResult.gotRelicChest) {
-      debugPrint('¡Cofre de reliquia obtenido!');
+      debugPrint('!Cofre de reliquia obtenido!');
     }
     
     if (dropResult.gotCultHeart) {
-      debugPrint('¡Corazón de culto obtenido!');
+      debugPrint('!Corazon de culto obtenido!');
     }
     
     notifyListeners();
   }
 
   /// Abre un cofre de reliquia
-  /// Genera una reliquia aleatoria según el mundo actual
+  /// Genera una reliquia aleatoria segun el mundo actual
   bool tryOpenRelicChest() {
     if (_gameState.relicChests <= 0) {
       return false;
@@ -169,7 +169,7 @@ class GameController extends ChangeNotifier {
     
     _gameState.relicChests--;
     
-    // Generar reliquia (el método ya está en game_state.dart)
+    // Generar reliquia (el metodo ya esta en game_state.dart)
     final relic = _gameState.generateRandomRelic();
     _gameState.relics.add(relic);
     
@@ -179,7 +179,7 @@ class GameController extends ChangeNotifier {
     return true;
   }
 
-  /// Usa un corazón de culto para obtener un ídolo
+  /// Usa un corazon de culto para obtener un idolo
   bool tryUseCultHeart() {
     if (_gameState.cultHearts <= 0) {
       return false;
@@ -187,18 +187,18 @@ class GameController extends ChangeNotifier {
     
     _gameState.cultHearts--;
     
-    // Generar ídolo aleatorio (el método ya está en game_state.dart)
+    // Generar idolo aleatorio (el metodo ya esta en game_state.dart)
     final idol = _gameState.generateRandomIdol();
     _gameState.idols.add(idol);
     
-    debugPrint('Ídolo obtenido: ${idol.name}');
+    debugPrint('Idolo obtenido: ${idol.name}');
     
     notifyListeners();
     return true;
   }
 
   /// Sube el nivel de un cuchillo usando fragmentos
-  /// SEGÚN DOCUMENTO: Requiere fragmentos según la rareza
+  /// SEGUN DOCUMENTO: Requiere fragmentos segun la rareza
   bool tryUpgradeKnife(int knifeIndex) {
     if (knifeIndex < 0 || knifeIndex >= _gameState.knives.length) {
       return false;
@@ -215,18 +215,18 @@ class GameController extends ChangeNotifier {
     knife.fragments -= requiredFragments;
     knife.levelUp();
     
-    // Recalcular stats si está equipado
+    // Recalcular stats si esta equipado
     if (knife.isEquipped) {
       _gameState.applyEquipmentBoosts();
     }
     
-    debugPrint('${knife.name} subió a nivel ${knife.abilityLevel}');
+    debugPrint('${knife.name} subio a nivel ${knife.abilityLevel}');
     
     notifyListeners();
     return true;
   }
 
-  /// Añade fragmentos a un cuchillo específico
+  /// Anade fragmentos a un cuchillo especifico
   void addKnifeFragmentsToKnife(int knifeIndex, int amount) {
     if (knifeIndex >= 0 && knifeIndex < _gameState.knives.length) {
       _gameState.knives[knifeIndex].fragments += amount;
@@ -234,7 +234,7 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  /// Intenta comprar un nivel de una técnica
+  /// Intenta comprar un nivel de una tecnica
   bool tryBuyTechnique(Technique technique) {
     final cost = technique.currentCost;
     
@@ -246,7 +246,7 @@ class GameController extends ChangeNotifier {
     // Restar el costo
     _gameState.gold -= cost;
     
-    // Subir nivel de la técnica
+    // Subir nivel de la tecnica
     technique.levelUp();
     
     // Aplicar los efectos al GameState
@@ -267,7 +267,7 @@ class GameController extends ChangeNotifier {
     
     _gameState.gold -= cost;
     
-    // Si el chef no está en la lista, agregarlo
+    // Si el chef no esta en la lista, agregarlo
     if (!_gameState.sousChefs.contains(chef)) {
       _gameState.sousChefs.add(chef);
     }
@@ -280,8 +280,8 @@ class GameController extends ChangeNotifier {
     return true;
   }
 
-  /// Desbloquea un Sous-chef cuando el jugador alcanza un mundo específico
-  /// Desbloquea un Sous-chef cuando el jugador alcanza un mundo específico
+  /// Desbloquea un Sous-chef cuando el jugador alcanza un mundo especifico
+  /// Desbloquea un Sous-chef cuando el jugador alcanza un mundo especifico
   void unlockSousChef(SousChef chef) {
     if (!_gameState.sousChefs.contains(chef)) {
       _gameState.sousChefs.add(chef);
@@ -329,14 +329,14 @@ class GameController extends ChangeNotifier {
     }
   }
 
-  /// Realiza un reinicio (prestige) si el jugador está en nivel 150+
-  /// SEGÚN DOCUMENTO: Nivel mínimo 150, tokens = floor(level/150)
+  /// Realiza un reinicio (prestige) si el jugador esta en nivel 150+
+  /// SEGUN DOCUMENTO: Nivel minimo 150, tokens = floor(level/150)
   bool tryPerformReset() {
     if (!_gameState.resetState.canReset(_gameState.currentLevel)) {
       return false;
     }
     
-    // Realizar el reinicio (calcula y asigna tokens automáticamente)
+    // Realizar el reinicio (calcula y asigna tokens automaticamente)
     final tokensEarned = _gameState.resetState.performReset(_gameState.currentLevel);
     
     // Reiniciar progreso
@@ -348,7 +348,7 @@ class GameController extends ChangeNotifier {
     _gameState.cultHeartProgress = 0;
     _gameState.currentWorld = 1;
     
-    // Mantener equipamiento y técnicas pero resetear progreso de niveles de sous-chefs
+    // Mantener equipamiento y tecnicas pero resetear progreso de niveles de sous-chefs
     for (var chef in _gameState.sousChefs) {
       chef.level = 0;
     }
@@ -363,7 +363,7 @@ class GameController extends ChangeNotifier {
     return true;
   }
 
-  /// Inicia el temporizador de guardado automático
+  /// Inicia el temporizador de guardado automatico
   void _startAutoSaveTimer() {
     _saveTimer?.cancel();
     

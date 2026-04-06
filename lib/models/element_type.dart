@@ -10,7 +10,7 @@ enum ElementType {
   const ElementType(this.displayName);
 
   /// Obtiene la ventaja elemental contra otro elemento
-  /// Retorna un multiplicador de daño
+  /// Retorna un multiplicador de dano
   double getAdvantageAgainst(ElementType other) {
     if (this == ElementType.master || other == ElementType.neutral) {
       return 1.0; // Sin ventaja especial
@@ -22,7 +22,7 @@ enum ElementType {
 
     // Sistema de ventajas: Agua > Fuego > Tierra > Agua
     if (this == ElementType.water && other == ElementType.fire) {
-      return 1.25; // +25% de daño
+      return 1.25; // +25% de dano
     }
     if (this == ElementType.fire && other == ElementType.earth) {
       return 1.25;
@@ -33,7 +33,7 @@ enum ElementType {
 
     // Desventajas (inverso)
     if (this == ElementType.water && other == ElementType.earth) {
-      return 0.75; // -25% de daño
+      return 0.75; // -25% de dano
     }
     if (this == ElementType.fire && other == ElementType.water) {
       return 0.75;
@@ -53,9 +53,9 @@ enum ElementType {
       case ElementType.fire:
         return 0xFFF44336; // Rojo
       case ElementType.earth:
-        return 0xFF8D6E63; // Marrón
+        return 0xFF8D6E63; // Marron
       case ElementType.master:
-        return 0xFF9C27B0; // Púrpura
+        return 0xFF9C27B0; // Purpura
       case ElementType.neutral:
         return 0xFF9E9E9E; // Gris
     }
@@ -65,15 +65,15 @@ enum ElementType {
   String getEmoji() {
     switch (this) {
       case ElementType.water:
-        return '💧';
+        return '';
       case ElementType.fire:
-        return '🔥';
+        return '';
       case ElementType.earth:
-        return '🌍';
+        return '';
       case ElementType.master:
-        return '⭐';
+        return '';
       case ElementType.neutral:
-        return '◽';
+        return '';
     }
   }
 }

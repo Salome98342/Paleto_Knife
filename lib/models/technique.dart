@@ -1,5 +1,5 @@
-/// Modelo de Técnica (mejora del Chef)
-/// Las técnicas son mejoras permanentes que se compran con oro
+/// Modelo de Tecnica (mejora del Chef)
+/// Las tecnicas son mejoras permanentes que se compran con oro
 class Technique {
   final String id;
   final String name;
@@ -32,18 +32,18 @@ class Technique {
     return baseEffect * level;
   }
 
-  /// Sube un nivel a la técnica
+  /// Sube un nivel a la tecnica
   void levelUp() {
     level++;
   }
 
-  /// Técnicas predefinidas según el documento
+  /// Tecnicas predefinidas segun el documento
   static List<Technique> getDefaultTechniques() {
     return [
       Technique(
         id: 'sharpen_knives',
         name: 'Afilado de Cuchillos',
-        description: '+1 daño base por nivel',
+        description: '+1 dano base por nivel',
         type: TechniqueType.damage,
         baseEffect: 1.0,
         baseCost: 10,
@@ -69,8 +69,8 @@ class Technique {
       ),
       Technique(
         id: 'precision_cut',
-        name: 'Corte de Precisión',
-        description: '+2% probabilidad de crítico por nivel',
+        name: 'Corte de Precision',
+        description: '+2% probabilidad de critico por nivel',
         type: TechniqueType.critChance,
         baseEffect: 0.02,
         baseCost: 75,
@@ -78,8 +78,8 @@ class Technique {
       ),
       Technique(
         id: 'lethal_technique',
-        name: 'Técnica Letal',
-        description: '+25% daño crítico por nivel',
+        name: 'Tecnica Letal',
+        description: '+25% dano critico por nivel',
         type: TechniqueType.critDamage,
         baseEffect: 0.25,
         baseCost: 100,
@@ -87,8 +87,8 @@ class Technique {
       ),
       Technique(
         id: 'culinary_precision',
-        name: 'Precisión Culinaria',
-        description: '+5% precisión (menos misses) por nivel',
+        name: 'Precision Culinaria',
+        description: '+5% precision (menos misses) por nivel',
         type: TechniqueType.accuracy,
         baseEffect: 0.05,
         baseCost: 150,
@@ -97,7 +97,7 @@ class Technique {
     ];
   }
 
-  /// Conversión a JSON
+  /// Conversion a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -111,7 +111,7 @@ class Technique {
     };
   }
 
-  /// Creación desde JSON
+  /// Creacion desde JSON
   factory Technique.fromJson(Map<String, dynamic> json) {
     return Technique(
       id: json['id'],
@@ -152,12 +152,12 @@ class Technique {
   }
 }
 
-/// Tipos de técnicas disponibles
+/// Tipos de tecnicas disponibles
 enum TechniqueType {
-  damage, // Aumenta el daño base
+  damage, // Aumenta el dano base
   attackSpeed, // Aumenta la velocidad de ataque
   goldBonus, // Aumenta el oro ganado
-  critChance, // Aumenta la probabilidad de crítico
-  critDamage, // Aumenta el daño crítico
-  accuracy, // Aumenta la precisión (reduce misses)
+  critChance, // Aumenta la probabilidad de critico
+  critDamage, // Aumenta el dano critico
+  accuracy, // Aumenta la precision (reduce misses)
 }

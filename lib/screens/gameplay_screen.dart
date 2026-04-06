@@ -50,7 +50,11 @@ class _GameplayScreenState extends State<GameplayScreen> {
       },
       onEnemyKilled: (wave, isBoss) {
         if (mounted) {
-          context.read<EconomyController>().addRewardsFromEnemy(wave, isBoss: isBoss);
+          final eco = context.read<EconomyController>();
+          eco.addRewardsFromEnemy(wave, isBoss: isBoss);
+          if (isBoss) {
+             context.read<ChefController>().processBossKillReward(eco, context);
+          }
           try { AudioService.instance.playCoinCollect(); } catch (_) {}
         }
       },
@@ -65,7 +69,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold negro puro detrÃ¡s del juego
+    // Scaffold negro puro detras del juego
     return Scaffold(
       backgroundColor: Colors.black,
       body: GameWidget<PaletoGame>(

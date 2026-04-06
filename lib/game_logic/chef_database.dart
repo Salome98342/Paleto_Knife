@@ -1,0 +1,73 @@
+import '../models/chef.dart';
+
+class ChefDatabase {
+  static final List<Chef> allChefs = [
+    // --- FIRE R ---
+    Chef(id: 'r_fire_1', name: 'Cocinero de Línea', element: ChefElement.fire, rarity: ChefRarity.R, baseAttack: 20, speed: 1.0, ability: 'Ataque básico rápido', passive: 'Ignora 5% defensa', maxLevel: 1),
+    Chef(id: 'r_fire_2', name: 'Parrillero Urbano', element: ChefElement.fire, rarity: ChefRarity.R, baseAttack: 22, speed: 0.9, ability: 'Golpe de parrilla', passive: 'Resistencia quemadura', maxLevel: 1),
+    Chef(id: 'r_fire_3', name: 'Volteador de Carne', element: ChefElement.fire, rarity: ChefRarity.R, baseAttack: 18, speed: 1.2, ability: 'Volteo rápido', passive: 'Aumenta vel. ataque 5%', maxLevel: 1),
+    Chef(id: 'r_fire_4', name: 'Ayudante de BBQ', element: ChefElement.fire, rarity: ChefRarity.R, baseAttack: 19, speed: 1.0, ability: 'Salsa caliente', passive: 'Dot de fuego menor', maxLevel: 1),
+    Chef(id: 'r_fire_5', name: 'Asador Callejero', element: ChefElement.fire, rarity: ChefRarity.R, baseAttack: 25, speed: 0.8, ability: 'Pinchazo ardiente', passive: 'Daño crítico +10%', maxLevel: 1),
+    Chef(id: 'r_fire_6', name: 'Cocinero de Carbón', element: ChefElement.fire, rarity: ChefRarity.R, baseAttack: 21, speed: 0.9, ability: 'Lanzar brasas', passive: 'Aura de calor debil', maxLevel: 1),
+    Chef(id: 'r_fire_7', name: 'Aprendiz de Brasa', element: ChefElement.fire, rarity: ChefRarity.R, baseAttack: 17, speed: 1.1, ability: 'Soplo caliente', passive: 'Aumenta evasión 5%', maxLevel: 1),
+
+    // --- WATER R ---
+    Chef(id: 'r_water_1', name: 'Lavaplatos Rápido', element: ChefElement.water, rarity: ChefRarity.R, baseAttack: 16, speed: 1.3, ability: 'Salpicadura', passive: 'Velocidad mov. +5%', maxLevel: 1),
+    Chef(id: 'r_water_2', name: 'Mezclador Tropical', element: ChefElement.water, rarity: ChefRarity.R, baseAttack: 18, speed: 1.0, ability: 'Tormenta de jugo', passive: 'Curación pasiva debil', maxLevel: 1),
+    Chef(id: 'r_water_3', name: 'Preparador de Jugos', element: ChefElement.water, rarity: ChefRarity.R, baseAttack: 15, speed: 1.2, ability: 'Chorro congelado', passive: 'Ralentiza al enemigo 5%', maxLevel: 1),
+    Chef(id: 'r_water_4', name: 'Ayudante de Cocina Fría', element: ChefElement.water, rarity: ChefRarity.R, baseAttack: 17, speed: 1.1, ability: 'Corte de hielo', passive: 'Defensa de hielo +10', maxLevel: 1),
+    Chef(id: 'r_water_5', name: 'Cocinero de Sopas', element: ChefElement.water, rarity: ChefRarity.R, baseAttack: 20, speed: 0.9, ability: 'Caldazo', passive: 'Aumenta vida máxima +5%', maxLevel: 1),
+    Chef(id: 'r_water_6', name: 'Recolector de Agua', element: ChefElement.water, rarity: ChefRarity.R, baseAttack: 14, speed: 1.4, ability: 'Doble gota', passive: 'Regeneración +2/s', maxLevel: 1),
+    Chef(id: 'r_water_7', name: 'Bartender Básico', element: ChefElement.water, rarity: ChefRarity.R, baseAttack: 22, speed: 0.8, ability: 'Lanzar botella', passive: 'Prob. escudo al recibir daño', maxLevel: 1),
+
+    // --- EARTH R ---
+    Chef(id: 'r_earth_1', name: 'Panadero Básico', element: ChefElement.earth, rarity: ChefRarity.R, baseAttack: 25, speed: 0.7, ability: 'Amasar', passive: 'Defensa base +15', maxLevel: 1),
+    Chef(id: 'r_earth_2', name: 'Granjero de Campo', element: ChefElement.earth, rarity: ChefRarity.R, baseAttack: 21, speed: 0.8, ability: 'Lanzar zanahoria', passive: 'Resistencia elementos +5%', maxLevel: 1),
+    Chef(id: 'r_earth_3', name: 'Molinero', element: ChefElement.earth, rarity: ChefRarity.R, baseAttack: 26, speed: 0.6, ability: 'Golpe de saco', passive: 'Prob. aturdir 10%', maxLevel: 1),
+    Chef(id: 'r_earth_4', name: 'Recolector de Raíces', element: ChefElement.earth, rarity: ChefRarity.R, baseAttack: 19, speed: 1.0, ability: 'Latigazo de raíz', passive: 'Robo de vida 2%', maxLevel: 1),
+    Chef(id: 'r_earth_5', name: 'Cocinero de Masa', element: ChefElement.earth, rarity: ChefRarity.R, baseAttack: 24, speed: 0.7, ability: 'Escudo de pan', passive: 'Bloqueo +5%', maxLevel: 1),
+    Chef(id: 'r_earth_6', name: 'Fermentador Novato', element: ChefElement.earth, rarity: ChefRarity.R, baseAttack: 18, speed: 1.1, ability: 'Nube de levadura', passive: 'Reduce daño recibido 5%', maxLevel: 1),
+    Chef(id: 'r_earth_7', name: 'Campesino Cocinero', element: ChefElement.earth, rarity: ChefRarity.R, baseAttack: 22, speed: 0.9, ability: 'Ataque con azada', passive: 'Fuerza terrestre +10', maxLevel: 1),
+
+    // --- FIRE SR ---
+    Chef(id: 'sr_fire_1', name: 'Doña Brasa', element: ChefElement.fire, rarity: ChefRarity.SR, baseAttack: 45, speed: 1.1, ability: 'Llamarada intensa', passive: 'Fuego purificador (Dot alto)', maxLevel: 20),
+    Chef(id: 'sr_fire_2', name: 'Maestro Asador', element: ChefElement.fire, rarity: ChefRarity.SR, baseAttack: 50, speed: 0.8, ability: 'Golpe a la parrilla', passive: 'Defensa ignea +20%', maxLevel: 20),
+    Chef(id: 'sr_fire_3', name: 'Cocinero Picante', element: ChefElement.fire, rarity: ChefRarity.SR, baseAttack: 40, speed: 1.3, ability: 'Aliento de jalapeño', passive: 'Velocidad +10% cada 5 seg', maxLevel: 20),
+
+    // --- WATER SR ---
+    Chef(id: 'sr_water_1', name: 'Chef Marino', element: ChefElement.water, rarity: ChefRarity.SR, baseAttack: 38, speed: 1.2, ability: 'Onda expansiva', passive: 'Evade 10% ataques', maxLevel: 20),
+    Chef(id: 'sr_water_2', name: 'Heladero Arcano', element: ChefElement.water, rarity: ChefRarity.SR, baseAttack: 42, speed: 1.0, ability: 'Congelación profunda', passive: 'Congela enemigos cercanos', maxLevel: 20),
+    Chef(id: 'sr_water_3', name: 'Maestro de Caldos', element: ChefElement.water, rarity: ChefRarity.SR, baseAttack: 40, speed: 1.1, ability: 'Curación grupal', passive: 'Regeneración % vida alta', maxLevel: 20),
+
+    // --- EARTH SR ---
+    Chef(id: 'sr_earth_1', name: 'Druida Cocinero', element: ChefElement.earth, rarity: ChefRarity.SR, baseAttack: 48, speed: 0.9, ability: 'Crecimiento salvaje', passive: 'Aumenta atributos aliada', maxLevel: 20),
+    Chef(id: 'sr_earth_2', name: 'Maestro Fermentador', element: ChefElement.earth, rarity: ChefRarity.SR, baseAttack: 44, speed: 1.0, ability: 'Gas venenoso', passive: 'Enemigos pierden daño 10%', maxLevel: 20),
+    Chef(id: 'sr_earth_3', name: 'Guardián de Cultivos', element: ChefElement.earth, rarity: ChefRarity.SR, baseAttack: 55, speed: 0.7, ability: 'Muro de tierra', passive: 'Inmunidad control (prob)', maxLevel: 20),
+
+    // --- FIRE SSR ---
+    Chef(id: 'ssr_fire_1', name: 'Akira Flamegrill', element: ChefElement.fire, rarity: ChefRarity.SSR, baseAttack: 90, speed: 1.3, ability: 'Tormenta Ígnea', passive: 'Críticos ignoran 50% armadura', maxLevel: 30),
+    Chef(id: 'ssr_fire_2', name: 'Reina Infernal', element: ChefElement.fire, rarity: ChefRarity.SSR, baseAttack: 105, speed: 0.9, ability: 'Erupción', passive: 'Quemadura infinita en área', maxLevel: 30),
+
+    // --- WATER SSR ---
+    Chef(id: 'ssr_water_1', name: 'Kai Torrent', element: ChefElement.water, rarity: ChefRarity.SSR, baseAttack: 85, speed: 1.4, ability: 'Tsunami', passive: 'Robo de vida y maná acuático', maxLevel: 30),
+    Chef(id: 'ssr_water_2', name: 'Reina Glacial', element: ChefElement.water, rarity: ChefRarity.SSR, baseAttack: 95, speed: 1.1, ability: 'Cero Absoluto', passive: 'Aturde 2s a atacantes (CD 5s)', maxLevel: 30),
+
+    // --- EARTH SSR ---
+    Chef(id: 'ssr_earth_1', name: 'Bran el Druida', element: ChefElement.earth, rarity: ChefRarity.SSR, baseAttack: 98, speed: 1.0, ability: 'Bosque Protector', passive: 'Escudo reflectante 30% daño', maxLevel: 30),
+    Chef(id: 'ssr_earth_2', name: 'Guardián de Raíces', element: ChefElement.earth, rarity: ChefRarity.SSR, baseAttack: 110, speed: 0.8, ability: 'Sismo', passive: 'Vida máxima +50%', maxLevel: 30),
+
+    // --- UR (ENDGAME) ---
+    Chef(id: 'ur_fire_1', name: 'Emperador Volcánico', element: ChefElement.fire, rarity: ChefRarity.UR, baseAttack: 180, speed: 1.5, ability: 'Cataclismo Solar', passive: 'Ejecuta enemigos con <15% HP', maxLevel: 40),
+    Chef(id: 'ur_water_1', name: 'Señor del Abismo', element: ChefElement.water, rarity: ChefRarity.UR, baseAttack: 160, speed: 1.6, ability: 'Presión Abisal', passive: 'Inmunidad 3s al recibir daño mortal', maxLevel: 40),
+    Chef(id: 'ur_earth_1', name: 'Avatar de Gaia', element: ChefElement.earth, rarity: ChefRarity.UR, baseAttack: 200, speed: 0.9, ability: 'Ira de la Naturaleza', passive: 'Absorbe daño para curarse', maxLevel: 40),
+
+    // --- HYBRIDS UR ---
+    Chef(id: 'ur_hybrid_1', name: 'Zephyra', element: ChefElement.hybrid, rarity: ChefRarity.UR, baseAttack: 170, speed: 1.8, ability: 'Tornado Místico', passive: 'Evasión máxima 60% constante', maxLevel: 40),
+    Chef(id: 'ur_hybrid_2', name: 'Magmord', element: ChefElement.hybrid, rarity: ChefRarity.UR, baseAttack: 190, speed: 1.1, ability: 'Río de Lava', passive: 'Daño devuelto escala con defensa', maxLevel: 40),
+    Chef(id: 'ur_hybrid_3', name: 'Verdantia', element: ChefElement.hybrid, rarity: ChefRarity.UR, baseAttack: 175, speed: 1.4, ability: 'Espinas Vengativas', passive: 'Enraiza y drena vida continuamente', maxLevel: 40),
+  ];
+
+  static List<Chef> getChefsByRarity(ChefRarity rarity) {
+    return allChefs.where((c) => c.rarity == rarity).toList();
+  }
+}

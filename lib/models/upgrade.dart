@@ -1,5 +1,5 @@
 /// Modelo que representa una mejora o upgrade en el juego
-/// Cada upgrade tiene un costo, un efecto y puede ser comprado múltiples veces
+/// Cada upgrade tiene un costo, un efecto y puede ser comprado multiples veces
 class Upgrade {
   final String id;
   final String name;
@@ -95,6 +95,6 @@ class Upgrade {
 /// Tipos de mejoras disponibles en el juego
 enum UpgradeType {
   clickPower, // Aumenta puntos por click
-  autoClicker, // Genera puntos automáticamente por segundo
+  autoClicker, // Genera puntos automaticamente por segundo
   multiplier, // Multiplica el total de puntos obtenidos
 }

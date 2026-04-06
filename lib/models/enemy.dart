@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'element_type.dart';
 
-/// Tier del enemigo según el documento
+/// Tier del enemigo segun el documento
 enum EnemyTier {
   normal,    // 80% - Amalgamas comunes
   elite,     // 15% - Amalgamas mejoradas (x5 HP, x3 oro)
@@ -12,9 +12,9 @@ enum EnemyTier {
 
 /// Modificadores especiales del enemigo
 enum EnemyModifier {
-  gigante,     // +30% HP, +20% oro, +50% tamaño visual
-  crujiente,   // +20% HP, reducción de daño (armadura)
-  desbordado,  // +50% HP, +30% oro, múltiples partes visuales
+  gigante,     // +30% HP, +20% oro, +50% tamano visual
+  crujiente,   // +20% HP, reduccion de dano (armadura)
+  desbordado,  // +50% HP, +30% oro, multiples partes visuales
 }
 
 /// Modelo del enemigo (Amalgama Culinaria Mutante)
@@ -26,12 +26,12 @@ class Enemy {
   ElementType element;
   EnemyTier tier; // Tier del enemigo
   List<EnemyModifier> modifiers; // Modificadores activos
-  Offset position; // Posición en pantalla
+  Offset position; // Posicion en pantalla
   double health; // Vida actual
-  double maxHealth; // Vida máxima
+  double maxHealth; // Vida maxima
   double attackSpeed; // Velocidad de ataque (disparos por segundo)
-  double baseDamage; // Daño base de los proyectiles
-  bool isAlive; // Si el enemigo está vivo
+  double baseDamage; // Dano base de los proyectiles
+  bool isAlive; // Si el enemigo esta vivo
   int level; // Nivel del enemigo (1-500+)
 
   Enemy({
@@ -51,11 +51,11 @@ class Enemy {
     this.level = 1,
   });
 
-  /// Recibe daño (considerando ventaja elemental)
+  /// Recibe dano (considerando ventaja elemental)
   void takeDamage(double damage) {
-    // Aplicar reducción por modificador "crujiente" (armadura)
+    // Aplicar reduccion por modificador "crujiente" (armadura)
     if (modifiers.contains(EnemyModifier.crujiente)) {
-      damage *= 0.85; // -15% daño recibido
+      damage *= 0.85; // -15% dano recibido
     }
     
     health -= damage;
@@ -65,7 +65,7 @@ class Enemy {
     }
   }
 
-  /// Obtiene el rectángulo de colisión del enemigo
+  /// Obtiene el rectangulo de colision del enemigo
   Rect getHitbox() {
     double baseSize = _getBaseSize();
     return Rect.fromCenter(
@@ -75,9 +75,9 @@ class Enemy {
     );
   }
 
-  /// Tamaño base según tier y modificadores
+  /// Tamano base segun tier y modificadores
   double _getBaseSize() {
-    double size = 80.0; // Tamaño base
+    double size = 80.0; // Tamano base
     
     // Ajuste por tier
     switch (tier) {
@@ -108,13 +108,13 @@ class Enemy {
     return attackSpeed * (1 + (level - 1) * 0.02); // +2% por nivel
   }
 
-  /// Obtiene el daño escalado por nivel
+  /// Obtiene el dano escalado por nivel
   double getScaledDamage() {
     return baseDamage * (1 + (level - 1) * 0.05); // +5% por nivel
   }
 
   /// Obtiene el oro que dropea al ser derrotado
-  /// FÓRMULA SEGÚN DOCUMENTO: goldBase * tierMultiplier * modifierMultipliers
+  /// FORMULA SEGUN DOCUMENTO: goldBase * tierMultiplier * modifierMultipliers
   double getGoldReward() {
     // Oro base escalado por nivel (75% del HP base en oro)
     double gold = 20.0 * pow(1.23, level) * 0.75;
@@ -146,14 +146,14 @@ class Enemy {
     return gold;
   }
 
-  /// Reinicia el enemigo con estadísticas del nivel actual
-  /// FÓRMULA DE HP SEGÚN DOCUMENTO: 20 * (1.23 ^ nivel) * tierMultiplier * modifierMultipliers
+  /// Reinicia el enemigo con estadisticas del nivel actual
+  /// FORMULA DE HP SEGUN DOCUMENTO: 20 * (1.23 ^ nivel) * tierMultiplier * modifierMultipliers
   void reset(int newLevel, {EnemyTier? newTier, List<EnemyModifier>? newModifiers}) {
     level = newLevel;
     tier = newTier ?? tier;
     modifiers = newModifiers ?? modifiers;
     
-    // FÓRMULA BASE ACTUALIZADA: healthBase plana más escalado suave
+    // FORMULA BASE ACTUALIZADA: healthBase plana mas escalado suave
     double baseHealth = 10.0 + (level * 2);
     
     // Multiplicadores por tier
@@ -199,8 +199,8 @@ class Enemy {
     return tier == EnemyTier.boss;
   }
 
-  /// Crea una Amalgama aleatoria según el nivel y elemento del mundo
-  /// SISTEMA DE APARICIÓN SEGÚN DOCUMENTO:
+  /// Crea una Amalgama aleatoria segun el nivel y elemento del mundo
+  /// SISTEMA DE APARICION SEGUN DOCUMENTO:
   /// - Normal: 80%
   /// - Elite: 15%
   /// - Chef Menor (mini-boss): 4% (cada ~25 enemigos)
@@ -213,7 +213,7 @@ class Enemy {
     position ??= const Offset(200, 200);
     final random = Random();
     
-    // Determinar tier según reglas del documento
+    // Determinar tier segun reglas del documento
     EnemyTier tier;
     
     if (level % 10 == 0) {
@@ -274,7 +274,7 @@ class Enemy {
     // Eliminar duplicados
     modifiers = modifiers.toSet().toList();
     
-    // Seleccionar tipo de Amalgama según el elemento y tier
+    // Seleccionar tipo de Amalgama segun el elemento y tier
     AmalgamaType type;
     String name;
     String desc;
@@ -289,15 +289,15 @@ class Enemy {
       type = AmalgamaType.minorChef;
     } else if (tier == EnemyTier.elite) {
       name = 'Amalgama Elite';
-      desc = 'Una versión más poderosa de las amalgamas comunes';
+      desc = 'Una version mas poderosa de las amalgamas comunes';
       type = AmalgamaType.elite;
     } else {
-      // Seleccionar según el elemento del mundo
+      // Seleccionar segun el elemento del mundo
       switch (worldElement) {
         case ElementType.fire:
           type = AmalgamaType.lavaPizza;
           name = 'Pizza de Lava';
-          desc = 'Pizza con tentáculos ígneos';
+          desc = 'Pizza con tentaculos igneos';
           break;
         case ElementType.water:
           type = AmalgamaType.livingSushi;
@@ -311,17 +311,17 @@ class Enemy {
           break;
         case ElementType.master:
           type = AmalgamaType.volcanicCake;
-          name = 'Pastel Volcánico';
+          name = 'Pastel Volcanico';
           desc = 'Postre explosivo que lanza llamas';
           break;
         default:
           type = AmalgamaType.carnivorousSalad;
-          name = 'Ensalada Carnívora';
+          name = 'Ensalada Carnivora';
           desc = 'Vegetales venenosos con dientes';
       }
     }
     
-    // Añadir nombres de modificadores al nombre
+    // Anadir nombres de modificadores al nombre
     if (modifiers.contains(EnemyModifier.gigante)) {
       name = 'Gigante $name';
     }
@@ -395,16 +395,16 @@ class Enemy {
 /// Tipos de Amalgamas Culinarias Mutantes
 enum AmalgamaType {
   // Amalgamas comunes
-  lavaPizza('Pizza de Lava', '🍕'),
-  livingSushi('Sushi Viviente', '🍣'),
-  carnivorousSalad('Ensalada Carnívora', '🥗'),
-  breadGolem('Golem de Pan', '🍞'),
-  volcanicCake('Pastel Volcánico', '🍰'),
+  lavaPizza('Pizza de Lava', ''),
+  livingSushi('Sushi Viviente', ''),
+  carnivorousSalad('Ensalada Carnivora', ''),
+  breadGolem('Golem de Pan', ''),
+  volcanicCake('Pastel Volcanico', ''),
   
   // Jefes
-  elite('Amalgama Elite', '💀'),
-  minorChef('Chef Menor', '👨‍🍳'),
-  seasonChef('Chef de Temporada', '⭐');
+  elite('Amalgama Elite', ''),
+  minorChef('Chef Menor', ''),
+  seasonChef('Chef de Temporada', '');
 
   final String displayName;
   final String emoji;

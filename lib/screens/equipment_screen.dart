@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controllers/game_controller.dart';
 import '../main.dart';
 
-/// Pantalla de Equipo - Cuchillos, Joyas, Reliquias, Ídolos
+/// Pantalla de Equipo - Cuchillos, Joyas, Reliquias, Idolos
 class EquipmentScreen extends StatefulWidget {
   final GameController gameController;
 
@@ -57,7 +57,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> with SingleTickerProv
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '⚔️ EQUIPO',
+                    ' EQUIPO',
                     style: GoogleFonts.pressStart2p(
                       fontSize: 12,
                       color: PixelColors.accent,
@@ -121,10 +121,10 @@ class _EquipmentScreenState extends State<EquipmentScreen> with SingleTickerProv
               labelStyle: GoogleFonts.pressStart2p(fontSize: 8),
               unselectedLabelStyle: GoogleFonts.pressStart2p(fontSize: 8),
               tabs: const [
-                Tab(text: '🔪 CUCHILLOS'),
-                Tab(text: '💎 JOYAS'),
-                Tab(text: '🏺 RELIQUIAS'),
-                Tab(text: '🗿 IDOLOS'),
+                Tab(text: ' CUCHILLOS'),
+                Tab(text: ' JOYAS'),
+                Tab(text: ' RELIQUIAS'),
+                Tab(text: ' IDOLOS'),
               ],
             ),
 

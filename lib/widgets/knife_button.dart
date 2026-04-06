@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Widget del botón principal del cuchillo
+/// Widget del boton principal del cuchillo
 /// Muestra un cuchillo que el jugador puede presionar
 class KnifeButton extends StatefulWidget {
   final VoidCallback onTap;

@@ -18,7 +18,7 @@ class MovementControls extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        // Botón izquierda
+        // Boton izquierda
         GestureDetector(
           onTapDown: (_) => onMoveLeft(),
           onTapUp: (_) => onStopMovement(),
@@ -48,7 +48,7 @@ class MovementControls extends StatelessWidget {
         // Espacio en el medio
         const SizedBox(width: 80),
         
-        // Botón derecha
+        // Boton derecha
         GestureDetector(
           onTapDown: (_) => onMoveRight(),
           onTapUp: (_) => onStopMovement(),

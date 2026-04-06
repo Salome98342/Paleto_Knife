@@ -70,7 +70,7 @@ class CombatController extends ChangeNotifier {
       projectileSystem: _projectileSystem,
     );
     
-    // Iniciar ataques automáticos
+    // Iniciar ataques automaticos
     _playerController.startAutoAttack();
     _enemyController.startAutoAttack();
     
@@ -81,7 +81,7 @@ class CombatController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Actualiza el tamaño de la pantalla
+  /// Actualiza el tamano de la pantalla
   void updateScreenSize(Size newSize) {
     _screenSize = newSize;
   }
@@ -101,7 +101,7 @@ class CombatController extends ChangeNotifier {
     });
   }
 
-  /// Actualización principal del juego
+  /// Actualizacion principal del juego
   void _update(double deltaTime) {
     // Sincronizar stats desde GameController si existe
     if (_gameController != null) {
@@ -117,7 +117,7 @@ class CombatController extends ChangeNotifier {
     // Actualizar enemigo
     _enemyController.update(deltaTime);
     
-    // Actualizar posición del jugador al enemigo (para ataques dirigidos)
+    // Actualizar posicion del jugador al enemigo (para ataques dirigidos)
     _enemyController.updatePlayerPosition(_playerController.player.position);
     
     // Actualizar proyectiles
@@ -193,7 +193,7 @@ class CombatController extends ChangeNotifier {
         _gameController!.addKnifeFragments(2); // 2 fragmentos por mini-jefe
       }
       
-      // Solo avanza de nivel cada 5 enemigos (para que la progresión no sea tan acelerada)
+      // Solo avanza de nivel cada 5 enemigos (para que la progresion no sea tan acelerada)
       _enemiesDefeatedThisLevel++;
       if (_enemiesDefeatedThisLevel >= 5 || defeatedEnemy.isBoss) {
         _enemiesDefeatedThisLevel = 0;
@@ -216,7 +216,7 @@ class CombatController extends ChangeNotifier {
     debugPrint('Jugador derrotado!');
     pause();
     
-    // Aquí podrías mostrar un diálogo de Game Over
+    // Aqui podrias mostrar un dialogo de Game Over
   }
 
   /// Spawns el siguiente enemigo
@@ -241,14 +241,14 @@ class CombatController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Mueve el jugador a una posición horizontal específica (movimiento táctil)
+  /// Mueve el jugador a una posicion horizontal especifica (movimiento tactil)
   void movePlayerToX(double x) {
     if (_isPaused) return;
     _playerController.moveToX(x, _screenSize.width);
     notifyListeners();
   }
 
-  /// Mueve el jugador a una posición libre dentro de la arena
+  /// Mueve el jugador a una posicion libre dentro de la arena
   void movePlayerToPosition(Offset localPosition) {
     if (_isPaused) return;
     _playerController.moveTo(localPosition, _screenSize);
@@ -304,7 +304,7 @@ class CombatController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Obtiene el rectángulo de colisión del jugador (para evitar el error isAlive)
+  /// Obtiene el rectangulo de colision del jugador (para evitar el error isAlive)
   bool get isPlayerAlive => player.isAlive;
 
   /// Limpia recursos

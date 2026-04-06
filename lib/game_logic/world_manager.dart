@@ -1,7 +1,7 @@
 import '../models/world.dart';
 import '../models/element_type.dart';
 
-/// Gestor de mundos y progresión
+/// Gestor de mundos y progresion
 class WorldManager {
   int _currentLevel = 1; // Nivel actual del jugador
   final List<World> _worlds;
@@ -19,7 +19,7 @@ class WorldManager {
     );
   }
 
-  /// Obtiene el número del mundo actual
+  /// Obtiene el numero del mundo actual
   int get currentWorldNumber => currentWorld.worldNumber;
 
   /// Obtiene el elemento del mundo actual
@@ -33,7 +33,7 @@ class WorldManager {
     _currentLevel++;
   }
 
-  /// Establece un nivel específico
+  /// Establece un nivel especifico
   void setLevel(int level) {
     if (level >= 1) {
       _currentLevel = level;

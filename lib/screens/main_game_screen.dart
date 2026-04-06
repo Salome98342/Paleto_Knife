@@ -9,7 +9,7 @@ import 'techniques_screen.dart';
 import 'equipment_screen.dart';
 import 'profile_screen.dart';
 
-/// Pantalla principal del juego con navegación entre tabs
+/// Pantalla principal del juego con navegacion entre tabs
 class MainGameScreen extends StatefulWidget {
   const MainGameScreen({super.key});
 

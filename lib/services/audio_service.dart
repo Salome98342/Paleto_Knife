@@ -9,7 +9,7 @@ enum _BgmTrack {
   settings,
 }
 
-/// Servicio global de audio para música y efectos.
+/// Servicio global de audio para musica y efectos.
 class AudioService {
   AudioService._();
 
@@ -18,7 +18,7 @@ class AudioService {
   static const String menuSongPath = 'assets/audio/menu/menu_song.mp3';
   static const String gameplaySongPath = 'assets/audio/gameplay/cuchillo.mp3';
   static const String shopSongPath = 'assets/audio/gameplay/shop.mp3';
-  static const String cuchilloMenuPath = 'assets/audio/gameplay/cuchillo_menu.mp3'; // Canción de config
+  static const String cuchilloMenuPath = 'assets/audio/gameplay/cuchillo_menu.mp3'; // Cancion de config
   static const String coinCollectPath = 'assets/audio/sfx/coin_collect.mp3';
   static const String hitSoundPath = 'assets/audio/sfx/hit.mp3';
   static const String powerupSoundPath = 'assets/audio/sfx/powerup.mp3';
@@ -98,7 +98,7 @@ class AudioService {
         return;
       }
 
-      // Evitar condiciones de carrera si se llama rápido varias veces
+      // Evitar condiciones de carrera si se llama rapido varias veces
       while (_isChangingTrack) {
         await Future.delayed(const Duration(milliseconds: 50));
       }
@@ -115,7 +115,7 @@ class AudioService {
         // Ignorar posibles abortos preexistentes
       }
       
-      // Pequeña espera para que el plugin de audio libere el canal nativo
+      // Pequena espera para que el plugin de audio libere el canal nativo
       await Future.delayed(const Duration(milliseconds: 100));
       
       await _bgmPlayer.play(AssetSource(_normalizeAssetPath(path)));
@@ -161,7 +161,7 @@ class AudioService {
   }
 
   Future<void> playSfx(String path) async {
-    // Reservamos el índice síncronamente antes de cualquier await
+    // Reservamos el indice sincronamente antes de cualquier await
     final int currentIndex = _nextSfxIndex;
     _nextSfxIndex = (_nextSfxIndex + 1) % _sfxPlayers.length;
     

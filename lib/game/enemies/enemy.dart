@@ -13,10 +13,10 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
   
   // Bullet hell variables
   double _shootTimer = 0.0;
-  double _shootInterval = 2.0; // Cambiarï¿½ segï¿½n el tipo
+  double _shootInterval = 2.0; // Cambiaro segon el tipo
   double _currentRotation = 0.0;
   
-  // Tipo de patrï¿½n
+  // Tipo de patron
   int _patternType = 0; // 0 = aimed, 1 = spiral, 2 = radial
   
   late Paint _paint;
@@ -72,13 +72,20 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
     final angle = random.nextDouble() * 2 * pi;
     velocity = Vector2(cos(angle), sin(angle)) * moveSpeed;
     
-    // Balancear dificultad del patrï¿½n segï¿½n tipo
+    // Balancear dificultad del patron segon tipo
     if (_patternType == 1) { // Spiral
       _shootInterval = 0.2; 
     } else if (_patternType == 2) { // Radial
       _shootInterval = 1.5;
     } else {
       _shootInterval = 1.0;
+    }
+    
+    // Intervalo especifico para jefe
+    if (isBoss) {
+      _shootInterval = 0.4;
+      velocity.y = velocity.y.abs(); // Asegurar de que baja rapido la primera vez hacia la zona top
+      velocity.x = velocity.x.abs() * 1.5; // Movimiento horizontal mas rapido arriba
     }
 
     if (game.locationData.isAlert) {
@@ -110,7 +117,7 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
     position.add(velocity * dt);
     _bounceOffWalls();
 
-    // Lï¿½gica de disparo Bullet Hell
+    // Logica de disparo Bullet Hell
     _shootTimer += dt;
     if (_shootTimer >= _shootInterval) {
       _shootTimer = 0;
@@ -119,6 +126,11 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
   }
 
   void _executeAttackPattern() {
+    if (isBoss) {
+      _executeBossAdvancedPattern();
+      return;
+    }
+    
     if (_patternType == 0) {
       // Aimed
       final playerPos = game.player.position;
@@ -127,7 +139,7 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
     } 
     else if (_patternType == 1) {
       // Spiral
-      _currentRotation += 0.5; // Avanzar rotaciï¿½n
+      _currentRotation += 0.5; // Avanzar rotacion
       final direction = Vector2(cos(_currentRotation), sin(_currentRotation));
       game.spawnBullet(position, direction * 120.0, isPlayer: false);
     }
@@ -143,6 +155,53 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
     }
   }
 
+  void _executeBossAdvancedPattern() {
+    _currentRotation += 0.3; // Avanzar rotacion
+
+    // Mezcla de patrones basada en la vida del jefe
+    double healthRatio = max(0, hp) / maxHp;
+
+    if (healthRatio > 0.6) {
+      // Fase 1: Espiral denso + Disparo dirigido lento
+      final direction = Vector2(cos(_currentRotation), sin(_currentRotation));
+      game.spawnBullet(position, direction * 150.0, isPlayer: false);
+      game.spawnBullet(position, -direction * 150.0, isPlayer: false);
+      
+      final playerPos = game.player.position;
+      final aimDir = (playerPos - position).normalized();
+      game.spawnBullet(position, aimDir * 100.0, isPlayer: false);
+      
+    } else if (healthRatio > 0.3) {
+      // Fase 2: Radial cruzado rapido
+      int bullets = 8;
+      double step = (2 * pi) / bullets;
+      for (int i = 0; i < bullets; i++) {
+        final angle = i * step + _currentRotation;
+        final direction = Vector2(cos(angle), sin(angle));
+        game.spawnBullet(position, direction * 180.0, isPlayer: false);
+        game.spawnBullet(position, direction * 90.0, isPlayer: false); // Capa mas lenta
+      }
+    } else {
+      // Fase 3: Desesperacion - Doble Espiral Inversa + Disparos Radiales
+      final dir1 = Vector2(cos(_currentRotation * 2), sin(_currentRotation * 2));
+      final dir2 = Vector2(cos(-_currentRotation * 2), sin(-_currentRotation * 2));
+      
+      game.spawnBullet(position, dir1 * 200.0, isPlayer: false);
+      game.spawnBullet(position, dir2 * 200.0, isPlayer: false);
+      
+      // Radial ocasional
+      if (Random().nextDouble() < 0.3) {
+        int bullets = 16;
+        double step = (2 * pi) / bullets;
+        for (int i = 0; i < bullets; i++) {
+          final angle = i * step + _currentRotation;
+          final direction = Vector2(cos(angle), sin(angle));
+          game.spawnBullet(position, direction * 120.0, isPlayer: false);
+        }
+      }
+    }
+  }
+
   void _bounceOffWalls() {
     final halfWidth = size.x / 2;
     final halfHeight = size.y / 2;
@@ -152,9 +211,12 @@ class EnemyComponent extends PositionComponent with HasGameReference<PaletoGame>
       position.x = position.x.clamp(halfWidth, game.size.x - halfWidth);
     }
 
-    if (position.y < halfHeight || position.y > game.size.y - halfHeight) {
+    final maxY = isBoss ? game.size.y * 0.35 : game.size.y - halfHeight;
+    final minY = isBoss ? game.size.y * 0.05 : halfHeight;
+
+    if (position.y < minY || position.y > maxY) {
       velocity.y = -velocity.y;
-      position.y = position.y.clamp(halfHeight, game.size.y - halfHeight);
+      position.y = position.y.clamp(minY, maxY);
     }
   }
 

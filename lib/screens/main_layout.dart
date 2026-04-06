@@ -270,7 +270,7 @@ class _HomeTab extends StatelessWidget {
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Â¡Modo ClÃ¡sico PrÃ³ximamente!", style: RetroStyle.font(size: 10, color: Colors.white)),
+                  content: Text("MODO CLASICO: PROXIMAMENTE", style: RetroStyle.font(size: 10, color: Colors.white)),
                   backgroundColor: RetroStyle.background,
                 )
               );
@@ -283,9 +283,9 @@ class _HomeTab extends StatelessWidget {
                 children: [
                   const Icon(Icons.touch_app, size: 40, color: Colors.white54),
                   const SizedBox(height: 8),
-                  Text("MODO CLÃSICO", style: RetroStyle.font(size: 12, color: Colors.white70)),
+                  Text("MODO CLASICO", style: RetroStyle.font(size: 12, color: Colors.white70)),
                   const SizedBox(height: 4),
-                  Text("No disponible / PrÃ³ximamente", style: RetroStyle.font(size: 8, color: Colors.white54)),
+                  Text("No disponible / Proximamente", style: RetroStyle.font(size: 8, color: Colors.white54)),
                 ],
               ),
             ),

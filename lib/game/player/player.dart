@@ -25,7 +25,7 @@ class PlayerComponent extends PositionComponent with HasGameReference<PaletoGame
     if (_dashCooldown > 0) return;
     _invulnerableTimer = 1.0; // 1 segundo de invulnerabilidad
     _dashCooldown = 3.0; // 3 segundos de recarga
-    game.shakeScreen(10.0, 0.2); // Pequeño efecto visual
+    game.shakeScreen(10.0, 0.2); // Pequeno efecto visual
     
     // Disparo circular (Nova)
     int bullets = 16;
