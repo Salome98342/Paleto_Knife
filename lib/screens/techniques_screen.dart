@@ -8,10 +8,7 @@ import '../models/technique.dart';
 class TechniquesScreen extends StatefulWidget {
   final GameController gameController;
 
-  const TechniquesScreen({
-    super.key,
-    required this.gameController,
-  });
+  const TechniquesScreen({super.key, required this.gameController});
 
   @override
   State<TechniquesScreen> createState() => _TechniquesScreenState();
@@ -38,7 +35,7 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
 
   void _buyTechnique(Technique technique) {
     final success = widget.gameController.tryBuyTechnique(technique);
-    
+
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -73,7 +70,9 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 color: PixelColors.bgPanel,
-                border: Border(bottom: BorderSide(color: PixelColors.accent, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: PixelColors.accent, width: 2),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,14 +85,21 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: PixelColors.bgCard,
                       border: Border.all(color: PixelColors.accent, width: 2),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.monetization_on, color: PixelColors.accent, size: 16),
+                        const Icon(
+                          Icons.monetization_on,
+                          color: PixelColors.accent,
+                          size: 16,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           gold.toStringAsFixed(0),
@@ -134,19 +140,23 @@ class _TechniquesScreenState extends State<TechniquesScreen> {
                       _StatItem(
                         icon: Icons.flash_on,
                         label: 'Dano',
-                        value: widget.gameController.baseDamage.toStringAsFixed(0),
+                        value: widget.gameController.baseDamage.toStringAsFixed(
+                          0,
+                        ),
                         color: Colors.red,
                       ),
                       _StatItem(
                         icon: Icons.speed,
                         label: 'Velocidad',
-                        value: widget.gameController.attackSpeed.toStringAsFixed(2),
+                        value: widget.gameController.attackSpeed
+                            .toStringAsFixed(2),
                         color: Colors.blue,
                       ),
                       _StatItem(
                         icon: Icons.star,
                         label: 'Critico',
-                        value: '${(widget.gameController.critChance * 100).toStringAsFixed(0)}%',
+                        value:
+                            '${(widget.gameController.critChance * 100).toStringAsFixed(0)}%',
                         color: Colors.orange,
                       ),
                     ],
@@ -203,13 +213,7 @@ class _StatItem extends StatelessWidget {
             color: PixelColors.textDim,
           ),
         ),
-        Text(
-          value,
-          style: GoogleFonts.pressStart2p(
-            fontSize: 7,
-            color: color,
-          ),
-        ),
+        Text(value, style: GoogleFonts.pressStart2p(fontSize: 7, color: color)),
       ],
     );
   }
@@ -276,108 +280,102 @@ class _TechniqueCard extends StatelessWidget {
           border: Border.all(color: borderColor, width: 2),
         ),
         child: Row(
-            children: [
-              // Icono
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
-                ),
-                child: Icon(
-                  _getIconForType(technique.type),
-                  color: color,
-                  size: 26,
-                ),
+          children: [
+            // Icono
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(color: color.withOpacity(0.2)),
+              child: Icon(
+                _getIconForType(technique.type),
+                color: color,
+                size: 26,
               ),
-              const SizedBox(width: 12),
-              
-              // Informacion
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      technique.name.toUpperCase(),
-                      style: GoogleFonts.pressStart2p(
-                        fontSize: 8,
-                        color: PixelColors.text,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.trending_up,
-                          size: 12,
-                          color: color,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'LVL:${technique.level}',
-                          style: GoogleFonts.pressStart2p(
-                            fontSize: 7,
-                            color: color,
-                          ),
-                        ),
-                        if (technique.level > 0) ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            '+${technique.totalEffect.toStringAsFixed(1)}',
-                            style: GoogleFonts.pressStart2p(
-                              fontSize: 6,
-                              color: PixelColors.textDim,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Boton de compra
-              Column(
+            ),
+            const SizedBox(width: 12),
+
+            // Informacion
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+                  Text(
+                    technique.name.toUpperCase(),
+                    style: GoogleFonts.pressStart2p(
+                      fontSize: 8,
+                      color: PixelColors.text,
                     ),
-                    decoration: BoxDecoration(
-                      color: canAfford ? PixelColors.accent : PixelColors.border,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.monetization_on,
-                          color: canAfford ? Colors.black : PixelColors.textDim,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          technique.currentCost.toStringAsFixed(0),
-                          style: GoogleFonts.pressStart2p(
-                            color: canAfford ? Colors.black : PixelColors.textDim,
-                            fontSize: 7,
-                          ),
-                        ),
-                      ],
-                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'COMPRAR',
-                    style: GoogleFonts.pressStart2p(
-                      fontSize: 6,
-                      color: canAfford ? PixelColors.mana : PixelColors.textDim,
-                    ),
+                  Row(
+                    children: [
+                      Icon(Icons.trending_up, size: 12, color: color),
+                      const SizedBox(width: 4),
+                      Text(
+                        'LVL:${technique.level}',
+                        style: GoogleFonts.pressStart2p(
+                          fontSize: 7,
+                          color: color,
+                        ),
+                      ),
+                      if (technique.level > 0) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          '+${technique.totalEffect.toStringAsFixed(1)}',
+                          style: GoogleFonts.pressStart2p(
+                            fontSize: 6,
+                            color: PixelColors.textDim,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
+
+            // Boton de compra
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: canAfford ? PixelColors.accent : PixelColors.border,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.monetization_on,
+                        color: canAfford ? Colors.black : PixelColors.textDim,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        technique.currentCost.toStringAsFixed(0),
+                        style: GoogleFonts.pressStart2p(
+                          color: canAfford ? Colors.black : PixelColors.textDim,
+                          fontSize: 7,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'COMPRAR',
+                  style: GoogleFonts.pressStart2p(
+                    fontSize: 6,
+                    color: canAfford ? PixelColors.mana : PixelColors.textDim,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

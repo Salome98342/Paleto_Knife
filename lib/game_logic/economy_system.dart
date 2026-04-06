@@ -52,9 +52,9 @@ class EconomySystem {
     return _items[itemId] ?? 0;
   }
 
-  // Achievement, Boss drop simulation for tokens 
+  // Achievement, Boss drop simulation for tokens
   void rewardTokensFromBoss(String chefId, int amount) {
-    // In our system, chefs hold their own tokens. 
+    // In our system, chefs hold their own tokens.
     // This could also act as an intermediary where Boss drops generic "UR tokens" etc.
     // Or we handle it via the ProgressionSystem directly.
   }

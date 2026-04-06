@@ -32,7 +32,7 @@ class _MainGameScreenState extends State<MainGameScreen> {
 
   Future<void> _initializeGame() async {
     await _gameController.initialize();
-    
+
     setState(() {
       _isInitialized = true;
     });
@@ -129,10 +129,7 @@ class _MainGameScreenState extends State<MainGameScreen> {
               icon: Icon(Icons.inventory),
               label: 'EQUIPO',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'PERFIL',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'PERFIL'),
           ],
         ),
       ),

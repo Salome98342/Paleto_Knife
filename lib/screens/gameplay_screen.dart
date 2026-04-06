@@ -1,4 +1,4 @@
-﻿import 'package:flame/game.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -27,9 +27,11 @@ class _GameplayScreenState extends State<GameplayScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<EconomyController>().setMaxHp(context.read<ChefController>().activeChef.currentHp);
+      context.read<EconomyController>().setMaxHp(
+        context.read<ChefController>().activeChef.currentHp,
+      );
     });
-    
+
     _game = PaletoGame(
       locationData: context.read<WorldController>().selectedLocation,
       playerIcon: context.read<ChefController>().activeChef.icon,
@@ -53,14 +55,18 @@ class _GameplayScreenState extends State<GameplayScreen> {
           final eco = context.read<EconomyController>();
           eco.addRewardsFromEnemy(wave, isBoss: isBoss);
           if (isBoss) {
-             context.read<ChefController>().processBossKillReward(eco, context);
+            context.read<ChefController>().processBossKillReward(eco, context);
           }
-          try { AudioService.instance.playCoinCollect(); } catch (_) {}
+          try {
+            AudioService.instance.playCoinCollect();
+          } catch (_) {}
         }
       },
       getPlayerDamage: () {
         if (mounted) {
-          return context.read<ChefController>().getTotalDamage(context.read<WorldController>().selectedLocation.name);
+          return context.read<ChefController>().getTotalDamage(
+            context.read<WorldController>().selectedLocation.name,
+          );
         }
         return 10.0;
       },
@@ -82,12 +88,10 @@ class _GameplayScreenState extends State<GameplayScreen> {
           'GameOver': (context, game) => GameOverOverlay(game: game),
           'PauseMenu': (context, game) => PauseMenuOverlay(game: game),
         },
-        initialActiveOverlays: const ['HUD'], // El HUD siempre activo al empezar
+        initialActiveOverlays: const [
+          'HUD',
+        ], // El HUD siempre activo al empezar
       ),
     );
   }
 }
-
-
-
-

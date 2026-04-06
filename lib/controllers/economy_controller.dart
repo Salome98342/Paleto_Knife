@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 
@@ -9,7 +9,7 @@ class EconomyController extends ChangeNotifier {
   int _currentWave = 1;
   int _damageStat = 1;
   int _fireRateStat = 1;
-  
+
   // Quest and Stats tracking
   int _monstersKilled = 0;
   int _chefsLeveledUp = 0;
@@ -19,7 +19,7 @@ class EconomyController extends ChangeNotifier {
   // Variables de Vida de la sesion actual
   double _maxHp = 100.0;
   double _playerHp = 100.0;
-  
+
   // Variables de sesion para el overlay de "Game Over"
   int _sessionCoins = 0;
   int _sessionGems = 0;
@@ -35,8 +35,8 @@ class EconomyController extends ChangeNotifier {
     _gems = prefs.getInt('gems') ?? 0;
     _damageStat = prefs.getInt('damageStat') ?? 1;
     _fireRateStat = prefs.getInt('fireRateStat') ?? 1;
-    
-    // Quest stats 
+
+    // Quest stats
     _monstersKilled = prefs.getInt('monstersKilled') ?? 0;
     _chefsLeveledUp = prefs.getInt('chefsLeveledUp') ?? 0;
     _gamesPlayed = prefs.getInt('gamesPlayed') ?? 0;
@@ -50,7 +50,7 @@ class EconomyController extends ChangeNotifier {
 
   // Guardado de datos
   Future<void> saveProgress() => _saveData();
-  
+
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('coins', _coins);
@@ -84,13 +84,15 @@ class EconomyController extends ChangeNotifier {
 
   // Crecimiento exponencial
   int get upgradeCost => (50 * math.pow(1.25, _damageStat - 1)).toInt();
-  int get fireRateUpgradeCost => (75 * math.pow(1.3, _fireRateStat - 1)).toInt();
-  
+  int get fireRateUpgradeCost =>
+      (75 * math.pow(1.3, _fireRateStat - 1)).toInt();
+
   // Crecimiento polinomico del dano
   double get currentDamage => 10.0 + (_damageStat * 1.5);
 
   // Cadencia (Shoot interval) arranca en 0.3s y baja hasta min 0.05s
-  double get currentFireRate => math.max(0.05, 0.3 - ((_fireRateStat - 1) * 0.02));
+  double get currentFireRate =>
+      math.max(0.05, 0.3 - ((_fireRateStat - 1) * 0.02));
 
   void setMaxHp(double hp) {
     _maxHp = hp;
@@ -154,15 +156,15 @@ class EconomyController extends ChangeNotifier {
       _currentWave = wave;
       _saveData();
     }
-    
+
     final dropCoins = (5 * (1 + wave * 0.2)).toInt() * (isBoss ? 5 : 1);
     _coins += dropCoins;
     _sessionCoins += dropCoins;
 
     if (isBoss) {
-       final dropGems = 2 + (wave * 0.5).toInt();
-       _gems += dropGems;
-       _sessionGems += dropGems;
+      final dropGems = 2 + (wave * 0.5).toInt();
+      _gems += dropGems;
+      _sessionGems += dropGems;
     }
 
     _saveData();

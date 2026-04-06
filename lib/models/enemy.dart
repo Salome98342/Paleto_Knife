@@ -4,17 +4,17 @@ import 'element_type.dart';
 
 /// Tier del enemigo segun el documento
 enum EnemyTier {
-  normal,    // 80% - Amalgamas comunes
-  elite,     // 15% - Amalgamas mejoradas (x5 HP, x3 oro)
-  miniBoss,  // 4% - Chef Menor (x15 HP, x7 oro)
-  boss,      // 1% - Chef de Temporada (x50 HP, x20 oro)
+  normal, // 80% - Amalgamas comunes
+  elite, // 15% - Amalgamas mejoradas (x5 HP, x3 oro)
+  miniBoss, // 4% - Chef Menor (x15 HP, x7 oro)
+  boss, // 1% - Chef de Temporada (x50 HP, x20 oro)
 }
 
 /// Modificadores especiales del enemigo
 enum EnemyModifier {
-  gigante,     // +30% HP, +20% oro, +50% tamano visual
-  crujiente,   // +20% HP, reduccion de dano (armadura)
-  desbordado,  // +50% HP, +30% oro, multiples partes visuales
+  gigante, // +30% HP, +20% oro, +50% tamano visual
+  crujiente, // +20% HP, reduccion de dano (armadura)
+  desbordado, // +50% HP, +30% oro, multiples partes visuales
 }
 
 /// Modelo del enemigo (Amalgama Culinaria Mutante)
@@ -57,7 +57,7 @@ class Enemy {
     if (modifiers.contains(EnemyModifier.crujiente)) {
       damage *= 0.85; // -15% dano recibido
     }
-    
+
     health -= damage;
     if (health <= 0) {
       health = 0;
@@ -68,17 +68,13 @@ class Enemy {
   /// Obtiene el rectangulo de colision del enemigo
   Rect getHitbox() {
     double baseSize = _getBaseSize();
-    return Rect.fromCenter(
-      center: position,
-      width: baseSize,
-      height: baseSize,
-    );
+    return Rect.fromCenter(center: position, width: baseSize, height: baseSize);
   }
 
   /// Tamano base segun tier y modificadores
   double _getBaseSize() {
     double size = 80.0; // Tamano base
-    
+
     // Ajuste por tier
     switch (tier) {
       case EnemyTier.normal:
@@ -94,12 +90,12 @@ class Enemy {
         size *= 2.0;
         break;
     }
-    
+
     // Modificador gigante
     if (modifiers.contains(EnemyModifier.gigante)) {
       size *= 1.5;
     }
-    
+
     return size;
   }
 
@@ -118,7 +114,7 @@ class Enemy {
   double getGoldReward() {
     // Oro base escalado por nivel (75% del HP base en oro)
     double gold = 20.0 * pow(1.23, level) * 0.75;
-    
+
     // Multiplicadores por tier
     switch (tier) {
       case EnemyTier.normal:
@@ -134,7 +130,7 @@ class Enemy {
         gold *= 20.0;
         break;
     }
-    
+
     // Multiplicadores por modificadores
     if (modifiers.contains(EnemyModifier.gigante)) {
       gold *= 1.2; // +20% oro
@@ -142,20 +138,24 @@ class Enemy {
     if (modifiers.contains(EnemyModifier.desbordado)) {
       gold *= 1.3; // +30% oro
     }
-    
+
     return gold;
   }
 
   /// Reinicia el enemigo con estadisticas del nivel actual
   /// FORMULA DE HP SEGUN DOCUMENTO: 20 * (1.23 ^ nivel) * tierMultiplier * modifierMultipliers
-  void reset(int newLevel, {EnemyTier? newTier, List<EnemyModifier>? newModifiers}) {
+  void reset(
+    int newLevel, {
+    EnemyTier? newTier,
+    List<EnemyModifier>? newModifiers,
+  }) {
     level = newLevel;
     tier = newTier ?? tier;
     modifiers = newModifiers ?? modifiers;
-    
+
     // FORMULA BASE ACTUALIZADA: healthBase plana mas escalado suave
     double baseHealth = 10.0 + (level * 2);
-    
+
     // Multiplicadores por tier
     switch (tier) {
       case EnemyTier.normal:
@@ -171,7 +171,7 @@ class Enemy {
         baseHealth *= 5.0;
         break;
     }
-    
+
     // Modificadores
     if (modifiers.contains(EnemyModifier.gigante)) {
       baseHealth *= 1.3; // +30% HP
@@ -182,7 +182,7 @@ class Enemy {
     if (modifiers.contains(EnemyModifier.desbordado)) {
       baseHealth *= 1.5; // +50% HP
     }
-    
+
     maxHealth = baseHealth;
     health = maxHealth;
     isAlive = true;
@@ -212,10 +212,10 @@ class Enemy {
   }) {
     position ??= const Offset(200, 200);
     final random = Random();
-    
+
     // Determinar tier segun reglas del documento
     EnemyTier tier;
-    
+
     if (level % 10 == 0) {
       // Cada 10 niveles: Chef de Temporada (100% garantizado)
       tier = EnemyTier.boss;
@@ -239,10 +239,10 @@ class Enemy {
         tier = EnemyTier.normal;
       }
     }
-    
+
     // Determinar modificadores
     List<EnemyModifier> modifiers = [];
-    
+
     if (level >= 50) {
       // Nivel 50+: Enemigos pueden tener modificadores
       if (tier == EnemyTier.normal && random.nextDouble() < 0.1) {
@@ -270,15 +270,15 @@ class Enemy {
         }
       }
     }
-    
+
     // Eliminar duplicados
     modifiers = modifiers.toSet().toList();
-    
+
     // Seleccionar tipo de Amalgama segun el elemento y tier
     AmalgamaType type;
     String name;
     String desc;
-    
+
     if (tier == EnemyTier.boss) {
       name = 'Chef de Temporada';
       desc = 'El jefe supremo de esta temporada culinaria';
@@ -320,7 +320,7 @@ class Enemy {
           desc = 'Vegetales venenosos con dientes';
       }
     }
-    
+
     // Anadir nombres de modificadores al nombre
     if (modifiers.contains(EnemyModifier.gigante)) {
       name = 'Gigante $name';
@@ -331,7 +331,7 @@ class Enemy {
     if (modifiers.contains(EnemyModifier.desbordado)) {
       name = 'Desbordado $name';
     }
-    
+
     Enemy enemy = Enemy(
       id: 'enemy_$level',
       name: name,
@@ -345,11 +345,11 @@ class Enemy {
       maxHealth: 100,
       level: level,
     );
-    
+
     enemy.reset(level);
     return enemy;
   }
-  
+
   /// Selecciona un modificador aleatorio
   static EnemyModifier _getRandomModifier(Random random) {
     const modifiers = EnemyModifier.values;
@@ -400,7 +400,7 @@ enum AmalgamaType {
   carnivorousSalad('Ensalada Carnivora', ''),
   breadGolem('Golem de Pan', ''),
   volcanicCake('Pastel Volcanico', ''),
-  
+
   // Jefes
   elite('Amalgama Elite', ''),
   minorChef('Chef Menor', ''),

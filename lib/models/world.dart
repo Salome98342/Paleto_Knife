@@ -21,8 +21,8 @@ class World {
     required this.theme,
     required this.difficultyMultiplier,
     required this.rewardMultiplier,
-  })  : startLevel = (worldNumber - 1) * 100 + 1,
-        endLevel = worldNumber * 100;
+  }) : startLevel = (worldNumber - 1) * 100 + 1,
+       endLevel = worldNumber * 100;
 
   /// Verifica si un nivel pertenece a este mundo
   bool containsLevel(int level) {
@@ -48,7 +48,7 @@ class World {
         difficultyMultiplier: 1.0,
         rewardMultiplier: 1.0,
       ),
-      
+
       // Mundo 2: Agua - Reino Acuatico
       World(
         worldNumber: 2,
@@ -59,7 +59,7 @@ class World {
         difficultyMultiplier: 1.5,
         rewardMultiplier: 1.5,
       ),
-      
+
       // Mundo 3: Fuego - Volcan de Lava
       World(
         worldNumber: 3,
@@ -70,7 +70,7 @@ class World {
         difficultyMultiplier: 2.0,
         rewardMultiplier: 2.0,
       ),
-      
+
       // Mundo 4: Tierra - Bosque de Pan
       World(
         worldNumber: 4,
@@ -81,7 +81,7 @@ class World {
         difficultyMultiplier: 2.5,
         rewardMultiplier: 2.5,
       ),
-      
+
       // Mundo 5: Maestro - Olimpo Culinario
       World(
         worldNumber: 5,
@@ -94,7 +94,6 @@ class World {
       ),
     ];
   }
-
 
   /// Convierte a JSON
   Map<String, dynamic> toJson() {

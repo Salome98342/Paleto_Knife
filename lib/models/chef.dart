@@ -1,4 +1,5 @@
 enum ChefRarity { R, SR, SSR, UR }
+
 enum ChefElement { fire, water, earth, hybrid, mixed }
 
 class Chef {
@@ -42,7 +43,8 @@ class Chef {
     }
   }
 
-  bool get canUpgrade => level < maxLevel && tokens >= upgradeCost && rarity != ChefRarity.R;
+  bool get canUpgrade =>
+      level < maxLevel && tokens >= upgradeCost && rarity != ChefRarity.R;
 
   Chef copyWith({
     String? id,
@@ -92,8 +94,14 @@ class Chef {
     return Chef(
       id: json['id'],
       name: json['name'],
-      element: ChefElement.values.firstWhere((e) => e.name == json['element'], orElse: () => ChefElement.mixed),
-      rarity: ChefRarity.values.firstWhere((e) => e.name == json['rarity'], orElse: () => ChefRarity.R),
+      element: ChefElement.values.firstWhere(
+        (e) => e.name == json['element'],
+        orElse: () => ChefElement.mixed,
+      ),
+      rarity: ChefRarity.values.firstWhere(
+        (e) => e.name == json['rarity'],
+        orElse: () => ChefRarity.R,
+      ),
       baseAttack: (json['baseAttack'] ?? 0).toDouble(),
       speed: (json['speed'] ?? 0).toDouble(),
       ability: json['ability'] ?? '',

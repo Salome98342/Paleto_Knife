@@ -111,7 +111,7 @@ class Knife {
         rarity: KnifeRarity.common,
         ability: KnifeAbility.multiStrike,
       ),
-      
+
       // ===== RARAS (3 skins) =====
       Knife(
         id: 'butcher_knife',
@@ -134,7 +134,7 @@ class Knife {
         rarity: KnifeRarity.rare,
         ability: KnifeAbility.critBoost,
       ),
-      
+
       // ===== EPICAS (2 skins) =====
       Knife(
         id: 'sushi_knife',
@@ -150,7 +150,7 @@ class Knife {
         rarity: KnifeRarity.epic,
         ability: KnifeAbility.goldBoost,
       ),
-      
+
       // ===== LEGENDARIAS (2 skins) =====
       Knife(
         id: 'dragon_knife',
@@ -166,7 +166,7 @@ class Knife {
         rarity: KnifeRarity.legendary,
         ability: KnifeAbility.multiStrike,
       ),
-      
+
       // ===== MITICA (1 skin) =====
       Knife(
         id: 'excalibur_knife',
@@ -233,7 +233,7 @@ enum KnifeRarity {
   final double multiplier;
   final int fragmentsForUpgrade; // Fragmentos necesarios para subir nivel
   final int dropChance; // Probabilidad de drop (0-100)
-  
+
   const KnifeRarity(
     this.displayName,
     this.multiplier,
@@ -319,7 +319,7 @@ class Jewel {
         stat: JewelStat.critChance,
         bonus: 0.15,
       ),
-      
+
       // Anillos
       Jewel(
         id: 'fortune_ring',
@@ -403,7 +403,8 @@ class Relic {
   final String description;
   final int tier; // 1-5 (mayor tier = mayor bonificacion)
   final double damageBonus; // Bono de dano
-  final String? targetSousChefId; // ID del sous-chef que potencia (si es especifica)
+  final String?
+  targetSousChefId; // ID del sous-chef que potencia (si es especifica)
   final ElementType? targetElement; // Elemento que potencia (si es elemental)
   bool isEquipped;
 
@@ -436,7 +437,7 @@ class Relic {
         damageBonus: 0.50,
         targetSousChefId: 'apprentice',
       ),
-      
+
       // Reliquias elementales tier 2
       Relic(
         id: 'fire_tome',
@@ -491,7 +492,7 @@ class Relic {
         element = null;
       }
     }
-    
+
     return Relic(
       id: json['id'],
       name: json['name'],
@@ -605,17 +606,7 @@ class Idol {
 }
 
 /// Bonos de idolos
-enum IdolBonus {
-  damage,
-  gold,
-  speed,
-  crit,
-}
+enum IdolBonus { damage, gold, speed, crit }
 
 /// Penalizaciones de idolos
-enum IdolPenalty {
-  damage,
-  defense,
-  speed,
-  crit,
-}
+enum IdolPenalty { damage, defense, speed, crit }

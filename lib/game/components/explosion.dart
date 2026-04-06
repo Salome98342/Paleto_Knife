@@ -5,9 +5,13 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class ExplosionHelper {
-  static void spawn(FlameGame game, Vector2 position, {Color color = Colors.orangeAccent}) {
+  static void spawn(
+    FlameGame game,
+    Vector2 position, {
+    Color color = Colors.orangeAccent,
+  }) {
     final random = math.Random();
-    
+
     game.add(
       ParticleSystemComponent(
         position: position,
@@ -24,8 +28,9 @@ class ExplosionHelper {
                 renderer: (canvas, particle) {
                   final paint = Paint()
                     ..color = color.withOpacity(1.0 - particle.progress)
-                    ..blendMode = BlendMode.screen; // Da un brillo de neon (Game feel)
-                  
+                    ..blendMode =
+                        BlendMode.screen; // Da un brillo de neon (Game feel)
+
                   // El circulo se hace mas pequeno al ir desapareciendo
                   final radius = 4.0 * (1.0 - particle.progress);
                   canvas.drawCircle(Offset.zero, radius, paint);

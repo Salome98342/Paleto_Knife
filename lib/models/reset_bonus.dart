@@ -100,11 +100,7 @@ class ResetBonus {
 }
 
 /// Tipos de bonos de reinicio
-enum ResetBonusType {
-  damage,
-  gold,
-  speed,
-}
+enum ResetBonusType { damage, gold, speed }
 
 /// Modelo de estado de reinicio y tokens
 /// SEGUN DOCUMENTO:
@@ -139,17 +135,17 @@ class ResetState {
   /// Retorna los tokens obtenidos
   int performReset(int currentLevel) {
     if (!canReset(currentLevel)) return 0;
-    
+
     // Calcular y agregar tokens
     int tokensEarned = calculateTokensForReset(currentLevel);
     resetTokens += tokensEarned;
-    
+
     // Actualizar estadisticas
     totalResets++;
     if (currentLevel > highestLevelReached) {
       highestLevelReached = currentLevel;
     }
-    
+
     return tokensEarned;
   }
 

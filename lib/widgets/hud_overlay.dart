@@ -63,9 +63,11 @@ class HudOverlay extends StatelessWidget {
         double hp = economy.playerHp;
         double maxHp = economy.maxHp > 0 ? economy.maxHp : 1.0;
         double hpPercent = (hp / maxHp).clamp(0.0, 1.0);
-        
-        Color healthColor = hpPercent > 0.5 ? Colors.green
-            : hpPercent > 0.25 ? Colors.orange
+
+        Color healthColor = hpPercent > 0.5
+            ? Colors.green
+            : hpPercent > 0.25
+            ? Colors.orange
             : Colors.red;
 
         return Column(
@@ -88,14 +90,20 @@ class HudOverlay extends StatelessWidget {
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: RetroStyle.box(color: Colors.black.withOpacity(0.5)).copyWith(boxShadow: []),
+              decoration: RetroStyle.box(
+                color: Colors.black.withOpacity(0.5),
+              ).copyWith(boxShadow: []),
               child: Text(
                 'WAVE ${game.currentWave}',
                 style: RetroStyle.font(size: 10, color: Colors.white),
               ),
             ),
           ],
-        ).animate().slideX(begin: -0.5, duration: 400.ms, curve: Curves.easeOutBack);
+        ).animate().slideX(
+          begin: -0.5,
+          duration: 400.ms,
+          curve: Curves.easeOutBack,
+        );
       },
     );
   }
@@ -113,13 +121,21 @@ class HudOverlay extends StatelessWidget {
                 style: RetroStyle.font(size: 12, color: RetroStyle.textDark),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.monetization_on, color: RetroStyle.accent, size: 16)
-                .animate(key: ValueKey(economy.coins))
-                .scaleXY(begin: 1.5, end: 1.0, duration: 300.ms)
-                .shimmer(),
+              const Icon(
+                    Icons.monetization_on,
+                    color: RetroStyle.accent,
+                    size: 16,
+                  )
+                  .animate(key: ValueKey(economy.coins))
+                  .scaleXY(begin: 1.5, end: 1.0, duration: 300.ms)
+                  .shimmer(),
             ],
           ),
-        ).animate().slideX(begin: 0.5, duration: 400.ms, curve: Curves.easeOutBack);
+        ).animate().slideX(
+          begin: 0.5,
+          duration: 400.ms,
+          curve: Curves.easeOutBack,
+        );
       },
     );
   }

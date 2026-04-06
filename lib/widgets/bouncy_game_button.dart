@@ -4,13 +4,18 @@ class BouncyGameButton extends StatefulWidget {
   final VoidCallback onPressed;
   final Widget child;
 
-  const BouncyGameButton({super.key, required this.onPressed, required this.child});
+  const BouncyGameButton({
+    super.key,
+    required this.onPressed,
+    required this.child,
+  });
 
   @override
   State<BouncyGameButton> createState() => _BouncyGameButtonState();
 }
 
-class _BouncyGameButtonState extends State<BouncyGameButton> with SingleTickerProviderStateMixin {
+class _BouncyGameButtonState extends State<BouncyGameButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -52,10 +57,7 @@ class _BouncyGameButtonState extends State<BouncyGameButton> with SingleTickerPr
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
-      child: ScaleTransition(
-        scale: _controller,
-        child: widget.child,
-      ),
+      child: ScaleTransition(scale: _controller, child: widget.child),
     );
   }
 }

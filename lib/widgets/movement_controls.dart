@@ -37,17 +37,13 @@ class MovementControls extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 40,
-            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white, size: 40),
           ),
         ),
-        
+
         // Espacio en el medio
         const SizedBox(width: 80),
-        
+
         // Boton derecha
         GestureDetector(
           onTapDown: (_) => onMoveRight(),

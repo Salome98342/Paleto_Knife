@@ -35,14 +35,16 @@ class UpgradeShopOverlay extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.close, color: AppTheme.textMain),
                     onPressed: () {
-                      game.resumeEngine(); game.resumeEngine(); game.overlays.remove('UpgradeShop');
+                      game.resumeEngine();
+                      game.resumeEngine();
+                      game.overlays.remove('UpgradeShop');
                     },
-                  )
+                  ),
                 ],
               ),
               const Divider(color: AppTheme.magic),
               const SizedBox(height: 16),
-              
+
               // Upgrades List
               Flexible(
                 child: ListView(
@@ -84,10 +86,14 @@ class UpgradeShopOverlay extends StatelessWidget {
                   color: AppTheme.danger.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.speed, color: AppTheme.danger, size: 28),
+                child: const Icon(
+                  Icons.speed,
+                  color: AppTheme.danger,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 12),
-              
+
               // Info
               Expanded(
                 child: Column(
@@ -95,17 +101,22 @@ class UpgradeShopOverlay extends StatelessWidget {
                   children: [
                     Text(
                       'CADENCIA',
-                      style: AppTheme.numberStyleSmall.copyWith(color: AppTheme.textMain, fontSize: 14),
+                      style: AppTheme.numberStyleSmall.copyWith(
+                        color: AppTheme.textMain,
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Nivel ${economy.fireRateStat}',
-                      style: AppTheme.numberStyleSmall.copyWith(color: AppTheme.textDim),
+                      style: AppTheme.numberStyleSmall.copyWith(
+                        color: AppTheme.textDim,
+                      ),
                     ),
                   ],
                 ),
               ),
-              
+
               // Boton de Compra
               BouncyGameButton(
                 onPressed: () {
@@ -115,11 +126,17 @@ class UpgradeShopOverlay extends StatelessWidget {
                       import_audio.AudioService.instance.playPowerupSound();
                     }
                   } else {
-                    RetroStyle.showInsufficient(context, "MONEDAS INSUFICIENTES");
+                    RetroStyle.showInsufficient(
+                      context,
+                      "MONEDAS INSUFICIENTES",
+                    );
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: canAfford ? AppTheme.magic : Colors.grey.shade800,
                     borderRadius: BorderRadius.circular(8),
@@ -130,13 +147,17 @@ class UpgradeShopOverlay extends StatelessWidget {
                       Text(
                         '${economy.fireRateUpgradeCost}',
                         style: AppTheme.numberStyleSmall.copyWith(
-                          color: canAfford ? AppTheme.background : Colors.grey.shade400,
+                          color: canAfford
+                              ? AppTheme.background
+                              : Colors.grey.shade400,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Icon(
                         Icons.monetization_on,
-                        color: canAfford ? AppTheme.background : Colors.grey.shade400,
+                        color: canAfford
+                            ? AppTheme.background
+                            : Colors.grey.shade400,
                         size: 14,
                       ),
                     ],
@@ -174,10 +195,14 @@ class UpgradeShopOverlay extends StatelessWidget {
                   color: AppTheme.danger.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.flash_on, color: AppTheme.danger, size: 28),
+                child: const Icon(
+                  Icons.flash_on,
+                  color: AppTheme.danger,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 12),
-              
+
               // Info
               Expanded(
                 child: Column(
@@ -185,17 +210,22 @@ class UpgradeShopOverlay extends StatelessWidget {
                   children: [
                     Text(
                       'DANO',
-                      style: AppTheme.numberStyleSmall.copyWith(color: AppTheme.textMain, fontSize: 14),
+                      style: AppTheme.numberStyleSmall.copyWith(
+                        color: AppTheme.textMain,
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Nivel ${economy.damageStat}',
-                      style: AppTheme.numberStyleSmall.copyWith(color: AppTheme.textDim),
+                      style: AppTheme.numberStyleSmall.copyWith(
+                        color: AppTheme.textDim,
+                      ),
                     ),
                   ],
                 ),
               ),
-              
+
               // Boton de Compra
               BouncyGameButton(
                 onPressed: () {
@@ -205,11 +235,17 @@ class UpgradeShopOverlay extends StatelessWidget {
                       import_audio.AudioService.instance.playPowerupSound();
                     }
                   } else {
-                    RetroStyle.showInsufficient(context, "MONEDAS INSUFICIENTES");
+                    RetroStyle.showInsufficient(
+                      context,
+                      "MONEDAS INSUFICIENTES",
+                    );
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: canAfford ? AppTheme.magic : Colors.grey.shade800,
                     borderRadius: BorderRadius.circular(8),
@@ -220,13 +256,17 @@ class UpgradeShopOverlay extends StatelessWidget {
                       Text(
                         '${economy.upgradeCost}',
                         style: AppTheme.numberStyleSmall.copyWith(
-                          color: canAfford ? AppTheme.background : Colors.grey.shade400,
+                          color: canAfford
+                              ? AppTheme.background
+                              : Colors.grey.shade400,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Icon(
                         Icons.monetization_on,
-                        color: canAfford ? AppTheme.background : Colors.grey.shade400,
+                        color: canAfford
+                            ? AppTheme.background
+                            : Colors.grey.shade400,
                         size: 14,
                       ),
                     ],

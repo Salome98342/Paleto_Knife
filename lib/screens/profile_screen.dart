@@ -10,10 +10,7 @@ import '../main.dart';
 class ProfileScreen extends StatefulWidget {
   final GameController gameController;
 
-  const ProfileScreen({
-    super.key,
-    required this.gameController,
-  });
+  const ProfileScreen({super.key, required this.gameController});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -40,7 +37,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showResetDialog() {
     final resetState = widget.gameController.gameState.resetState;
-    final tokensToGain = resetState.calculateTokensForReset(widget.gameController.currentLevel);
+    final tokensToGain = resetState.calculateTokensForReset(
+      widget.gameController.currentLevel,
+    );
     final canReset = resetState.canReset(widget.gameController.currentLevel);
 
     showDialog(
@@ -85,9 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
               child: const Text('Reiniciar'),
             ),
         ],
@@ -120,9 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Borrar Todo'),
           ),
         ],
@@ -149,7 +144,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(14),
                 decoration: const BoxDecoration(
                   color: PixelColors.bgPanel,
-                  border: Border(bottom: BorderSide(color: PixelColors.accent, width: 2)),
+                  border: Border(
+                    bottom: BorderSide(color: PixelColors.accent, width: 2),
+                  ),
                 ),
                 child: Stack(
                   alignment: Alignment.center,
@@ -158,13 +155,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       left: 0,
                       top: 0,
                       child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: PixelColors.text),
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: PixelColors.text,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
                     Column(
                       children: [
-                        Icon(chefController.activeChef.icon, size: 62, color: PixelColors.accent),
+                        Icon(
+                          chefController.activeChef.icon,
+                          size: 62,
+                          color: PixelColors.accent,
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           chefController.activeChef.name.toUpperCase(),
@@ -206,37 +210,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _StatRow(
                           icon: Icons.flash_on,
                           label: 'Dano Base',
-                          value: widget.gameController.baseDamage.toStringAsFixed(1),
+                          value: widget.gameController.baseDamage
+                              .toStringAsFixed(1),
                           color: Colors.red,
                         ),
                         _StatRow(
                           icon: Icons.speed,
                           label: 'Velocidad de Ataque',
-                          value: widget.gameController.attackSpeed.toStringAsFixed(2),
+                          value: widget.gameController.attackSpeed
+                              .toStringAsFixed(2),
                           color: Colors.blue,
                         ),
                         _StatRow(
                           icon: Icons.star,
                           label: 'Probabilidad de Critico',
-                          value: '${(widget.gameController.critChance * 100).toStringAsFixed(1)}%',
+                          value:
+                              '${(widget.gameController.critChance * 100).toStringAsFixed(1)}%',
                           color: Colors.orange,
                         ),
                         _StatRow(
                           icon: Icons.auto_awesome,
                           label: 'Multiplicador de Critico',
-                          value: '${widget.gameController.critMultiplier.toStringAsFixed(2)}x',
+                          value:
+                              '${widget.gameController.critMultiplier.toStringAsFixed(2)}x',
                           color: Colors.purple,
                         ),
                         _StatRow(
                           icon: Icons.gps_fixed,
                           label: 'Precision',
-                          value: '${(widget.gameController.accuracy * 100).toStringAsFixed(1)}%',
+                          value:
+                              '${(widget.gameController.accuracy * 100).toStringAsFixed(1)}%',
                           color: Colors.green,
                         ),
                         _StatRow(
                           icon: Icons.monetization_on,
                           label: 'Bonus de Oro',
-                          value: '+${(widget.gameController.goldBonus * 100).toStringAsFixed(1)}%',
+                          value:
+                              '+${(widget.gameController.goldBonus * 100).toStringAsFixed(1)}%',
                           color: Colors.amber,
                         ),
                         const SizedBox(height: 8),
@@ -251,19 +261,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _StatRow(
                           icon: Icons.favorite,
                           label: 'Vida Maxima',
-                          value: chefController.activeChef.currentHp.toInt().toString(),
+                          value: chefController.activeChef.currentHp
+                              .toInt()
+                              .toString(),
                           color: Colors.red,
                         ),
                         _StatRow(
                           icon: Icons.sports_martial_arts,
                           label: 'Dano Total (Chef + Arma)',
-                          value: chefController.getTotalDamage('').toStringAsFixed(1),
+                          value: chefController
+                              .getTotalDamage('')
+                              .toStringAsFixed(1),
                           color: Colors.orange,
                         ),
                         _StatRow(
                           icon: Icons.timer,
                           label: 'Cadencia',
-                          value: '${chefController.activeChef.currentFireRate.toStringAsFixed(2)}s',
+                          value:
+                              '${chefController.activeChef.currentFireRate.toStringAsFixed(2)}s',
                           color: Colors.blueAccent,
                         ),
                       ],
@@ -299,7 +314,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: PixelColors.bgPanel,
-                                border: Border.all(color: PixelColors.accent, width: 2),
+                                border: Border.all(
+                                  color: PixelColors.accent,
+                                  width: 2,
+                                ),
                               ),
                               child: Text(
                                 '${resetState.resetTokens.toStringAsFixed(0)} tokens',
@@ -381,7 +399,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _StatRow(
                           icon: Icons.restaurant,
                           label: 'Fragmentos de Cuchillo',
-                          value: widget.gameController.knifeFragments.toString(),
+                          value: widget.gameController.knifeFragments
+                              .toString(),
                           color: Colors.grey,
                         ),
                         _StatRow(
@@ -410,7 +429,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.save),
-                        title: Text('GUARDAR', style: GoogleFonts.pressStart2p(fontSize: 8)),
+                        title: Text(
+                          'GUARDAR',
+                          style: GoogleFonts.pressStart2p(fontSize: 8),
+                        ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           widget.gameController.saveGame();
@@ -425,7 +447,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: const Icon(Icons.delete_forever, color: PixelColors.danger),
+                        leading: const Icon(
+                          Icons.delete_forever,
+                          color: PixelColors.danger,
+                        ),
                         title: Text(
                           'BORRAR TODO',
                           style: GoogleFonts.pressStart2p(
@@ -483,10 +508,7 @@ class _StatRow extends StatelessWidget {
           ),
           Text(
             value,
-            style: GoogleFonts.pressStart2p(
-              fontSize: 7,
-              color: rowColor,
-            ),
+            style: GoogleFonts.pressStart2p(fontSize: 7, color: rowColor),
           ),
         ],
       ),

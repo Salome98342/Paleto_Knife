@@ -38,12 +38,12 @@ class SousChef {
   /// Calcula el DPS actual considerando nivel y reliquia
   double getCurrentDps({double relicBonus = 0}) {
     double dps = baseDps * (level + 1);
-    
+
     // Aplicar bono de reliquia si existe
     if (relicId != null && relicBonus > 0) {
       dps *= (1 + relicBonus);
     }
-    
+
     return dps;
   }
 
@@ -82,7 +82,7 @@ class SousChef {
         baseCost: 10,
         worldRequirement: 1,
       ),
-      
+
       // Chef Sushiman - Mundo 2 (Agua)
       SousChef(
         id: 'sushiman',
@@ -93,7 +93,7 @@ class SousChef {
         baseCost: 100,
         worldRequirement: 2,
       ),
-      
+
       // Chef Parrillero - Mundo 3 (Fuego)
       SousChef(
         id: 'grillmaster',
@@ -104,7 +104,7 @@ class SousChef {
         baseCost: 500,
         worldRequirement: 3,
       ),
-      
+
       // Chef Panadero - Mundo 4 (Tierra)
       SousChef(
         id: 'baker',
@@ -115,7 +115,7 @@ class SousChef {
         baseCost: 2500,
         worldRequirement: 4,
       ),
-      
+
       // Chef Ejecutivo - Mundo 5 (Maestro)
       SousChef(
         id: 'executive',

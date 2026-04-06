@@ -49,7 +49,7 @@ class WorldManager {
   /// Obtiene el tipo de jefe del nivel actual
   BossType? get currentBossType {
     if (!isCurrentLevelBoss) return null;
-    
+
     int levelInWorld = (_currentLevel - 1) % 100 + 1;
     if (levelInWorld == 25) return BossType.elite;
     if (levelInWorld == 50) return BossType.minorChef;
@@ -75,9 +75,7 @@ class WorldManager {
 
   /// Convierte a JSON para persistencia
   Map<String, dynamic> toJson() {
-    return {
-      'currentLevel': _currentLevel,
-    };
+    return {'currentLevel': _currentLevel};
   }
 
   /// Carga desde JSON

@@ -6,11 +6,7 @@ class KnifeButton extends StatefulWidget {
   final VoidCallback onTap;
   final double scale;
 
-  const KnifeButton({
-    super.key,
-    required this.onTap,
-    this.scale = 1.0,
-  });
+  const KnifeButton({super.key, required this.onTap, this.scale = 1.0});
 
   @override
   State<KnifeButton> createState() => _KnifeButtonState();
@@ -29,10 +25,11 @@ class _KnifeButtonState extends State<KnifeButton>
       duration: const Duration(milliseconds: 100),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.9,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -76,7 +73,7 @@ class _KnifeButtonState extends State<KnifeButton>
                 color: Colors.orange.shade100,
                 boxShadow: [
                   BoxShadow(
-                    color: _isPressed 
+                    color: _isPressed
                         ? Colors.orange.withOpacity(0.5)
                         : Colors.orange.withOpacity(0.3),
                     blurRadius: _isPressed ? 15 : 20,

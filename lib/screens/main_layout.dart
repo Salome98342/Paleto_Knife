@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
@@ -23,7 +23,7 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _currentIndex = 2; 
+  int _currentIndex = 2;
 
   final List<Widget> _pages = [
     const GachaStoreView(),
@@ -42,30 +42,19 @@ class _MainLayoutState extends State<MainLayout> {
           children: [
             AnimatedSwitcher(
               duration: 300.ms,
-              transitionBuilder: (child, animation) => 
-                SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(1.0, 0.0), 
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                ),
+              transitionBuilder: (child, animation) => SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
               child: _pages[_currentIndex],
             ),
 
-            Positioned(
-              top: 16,
-              left: 16,
-              right: 16,
-              child: _buildTopHUD(),
-            ),
+            Positioned(top: 16, left: 16, right: 16, child: _buildTopHUD()),
 
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: _buildBottomNav(),
-            ),
+            Positioned(bottom: 0, left: 0, right: 0, child: _buildBottomNav()),
           ],
         ),
       ),
@@ -84,7 +73,10 @@ class _MainLayoutState extends State<MainLayout> {
                   context,
                   MaterialPageRoute(
                     builder: (_) => ProfileScreen(
-                      gameController: Provider.of<GameController>(context, listen: false),
+                      gameController: Provider.of<GameController>(
+                        context,
+                        listen: false,
+                      ),
                     ),
                   ),
                 );
@@ -93,23 +85,43 @@ class _MainLayoutState extends State<MainLayout> {
                 width: 50,
                 height: 50,
                 decoration: RetroStyle.box(color: Colors.grey.shade300),
-                child: Icon(chefController.activeChef.icon, size: 30, color: RetroStyle.primary),
+                child: Icon(
+                  chefController.activeChef.icon,
+                  size: 30,
+                  color: RetroStyle.primary,
+                ),
               ),
-            ).animate().slideY(begin: -1, duration: 400.ms, curve: Curves.easeOutBack);
-          }
+            ).animate().slideY(
+              begin: -1,
+              duration: 400.ms,
+              curve: Curves.easeOutBack,
+            );
+          },
         ),
 
         Consumer<EconomyController>(
           builder: (context, eco, child) {
             return Row(
               children: [
-                _buildCurrencyIndicator(Icons.monetization_on, "${eco.coins}", RetroStyle.accent),
+                _buildCurrencyIndicator(
+                  Icons.monetization_on,
+                  "${eco.coins}",
+                  RetroStyle.accent,
+                ),
                 const SizedBox(width: 8),
-                _buildCurrencyIndicator(Icons.diamond, "${eco.gems}", Colors.purpleAccent),
+                _buildCurrencyIndicator(
+                  Icons.diamond,
+                  "${eco.gems}",
+                  Colors.purpleAccent,
+                ),
               ],
             );
-          }
-        ).animate().slideY(begin: -1, duration: 500.ms, curve: Curves.easeOutBack),
+          },
+        ).animate().slideY(
+          begin: -1,
+          duration: 500.ms,
+          curve: Curves.easeOutBack,
+        ),
 
         GestureDetector(
           onTap: () {
@@ -117,14 +129,18 @@ class _MainLayoutState extends State<MainLayout> {
               context: context,
               builder: (context) => const SettingsDialog(),
             );
-          }, 
+          },
           child: Container(
             width: 40,
             height: 40,
             decoration: RetroStyle.box(color: Colors.grey.shade400),
             child: const Icon(Icons.settings, size: 20),
           ),
-        ).animate().slideY(begin: -1, duration: 600.ms, curve: Curves.easeOutBack),
+        ).animate().slideY(
+          begin: -1,
+          duration: 600.ms,
+          curve: Curves.easeOutBack,
+        ),
       ],
     );
   }
@@ -155,7 +171,7 @@ class _MainLayoutState extends State<MainLayout> {
         children: [
           _buildNavItem(Icons.store, "Tienda", 0),
           _buildNavItem(Icons.group, "Chefs", 1),
-          _buildPlayButton(), 
+          _buildPlayButton(),
           _buildNavItem(Icons.assignment, "Misiones", 3),
           _buildNavItem(Icons.map, "Mundo", 4),
         ],
@@ -166,55 +182,65 @@ class _MainLayoutState extends State<MainLayout> {
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = _currentIndex == index;
     return GestureDetector(
-      onTap: () {
-        setState(() => _currentIndex = index);
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon, 
-            color: isSelected ? RetroStyle.primary : Colors.grey.shade700,
-            size: 28,
+          onTap: () {
+            setState(() => _currentIndex = index);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? RetroStyle.primary : Colors.grey.shade700,
+                size: 28,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: RetroStyle.font(
+                  size: 8,
+                  color: isSelected ? RetroStyle.primary : Colors.grey.shade700,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: RetroStyle.font(
-              size: 8, 
-              color: isSelected ? RetroStyle.primary : Colors.grey.shade700,
-            ),
-          ),
-        ],
-      ),
-    ).animate(target: isSelected ? 1 : 0).scale(end: const Offset(1.1, 1.1), duration: 200.ms);
+        )
+        .animate(target: isSelected ? 1 : 0)
+        .scale(end: const Offset(1.1, 1.1), duration: 200.ms);
   }
 
   Widget _buildPlayButton() {
     return GestureDetector(
-      onTap: () {
-        setState(() => _currentIndex = 2);
-      },
-      child: Transform.translate(
-        offset: const Offset(0, -20), 
-        child: Container(
-          width: 80,
-          height: 80,
-          decoration: RetroStyle.box(color: RetroStyle.primary),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.play_arrow, color: Colors.white, size: 40),
-              Text("JUGAR", style: RetroStyle.font(size: 10, color: Colors.white)),
-            ],
+          onTap: () {
+            setState(() => _currentIndex = 2);
+          },
+          child: Transform.translate(
+            offset: const Offset(0, -20),
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: RetroStyle.box(color: RetroStyle.primary),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.play_arrow, color: Colors.white, size: 40),
+                  Text(
+                    "JUGAR",
+                    style: RetroStyle.font(size: 10, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-    )
-    .animate(onPlay: (controller) => controller.repeat(reverse: true))
-    .scaleXY(begin: 1.0, end: 1.05, duration: 800.ms, curve: Curves.easeInOut)
-    .animate(target: _currentIndex == 2 ? 1 : 0)
-    .shimmer(duration: 1000.ms);
+        )
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .scaleXY(
+          begin: 1.0,
+          end: 1.05,
+          duration: 800.ms,
+          curve: Curves.easeInOut,
+        )
+        .animate(target: _currentIndex == 2 ? 1 : 0)
+        .shimmer(duration: 1000.ms);
   }
 }
 
@@ -233,35 +259,55 @@ class _HomeTab extends StatelessWidget {
         children: [
           // 1. Play RPG Button
           GestureDetector(
-            onTap: () {
-              try {
-                AudioService.instance.playMenuMusic();
-              } catch (_) {}
-              Navigator.push(
-                context, 
-                MaterialPageRoute(builder: (_) => const GameplayScreen())
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: RetroStyle.box(color: RetroStyle.primary).copyWith(
-                boxShadow: const [
-                  BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0),
-                ]
-              ),
-              child: Column(
-                children: [
-                  const Icon(Icons.sports_martial_arts, size: 64, color: Colors.white),
-                  const SizedBox(height: 12),
-                  Text("LUCHAR EN", style: RetroStyle.font(size: 14, color: Colors.white70)),
-                  Text(locationName, style: RetroStyle.font(size: 24, color: Colors.amber)),
-                  const SizedBox(height: 8),
-                  Text("BATTLE & DASH", style: RetroStyle.font(size: 10, color: Colors.white54)),
-                ],
-              ),
-            ),
-          ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 1.0, end: 1.02, duration: 1.seconds),
+                onTap: () {
+                  try {
+                    AudioService.instance.playMenuMusic();
+                  } catch (_) {}
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GameplayScreen()),
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: RetroStyle.box(color: RetroStyle.primary)
+                      .copyWith(
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black,
+                            offset: Offset(6, 6),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.sports_martial_arts,
+                        size: 64,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "LUCHAR EN",
+                        style: RetroStyle.font(size: 14, color: Colors.white70),
+                      ),
+                      Text(
+                        locationName,
+                        style: RetroStyle.font(size: 24, color: Colors.amber),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "BATTLE & DASH",
+                        style: RetroStyle.font(size: 10, color: Colors.white54),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .scaleXY(begin: 1.0, end: 1.02, duration: 1.seconds),
 
           const SizedBox(height: 48),
 
@@ -270,9 +316,12 @@ class _HomeTab extends StatelessWidget {
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("MODO CLASICO: PROXIMAMENTE", style: RetroStyle.font(size: 10, color: Colors.white)),
+                  content: Text(
+                    "MODO CLASICO: PROXIMAMENTE",
+                    style: RetroStyle.font(size: 10, color: Colors.white),
+                  ),
                   backgroundColor: RetroStyle.background,
-                )
+                ),
               );
             },
             child: Container(
@@ -283,9 +332,15 @@ class _HomeTab extends StatelessWidget {
                 children: [
                   const Icon(Icons.touch_app, size: 40, color: Colors.white54),
                   const SizedBox(height: 8),
-                  Text("MODO CLASICO", style: RetroStyle.font(size: 12, color: Colors.white70)),
+                  Text(
+                    "MODO CLASICO",
+                    style: RetroStyle.font(size: 12, color: Colors.white70),
+                  ),
                   const SizedBox(height: 4),
-                  Text("No disponible / Proximamente", style: RetroStyle.font(size: 8, color: Colors.white54)),
+                  Text(
+                    "No disponible / Proximamente",
+                    style: RetroStyle.font(size: 8, color: Colors.white54),
+                  ),
                 ],
               ),
             ),
@@ -295,4 +350,3 @@ class _HomeTab extends StatelessWidget {
     );
   }
 }
-

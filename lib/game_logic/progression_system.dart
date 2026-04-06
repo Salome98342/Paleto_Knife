@@ -4,6 +4,8 @@ import 'economy_system.dart';
 
 class ProgressionSystem {
   final Map<String, Chef> _ownedChefs = {};
+  final Map<String, int> _orphanedTokens =
+      {}; // Fichas ganadas antes de tener el personaje
   final EconomySystem economySystem;
 
   ProgressionSystem(this.economySystem);
@@ -21,7 +23,7 @@ class ProgressionSystem {
       int goldToGive = 0;
 
       if (chefBase.rarity == ChefRarity.R) {
-        goldToGive = 100; // Example gold amount for R dupes
+        goldToGive = 150; // Balanceo de economia (150 oro por dupe R)
         economySystem.addGold(goldToGive);
       } else {
         // SR, SSR, UR give tokens to the specific chef
@@ -38,21 +40,29 @@ class ProgressionSystem {
     } else {
       // New chef
       Chef newChef = chefBase.copyWith();
+
+      // Transferir fichas huerfanas si existiesen
+      if (_orphanedTokens.containsKey(newChef.id)) {
+        newChef.tokens += _orphanedTokens[newChef.id]!;
+        _orphanedTokens.remove(newChef.id);
+      }
+
       _ownedChefs[chefBase.id] = newChef;
 
-      return GachaResult(
-        chef: newChef,
-        isDuplicate: false,
-      );
+      return GachaResult(chef: newChef, isDuplicate: false);
     }
   }
 
   int _getTokensForDuplicate(ChefRarity rarity) {
     switch (rarity) {
-      case ChefRarity.SR: return 10;
-      case ChefRarity.SSR: return 20;
-      case ChefRarity.UR: return 50;
-      default: return 0;
+      case ChefRarity.SR:
+        return 10;
+      case ChefRarity.SSR:
+        return 20;
+      case ChefRarity.UR:
+        return 50;
+      default:
+        return 0;
     }
   }
 
@@ -76,5 +86,16 @@ class ProgressionSystem {
 
   Chef? getChef(String id) {
     return _ownedChefs[id];
+  }
+
+  // Logros o Eventos
+  void grantTokens(String chefId, int amount) {
+    if (amount <= 0) return;
+
+    if (_ownedChefs.containsKey(chefId)) {
+      _ownedChefs[chefId]!.tokens += amount;
+    } else {
+      _orphanedTokens[chefId] = (_orphanedTokens[chefId] ?? 0) + amount;
+    }
   }
 }

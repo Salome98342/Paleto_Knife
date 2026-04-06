@@ -6,7 +6,7 @@ import '../models/game_state.dart';
 /// Utiliza SharedPreferences para guardar el progreso localmente
 class StorageService {
   static const String _gameStateKey = 'knife_clicker_game_state';
-  
+
   /// Guarda el estado del juego en el almacenamiento local
   Future<bool> saveGameState(GameState gameState) async {
     try {
@@ -24,11 +24,11 @@ class StorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_gameStateKey);
-      
+
       if (jsonString == null) {
         return null; // No hay datos guardados
       }
-      
+
       final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
       return GameState.fromJson(jsonMap);
     } catch (e) {

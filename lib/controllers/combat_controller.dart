@@ -8,6 +8,7 @@ import '../game_logic/player_controller.dart';
 import '../game_logic/enemy_controller.dart';
 import '../game_logic/world_manager.dart';
 import 'game_controller.dart';
+import 'chef_controller.dart';
 import '../services/audio_service.dart';
 
 /// Controlador principal del sistema de combate
@@ -17,15 +18,17 @@ class CombatController extends ChangeNotifier {
   late PlayerController _playerController;
   late EnemyController _enemyController;
   late WorldManager _worldManager;
-  
-  GameController? _gameController; // Referencia al GameController para procesar drops y recompensas
-  
+
+  GameController? _gameController;
+  ChefController?
+  _chefController; // Referencia al GameController para procesar drops y recompensas
+
   Timer? _gameLoopTimer;
-  
+
   bool _isInitialized = false;
   bool _isPaused = false;
   int _enemiesDefeatedThisLevel = 0;
-  
+
   Size _screenSize = const Size(400, 800);
 
   // Getters
@@ -40,16 +43,21 @@ class CombatController extends ChangeNotifier {
   double get currentGold => _gameController?.gold ?? 0;
 
   /// Inicializa el sistema de combate
-  void initialize(Size screenSize, {GameController? gameController}) {
+  void initialize(
+    Size screenSize, {
+    GameController? gameController,
+    ChefController? chefController,
+  }) {
     if (_isInitialized) return;
-    
+
     _screenSize = screenSize;
     _gameController = gameController;
-    
+    _chefController = chefController;
+
     // Inicializar sistemas
     _projectileSystem = ProjectileSystem();
     _worldManager = WorldManager();
-    
+
     // Crear jugador
     final player = Player(
       position: Offset(screenSize.width / 2, screenSize.height - 100),
@@ -58,7 +66,7 @@ class CombatController extends ChangeNotifier {
       player: player,
       projectileSystem: _projectileSystem,
     );
-    
+
     // Crear enemigo inicial
     final enemy = Enemy.createForLevel(
       1,
@@ -69,14 +77,14 @@ class CombatController extends ChangeNotifier {
       enemy: enemy,
       projectileSystem: _projectileSystem,
     );
-    
+
     // Iniciar ataques automaticos
     _playerController.startAutoAttack();
     _enemyController.startAutoAttack();
-    
+
     // Iniciar game loop
     _startGameLoop();
-    
+
     _isInitialized = true;
     notifyListeners();
   }
@@ -89,13 +97,13 @@ class CombatController extends ChangeNotifier {
   /// Inicia el bucle principal del juego
   void _startGameLoop() {
     _gameLoopTimer?.cancel();
-    
+
     const frameRate = 60;
     const frameDuration = Duration(microseconds: 1000000 ~/ frameRate);
-    
+
     _gameLoopTimer = Timer.periodic(frameDuration, (timer) {
       if (_isPaused) return;
-      
+
       final deltaTime = frameDuration.inMicroseconds / 1000000.0;
       _update(deltaTime);
     });
@@ -113,29 +121,29 @@ class CombatController extends ChangeNotifier {
 
     // Actualizar jugador
     _playerController.update(deltaTime);
-    
+
     // Actualizar enemigo
     _enemyController.update(deltaTime);
-    
+
     // Actualizar posicion del jugador al enemigo (para ataques dirigidos)
     _enemyController.updatePlayerPosition(_playerController.player.position);
-    
+
     // Actualizar proyectiles
     _projectileSystem.update(deltaTime, _screenSize);
-    
+
     // Verificar colisiones
     _checkCollisions();
-    
+
     // Verificar si el enemigo fue derrotado
     if (!_enemyController.isAlive) {
       _onEnemyDefeated();
     }
-    
+
     // Verificar si el jugador fue derrotado
     if (!_playerController.isAlive) {
       _onPlayerDefeated();
     }
-    
+
     notifyListeners();
   }
 
@@ -146,18 +154,18 @@ class CombatController extends ChangeNotifier {
       final hits = _projectileSystem.checkPlayerProjectileCollisions(
         _enemyController.enemy.getHitbox(),
       );
-      
+
       for (var projectile in hits) {
         _enemyController.takeDamage(projectile.damage);
       }
     }
-    
+
     // Proyectiles del enemigo vs jugador
     if (_playerController.isAlive) {
       final hits = _projectileSystem.checkEnemyProjectileCollisions(
         _playerController.player.getHitbox(),
       );
-      
+
       for (var projectile in hits) {
         _playerController.takeDamage(projectile.damage);
       }
@@ -168,43 +176,46 @@ class CombatController extends ChangeNotifier {
   void _onEnemyDefeated() {
     final defeatedEnemy = _enemyController.enemy;
     final defeatedLevel = _worldManager.currentLevel;
-    
-    debugPrint('Enemigo derrotado! (${defeatedEnemy.tier.name}, Lvl $defeatedLevel)');
-    
+
+    debugPrint(
+      'Enemigo derrotado! (${defeatedEnemy.tier.name}, Lvl $defeatedLevel)',
+    );
+
     AudioService.instance.playHitSound();
 
     // Detener ataques
     _enemyController.stopAutoAttack();
-    
+
     // Procesar recompensas si hay un GameController disponible
     if (_gameController != null) {
       // Otorgar oro
       final goldReward = defeatedEnemy.getGoldReward();
       _gameController!.addGold(goldReward);
       AudioService.instance.playCoinCollect();
-      
+
       // Procesar drops (cofres/corazones)
       _gameController!.processEnemyDefeat(defeatedLevel);
-      
+
       // Fragmentos de cuchillo en jefes
       if (defeatedEnemy.tier == EnemyTier.boss) {
         _gameController!.addKnifeFragments(5); // 5 fragmentos por jefe
+        _chefController?.grantBossTokens();
       } else if (defeatedEnemy.tier == EnemyTier.miniBoss) {
         _gameController!.addKnifeFragments(2); // 2 fragmentos por mini-jefe
       }
-      
+
       // Solo avanza de nivel cada 5 enemigos (para que la progresion no sea tan acelerada)
       _enemiesDefeatedThisLevel++;
       if (_enemiesDefeatedThisLevel >= 5 || defeatedEnemy.isBoss) {
         _enemiesDefeatedThisLevel = 0;
-        
+
         final nextLevel = defeatedLevel + 1;
         _gameController!.setCurrentLevel(nextLevel);
         // Avanzar nivel en el WorldManager
         _worldManager.advanceLevel();
       }
     }
-    
+
     // Esperar un momento antes de crear nuevo enemigo
     Future.delayed(const Duration(milliseconds: 500), () {
       _spawnNextEnemy();
@@ -215,7 +226,7 @@ class CombatController extends ChangeNotifier {
   void _onPlayerDefeated() {
     debugPrint('Jugador derrotado!');
     pause();
-    
+
     // Aqui podrias mostrar un dialogo de Game Over
   }
 
@@ -224,7 +235,7 @@ class CombatController extends ChangeNotifier {
     final currentLevel = _worldManager.currentLevel;
     final currentElement = _worldManager.currentElement;
     final isBoss = _worldManager.isCurrentLevelBoss;
-    
+
     // Crear nuevo enemigo
     _enemyController.spawnNewEnemy(
       currentLevel,
@@ -233,10 +244,10 @@ class CombatController extends ChangeNotifier {
       isBoss: isBoss,
     );
     _enemyController.startAutoAttack();
-    
+
     // Limpiar proyectiles
     _projectileSystem.clear();
-    
+
     debugPrint('Nivel $currentLevel - ${isBoss ? "JEFE" : "Amalgama normal"}');
     notifyListeners();
   }
@@ -254,7 +265,7 @@ class CombatController extends ChangeNotifier {
     _playerController.moveTo(localPosition, _screenSize);
     notifyListeners();
   }
-  
+
   /// Maneja el drag del jugador
   void handlePlayerDrag(DragUpdateDetails details) {
     if (_isPaused) return;
@@ -291,15 +302,15 @@ class CombatController extends ChangeNotifier {
   void reset() {
     _projectileSystem.clear();
     _worldManager.reset();
-    
+
     // Reiniciar al nivel 1
     _enemiesDefeatedThisLevel = 0;
     _enemyController.resetForLevel(1, _worldManager.currentElement);
     _playerController.reset();
-    
+
     _playerController.startAutoAttack();
     _enemyController.startAutoAttack();
-    
+
     _isPaused = false;
     notifyListeners();
   }

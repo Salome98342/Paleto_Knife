@@ -28,7 +28,7 @@ class Projectile {
       velocityY = velocity;
     }
   }
-  
+
   /// Constructor para proyectiles con direccion angular (bullet hell)
   factory Projectile.withAngle({
     required String id,
@@ -60,10 +60,10 @@ class Projectile {
 
   /// Verifica si el proyectil esta fuera de los limites de la pantalla
   bool isOutOfBounds(Size screenSize) {
-    return position.dy < -50 || 
-           position.dy > screenSize.height + 50 ||
-           position.dx < -50 || 
-           position.dx > screenSize.width + 50;
+    return position.dy < -50 ||
+        position.dy > screenSize.height + 50 ||
+        position.dx < -50 ||
+        position.dx > screenSize.width + 50;
   }
 
   /// Verifica colision con un rectangulo

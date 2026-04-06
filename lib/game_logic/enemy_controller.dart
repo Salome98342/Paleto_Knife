@@ -20,28 +20,29 @@ enum AttackPattern {
 class EnemyController {
   Enemy _enemy;
   final ProjectileSystem _projectileSystem;
-  
+
   Timer? _attackTimer;
   double _attackCooldown = 0;
   double _spiralRotation = 0; // Para patrones de espiral
   double _time = 0; // Tiempo local para mover al jefe y animaciones senoidales
-  Offset? _spawnPosition; // Posicion inicial para calcular movimientos oscilatorios
-  
+  Offset?
+  _spawnPosition; // Posicion inicial para calcular movimientos oscilatorios
+
   AttackPattern _currentPattern = AttackPattern.simple;
   int _attackCount = 0; // Contador de ataques para variar patrones
-  
+
   // Referencia a la posicion del jugador (para ataques dirigidos)
   Offset? _playerPosition;
 
   EnemyController({
     required Enemy enemy,
     required ProjectileSystem projectileSystem,
-  })  : _enemy = enemy,
-        _projectileSystem = projectileSystem;
+  }) : _enemy = enemy,
+       _projectileSystem = projectileSystem;
 
   /// Obtiene el enemigo actual
   Enemy get enemy => _enemy;
-  
+
   /// Actualiza la posicion del jugador (para ataques dirigidos)
   void updatePlayerPosition(Offset position) {
     _playerPosition = position;
@@ -50,7 +51,7 @@ class EnemyController {
   /// Actualiza el estado del enemigo
   void update(double deltaTime) {
     if (!_enemy.isAlive) return;
-    
+
     // Sumar tiempo acumulado para calculos matematicos puristas
     _time += deltaTime;
 
@@ -58,7 +59,7 @@ class EnemyController {
     if (_attackCooldown > 0) {
       _attackCooldown -= deltaTime;
     }
-    
+
     // Actualizar rotacion de espiral
     _spiralRotation += deltaTime * 90; // Rotar 90 grados por segundo
     if (_spiralRotation >= 360) {
@@ -70,20 +71,20 @@ class EnemyController {
       if (_spawnPosition == null) {
         _spawnPosition = _enemy.position;
       }
-      
+
       // REGLA 1: Movimiento oscilatorio de Boss en la parte superior
       // Ecuacion de Seno con amplitud de 100 pixeles.
       final newX = _spawnPosition!.dx + math.sin(_time * 1.5) * 100;
       _enemy.position = Offset(newX, _enemy.position.dy);
     }
   }
-  
+
   /// Selecciona el patron de ataque basado en el nivel del enemigo
   AttackPattern _selectPattern(int level) {
     if (_enemy.isBoss) {
       // Regla 2: Fases del Jefe basadas en HP
       double hpRatio = _enemy.health / _enemy.maxHealth;
-      
+
       if (hpRatio > 0.6) {
         // Fase 1: Espiral y Abanico
         return _attackCount % 2 == 0 ? AttackPattern.spiral : AttackPattern.fan;
@@ -100,25 +101,42 @@ class EnemyController {
     if (level < 5) {
       return _attackCount % 3 == 0 ? AttackPattern.fan : AttackPattern.simple;
     } else if (level < 15) {
-      final patterns = [AttackPattern.simple, AttackPattern.fan, AttackPattern.aimed];
+      final patterns = [
+        AttackPattern.simple,
+        AttackPattern.fan,
+        AttackPattern.aimed,
+      ];
       return patterns[_attackCount % patterns.length];
     } else if (level < 30) {
-      final patterns = [AttackPattern.fan, AttackPattern.radial, AttackPattern.aimed];
+      final patterns = [
+        AttackPattern.fan,
+        AttackPattern.radial,
+        AttackPattern.aimed,
+      ];
       return patterns[_attackCount % patterns.length];
     } else {
       // Normal enemies don't use boss phases
-      final patterns = [AttackPattern.simple, AttackPattern.fan, AttackPattern.radial, AttackPattern.spiral, AttackPattern.aimed];
+      final patterns = [
+        AttackPattern.simple,
+        AttackPattern.fan,
+        AttackPattern.radial,
+        AttackPattern.spiral,
+        AttackPattern.aimed,
+      ];
       return patterns[_attackCount % patterns.length];
     }
   }
-  
+
   /// Obtiene parametros de bullet hell basados en el nivel
   Map<String, dynamic> _getBulletHellParams(int level) {
     // Escalar dificultad con el nivel
     final worldMultiplier = 1 + (level ~/ 10) * 0.2; // +20% cada 10 niveles
-    
+
     return {
-      'bulletCount': math.min(3 + (level ~/ 5), 16), // 3-16 balas, aumenta cada 5 niveles
+      'bulletCount': math.min(
+        3 + (level ~/ 5),
+        16,
+      ), // 3-16 balas, aumenta cada 5 niveles
       'speed': 200 + (level * 5) * worldMultiplier, // Aumenta con nivel
       'spreadAngle': 60 + (level ~/ 10) * 10.0, // Abanicos mas anchos
     };
@@ -127,24 +145,21 @@ class EnemyController {
   /// Intenta atacar con patron bullet hell
   bool tryAttack() {
     if (!_enemy.isAlive) return false;
-    
+
     if (_attackCooldown <= 0) {
       // Calcular cooldown basado en velocidad de ataque escalada
       final scaledAttackSpeed = _enemy.getScaledAttackSpeed();
       _attackCooldown = 1.0 / scaledAttackSpeed;
-      
+
       // Seleccionar patron para este ataque
       _currentPattern = _selectPattern(_enemy.level);
       _attackCount++;
-      
+
       // Obtener parametros escalados
       final params = _getBulletHellParams(_enemy.level);
       final damage = _enemy.getScaledDamage();
-      final position = Offset(
-        _enemy.position.dx,
-        _enemy.position.dy + 40,
-      );
-      
+      final position = Offset(_enemy.position.dx, _enemy.position.dy + 40);
+
       // Ejecutar patron de ataque
       switch (_currentPattern) {
         case AttackPattern.simple:
@@ -154,7 +169,7 @@ class EnemyController {
             damage: damage,
           );
           break;
-          
+
         case AttackPattern.fan:
           // Abanico hacia el jugador o hacia abajo
           _projectileSystem.spawnFanPattern(
@@ -166,11 +181,12 @@ class EnemyController {
             spreadAngle: params['spreadAngle'],
           );
           break;
-          
+
         case AttackPattern.radial:
           // Circulo completo (bullet hell clasico)
-          final bulletCount = _enemy.isBoss 
-              ? params['bulletCount'] * 2 // Bosses disparan el doble
+          final bulletCount = _enemy.isBoss
+              ? params['bulletCount'] *
+                    2 // Bosses disparan el doble
               : params['bulletCount'];
           _projectileSystem.spawnRadialPattern(
             position: position,
@@ -180,7 +196,7 @@ class EnemyController {
             startAngle: _spiralRotation, // Rotar el patron
           );
           break;
-          
+
         case AttackPattern.spiral:
           // Espiral rotante
           _projectileSystem.spawnSpiralPattern(
@@ -191,7 +207,7 @@ class EnemyController {
             spiralRotation: _spiralRotation,
           );
           break;
-          
+
         case AttackPattern.aimed:
           // Dirigido al jugador
           if (_playerPosition != null) {
@@ -212,7 +228,7 @@ class EnemyController {
             );
           }
           break;
-          
+
         case AttackPattern.floralDance:
           // FASE 2: Patron Danza Floral (Radial con velocidad senoidal)
           _projectileSystem.spawnFloralDance(
@@ -223,7 +239,7 @@ class EnemyController {
             time: _time,
           );
           break;
-          
+
         case AttackPattern.chaoticStars:
           // FASE 3: Desesperacion. Disparos caoticos, pero respetando la Safe Zone.
           // Se disparan muy rapido.
@@ -236,7 +252,7 @@ class EnemyController {
           );
           break;
       }
-      
+
       return true;
     }
     return false;
@@ -245,15 +261,12 @@ class EnemyController {
   /// Inicia el ataque automatico
   void startAutoAttack() {
     _attackTimer?.cancel();
-    
-    _attackTimer = Timer.periodic(
-      const Duration(milliseconds: 50),
-      (timer) {
-        if (_enemy.isAlive) {
-          tryAttack();
-        }
-      },
-    );
+
+    _attackTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (_enemy.isAlive) {
+        tryAttack();
+      }
+    });
   }
 
   /// Detiene el ataque automatico
@@ -271,7 +284,11 @@ class EnemyController {
   bool get isAlive => _enemy.isAlive;
 
   /// Reinicia el enemigo para un nuevo nivel
-  void resetForLevel(int level, ElementType worldElement, {bool isBoss = false}) {
+  void resetForLevel(
+    int level,
+    ElementType worldElement, {
+    bool isBoss = false,
+  }) {
     EnemyTier newTier = isBoss ? EnemyTier.boss : _enemy.tier;
     _enemy.reset(level, newTier: newTier);
     _attackCooldown = 0;
@@ -284,11 +301,7 @@ class EnemyController {
     Offset position, {
     bool isBoss = false,
   }) {
-    _enemy = Enemy.createForLevel(
-      level,
-      worldElement,
-      position: position,
-    );
+    _enemy = Enemy.createForLevel(level, worldElement, position: position);
     _attackCooldown = 0;
   }
 

@@ -7,15 +7,15 @@ import 'projectile_system.dart';
 class PlayerController {
   Player _player;
   final ProjectileSystem _projectileSystem;
-  
+
   Timer? _attackTimer;
   double _attackCooldown = 0;
 
   PlayerController({
     required Player player,
     required ProjectileSystem projectileSystem,
-  })  : _player = player,
-        _projectileSystem = projectileSystem;
+  }) : _player = player,
+       _projectileSystem = projectileSystem;
 
   /// Obtiene el jugador actual
   Player get player => _player;
@@ -43,12 +43,7 @@ class PlayerController {
     final minY = screenSize.height * 0.45;
     const bottomPadding = 90.0;
 
-    _player.moveTo(
-      target,
-      screenSize,
-      minY: minY,
-      maxYPadding: bottomPadding,
-    );
+    _player.moveTo(target, screenSize, minY: minY, maxYPadding: bottomPadding);
   }
 
   /// Activa el poder especial
@@ -60,7 +55,7 @@ class PlayerController {
   void update(double deltaTime) {
     // Actualizar poder especial
     _player.updatePower(deltaTime);
-    
+
     // Actualizar cooldown de ataque
     if (_attackCooldown > 0) {
       _attackCooldown -= deltaTime;
@@ -73,13 +68,13 @@ class PlayerController {
       // Calcular cooldown basado en velocidad de ataque
       double attackSpeedMultiplier = _player.powerActive ? 1.5 : 1.0;
       _attackCooldown = 1.0 / (_player.attackSpeed * attackSpeedMultiplier);
-      
+
       // Verificar precision (si el ataque acierta)
       if (!_player.rollAccuracy()) {
         // Miss! No crear proyectil
         return false;
       }
-      
+
       // Crear proyectil con dano calculado
       _projectileSystem.spawnPlayerProjectile(
         position: Offset(
@@ -88,7 +83,7 @@ class PlayerController {
         ),
         damage: _player.calculateDamage(),
       );
-      
+
       return true;
     }
     return false;
@@ -97,13 +92,10 @@ class PlayerController {
   /// Inicia el ataque automatico
   void startAutoAttack() {
     _attackTimer?.cancel();
-    
-    _attackTimer = Timer.periodic(
-      const Duration(milliseconds: 50),
-      (timer) {
-        tryAttack();
-      },
-    );
+
+    _attackTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      tryAttack();
+    });
   }
 
   /// Detiene el ataque automatico

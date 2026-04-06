@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +38,7 @@ void main() async {
       statusBarIconBrightness: Brightness.light,
     ),
   );
-  
+
   // Inicializacion de servicios cri­ticos
   await AudioService.init();
   await AdService().initConfigs();
@@ -90,7 +90,9 @@ class KnifeClickerApp extends StatelessWidget {
             backgroundColor: PixelColors.accent,
             foregroundColor: Colors.black,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
             elevation: 0,
             side: const BorderSide(color: Colors.white24, width: 2),
           ),
@@ -99,14 +101,18 @@ class KnifeClickerApp extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             foregroundColor: PixelColors.accent,
             side: const BorderSide(color: PixelColors.accent, width: 2),
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: PixelColors.accent,
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
           ),
         ),
         cardTheme: const CardThemeData(
@@ -165,4 +171,3 @@ class KnifeClickerApp extends StatelessWidget {
     );
   }
 }
-

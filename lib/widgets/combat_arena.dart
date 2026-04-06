@@ -7,6 +7,7 @@ import '../models/player.dart';
 import '../models/enemy.dart';
 import '../models/projectile.dart';
 import '../models/element_type.dart';
+
 /// Widget que renderiza la arena de combate
 class CombatArena extends StatelessWidget {
   final Player player;
@@ -28,7 +29,7 @@ class CombatArena extends StatelessWidget {
       builder: (context, constraints) {
         // Color de fondo basado en el elemento del enemigo
         final bgColors = _getBackgroundColors(enemy.element);
-        
+
         return Container(
           width: constraints.maxWidth,
           height: constraints.maxHeight,
@@ -43,13 +44,13 @@ class CombatArena extends StatelessWidget {
             children: [
               // Efecto de particulas elementales (decoracion)
               ..._buildElementalParticles(enemy.element, constraints.biggest),
-              
+
               // Proyectiles
               ...projectiles.map((proj) => _buildProjectile(proj)),
-              
+
               // Enemigo
               if (enemy.isAlive) _buildEnemy(enemy),
-              
+
               // Jugador
               if (player.isAlive) _buildPlayer(player),
             ],
@@ -58,23 +59,43 @@ class CombatArena extends StatelessWidget {
       },
     );
   }
-  
+
   /// Obtiene colores de fondo segun el elemento
   List<Color> _getBackgroundColors(ElementType element) {
     switch (element) {
       case ElementType.fire:
-        return [Colors.red.shade900, Colors.orange.shade700, Colors.yellow.shade600];
+        return [
+          Colors.red.shade900,
+          Colors.orange.shade700,
+          Colors.yellow.shade600,
+        ];
       case ElementType.water:
-        return [Colors.blue.shade900, Colors.blue.shade700, Colors.cyan.shade500];
+        return [
+          Colors.blue.shade900,
+          Colors.blue.shade700,
+          Colors.cyan.shade500,
+        ];
       case ElementType.earth:
-        return [Colors.brown.shade900, Colors.green.shade700, Colors.lime.shade600];
+        return [
+          Colors.brown.shade900,
+          Colors.green.shade700,
+          Colors.lime.shade600,
+        ];
       case ElementType.master:
-        return [Colors.purple.shade900, Colors.deepPurple.shade600, Colors.purpleAccent.shade200];
+        return [
+          Colors.purple.shade900,
+          Colors.deepPurple.shade600,
+          Colors.purpleAccent.shade200,
+        ];
       case ElementType.neutral:
-        return [Colors.indigo.shade900, Colors.indigo.shade700, Colors.indigo.shade500];
+        return [
+          Colors.indigo.shade900,
+          Colors.indigo.shade700,
+          Colors.indigo.shade500,
+        ];
     }
   }
-  
+
   /// Crea particulas decorativas segun el elemento
   List<Widget> _buildElementalParticles(ElementType element, Size arenaSize) {
     final particles = <Widget>[];
@@ -84,8 +105,12 @@ class CombatArena extends StatelessWidget {
     final particleCount = isNeutral ? 6 : 4;
 
     for (int i = 0; i < particleCount; i++) {
-      final left = random.nextDouble() * (arenaSize.width - 24).clamp(1.0, double.infinity);
-      final top = random.nextDouble() * (arenaSize.height - 24).clamp(1.0, double.infinity);
+      final left =
+          random.nextDouble() *
+          (arenaSize.width - 24).clamp(1.0, double.infinity);
+      final top =
+          random.nextDouble() *
+          (arenaSize.height - 24).clamp(1.0, double.infinity);
 
       if (isNeutral) {
         final dotSize = 8.0 + random.nextDouble() * 10;
@@ -119,7 +144,7 @@ class CombatArena extends StatelessWidget {
         );
       }
     }
-    
+
     return particles;
   }
 
@@ -153,7 +178,7 @@ class CombatArena extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          
+
           // Chef con gorro y power mode
           Stack(
             alignment: Alignment.center,
@@ -174,7 +199,7 @@ class CombatArena extends StatelessWidget {
                     ],
                   ),
                 ),
-              
+
               // Sprite del Paleto Animado
               Container(
                 width: Player.spriteWidth,
@@ -202,7 +227,7 @@ class CombatArena extends StatelessWidget {
                   gaplessPlayback: true,
                 ),
               ),
-              
+
               // Indicador de power active (estrellas)
               if (player.powerActive)
                 Positioned(
@@ -223,18 +248,13 @@ class CombatArena extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildStar() {
     return Icon(
       Icons.star,
       color: Colors.yellow,
       size: 12,
-      shadows: [
-        Shadow(
-          color: Colors.orange,
-          blurRadius: 4,
-        ),
-      ],
+      shadows: [Shadow(color: Colors.orange, blurRadius: 4)],
     );
   }
 
@@ -243,7 +263,7 @@ class CombatArena extends StatelessWidget {
     final elementColor = Color(enemy.element.getColor());
     final isBoss = enemy.isBoss;
     final enemySize = isBoss ? 100.0 : 80.0;
-    
+
     return Positioned(
       left: enemy.position.dx - (enemySize / 2),
       top: enemy.position.dy - (enemySize / 2) - 30,
@@ -282,9 +302,9 @@ class CombatArena extends StatelessWidget {
                 ],
               ),
             ),
-          
+
           if (isBoss) const SizedBox(height: 4),
-          
+
           // Nombre del enemigo
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -306,7 +326,7 @@ class CombatArena extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          
+
           // Barra de vida
           Container(
             width: enemySize,
@@ -336,7 +356,7 @@ class CombatArena extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          
+
           // Amalgama Culinaria Mutante
           Stack(
             alignment: Alignment.center,
@@ -357,14 +377,15 @@ class CombatArena extends StatelessWidget {
                     ],
                   ),
                 ),
-              
+
               // Cuerpo del enemigo agitando el sprite
               SizedBox(
                 width: enemySize,
                 height: enemySize,
                 child: SpriteAnimationWidget.asset(
                   playing: !isPaused,
-                  path: 'enemigo.png', // Flame by default looks in assets/images/
+                  path:
+                      'enemigo.png', // Flame by default looks in assets/images/
                   data: SpriteAnimationData.sequenced(
                     amount: 4,
                     stepTime: 0.15,
@@ -372,7 +393,7 @@ class CombatArena extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               // Particulas flotantes alrededor
               if (isBoss) ..._buildBossParticles(enemySize, elementColor),
             ],
@@ -381,7 +402,7 @@ class CombatArena extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Crea particulas flotantes alrededor del boss
   List<Widget> _buildBossParticles(double size, Color color) {
     return [
@@ -402,7 +423,7 @@ class CombatArena extends StatelessWidget {
       ),
     ];
   }
-  
+
   Widget _buildFloatingParticle(Color color, double size) {
     return Container(
       width: size,
@@ -424,10 +445,10 @@ class CombatArena extends StatelessWidget {
   /// Construye el widget de un proyectil
   Widget _buildProjectile(Projectile projectile) {
     if (!projectile.isActive) return const SizedBox.shrink();
-    
+
     final isPlayerProj = projectile.isPlayerProjectile;
     final projColor = isPlayerProj ? Colors.cyan : Colors.orange.shade700;
-    
+
     return Positioned(
       left: projectile.position.dx - 8,
       top: projectile.position.dy - 12,
@@ -451,7 +472,7 @@ class CombatArena extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          
+
           // Proyectil principal (cuchillo para jugador, fuego para enemigo)
           Container(
             width: 12,
@@ -478,7 +499,7 @@ class CombatArena extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Brillo central
           Positioned(
             top: 4,

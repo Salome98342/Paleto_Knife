@@ -8,10 +8,7 @@ import '../models/sous_chef.dart';
 class KitchenScreen extends StatefulWidget {
   final GameController gameController;
 
-  const KitchenScreen({
-    super.key,
-    required this.gameController,
-  });
+  const KitchenScreen({super.key, required this.gameController});
 
   @override
   State<KitchenScreen> createState() => _KitchenScreenState();
@@ -38,7 +35,7 @@ class _KitchenScreenState extends State<KitchenScreen> {
 
   void _hireSousChef(SousChef chef) {
     final success = widget.gameController.tryHireSousChef(chef);
-    
+
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -73,7 +70,9 @@ class _KitchenScreenState extends State<KitchenScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 color: PixelColors.bgPanel,
-                border: Border(bottom: BorderSide(color: PixelColors.accent, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: PixelColors.accent, width: 2),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,14 +85,21 @@ class _KitchenScreenState extends State<KitchenScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: PixelColors.bgCard,
                       border: Border.all(color: PixelColors.accent, width: 2),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.monetization_on, color: PixelColors.accent, size: 16),
+                        const Icon(
+                          Icons.monetization_on,
+                          color: PixelColors.accent,
+                          size: 16,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           gold.toStringAsFixed(0),
@@ -120,7 +126,11 @@ class _KitchenScreenState extends State<KitchenScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.flash_on, color: PixelColors.accentAlt, size: 20),
+                  const Icon(
+                    Icons.flash_on,
+                    color: PixelColors.accentAlt,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'DPS: ${widget.gameController.gameState.getTotalSousChefDps().toStringAsFixed(1)}',
@@ -211,7 +221,12 @@ class _SousChefCard extends StatelessWidget {
           color: PixelColors.bgCard,
           border: Border.all(color: borderColor, width: 2),
           boxShadow: canAfford
-              ? [BoxShadow(color: PixelColors.accent.withOpacity(0.3), offset: const Offset(3, 3))]
+              ? [
+                  BoxShadow(
+                    color: PixelColors.accent.withOpacity(0.3),
+                    offset: const Offset(3, 3),
+                  ),
+                ]
               : null,
         ),
         child: Row(
@@ -222,7 +237,10 @@ class _SousChefCard extends StatelessWidget {
               height: 52,
               color: Color(chef.element.getColor()).withOpacity(0.15),
               child: Center(
-                child: Text(chef.element.getEmoji(), style: const TextStyle(fontSize: 28)),
+                child: Text(
+                  chef.element.getEmoji(),
+                  style: const TextStyle(fontSize: 28),
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -233,13 +251,19 @@ class _SousChefCard extends StatelessWidget {
                 children: [
                   Text(
                     chef.name.toUpperCase(),
-                    style: GoogleFonts.pressStart2p(fontSize: 8, color: PixelColors.text),
+                    style: GoogleFonts.pressStart2p(
+                      fontSize: 8,
+                      color: PixelColors.text,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'DPS: ${dps.toStringAsFixed(1)}  LVL:${chef.level}',
-                    style: GoogleFonts.pressStart2p(fontSize: 7, color: PixelColors.accentAlt),
+                    style: GoogleFonts.pressStart2p(
+                      fontSize: 7,
+                      color: PixelColors.accentAlt,
+                    ),
                   ),
                 ],
               ),
@@ -249,14 +273,21 @@ class _SousChefCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 color: canAfford ? PixelColors.accent : PixelColors.border,
-                border: Border.all(color: canAfford ? Colors.white24 : Colors.transparent, width: 1),
+                border: Border.all(
+                  color: canAfford ? Colors.white24 : Colors.transparent,
+                  width: 1,
+                ),
               ),
               child: Column(
                 children: [
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.monetization_on, color: canAfford ? Colors.black : PixelColors.textDim, size: 14),
+                      Icon(
+                        Icons.monetization_on,
+                        color: canAfford ? Colors.black : PixelColors.textDim,
+                        size: 14,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         chef.currentCost.toStringAsFixed(0),

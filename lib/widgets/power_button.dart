@@ -22,7 +22,7 @@ class PowerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool canUse = !isOnCooldown && !isActive;
-    
+
     return GestureDetector(
       onTap: canUse ? onPressed : null,
       child: Stack(
@@ -45,7 +45,7 @@ class PowerButton extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Boton principal
           Container(
             width: 70,
@@ -56,15 +56,16 @@ class PowerButton extends StatelessWidget {
                 colors: isActive
                     ? [Colors.green.shade400, Colors.green.shade600]
                     : (canUse
-                        ? [Colors.purple.shade400, Colors.purple.shade600]
-                        : [Colors.grey.shade400, Colors.grey.shade600]),
+                          ? [Colors.purple.shade400, Colors.purple.shade600]
+                          : [Colors.grey.shade400, Colors.grey.shade600]),
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (isActive ? Colors.green : Colors.purple)
-                      .withOpacity(canUse ? 0.4 : 0.2),
+                  color: (isActive ? Colors.green : Colors.purple).withOpacity(
+                    canUse ? 0.4 : 0.2,
+                  ),
                   blurRadius: 15,
                   spreadRadius: 3,
                 ),
@@ -76,7 +77,7 @@ class PowerButton extends StatelessWidget {
               size: 36,
             ),
           ),
-          
+
           // Texto de estado
           if (isOnCooldown && !isActive)
             Positioned(
@@ -97,7 +98,7 @@ class PowerButton extends StatelessWidget {
                 ),
               ),
             ),
-          
+
           if (isActive)
             Positioned(
               bottom: -25,

@@ -36,10 +36,7 @@ class StatsPanel extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.orange.shade700,
-            Colors.deepOrange.shade500,
-          ],
+          colors: [Colors.orange.shade700, Colors.deepOrange.shade500],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -84,7 +81,7 @@ class StatsPanel extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Estadisticas secundarias
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -107,7 +104,7 @@ class StatsPanel extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Total de clicks
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -147,18 +144,11 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: Colors.white,
-          size: 24,
-        ),
+        Icon(icon, color: Colors.white, size: 24),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 10,
-            color: Colors.white.withOpacity(0.8),
-          ),
+          style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.8)),
         ),
         const SizedBox(height: 2),
         Text(

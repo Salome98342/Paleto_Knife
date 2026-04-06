@@ -80,14 +80,10 @@ class UpgradeCard extends StatelessWidget {
                   color: _getBorderColor().withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  _getIcon(),
-                  color: _getBorderColor(),
-                  size: 30,
-                ),
+                child: Icon(_getIcon(), color: _getBorderColor(), size: 30),
               ),
               const SizedBox(width: 16),
-              
+
               // Informacion
               Expanded(
                 child: Column(
@@ -106,7 +102,9 @@ class UpgradeCard extends StatelessWidget {
                       upgrade.description,
                       style: TextStyle(
                         fontSize: 12,
-                        color: canAfford ? Colors.grey.shade600 : Colors.grey.shade400,
+                        color: canAfford
+                            ? Colors.grey.shade600
+                            : Colors.grey.shade400,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -121,7 +119,7 @@ class UpgradeCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Costo
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -132,7 +130,7 @@ class UpgradeCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: canAfford 
+                      color: canAfford
                           ? Colors.green.withOpacity(0.1)
                           : Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -142,7 +140,9 @@ class UpgradeCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: canAfford ? Colors.green.shade700 : Colors.red.shade700,
+                        color: canAfford
+                            ? Colors.green.shade700
+                            : Colors.red.shade700,
                       ),
                     ),
                   ),

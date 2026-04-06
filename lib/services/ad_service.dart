@@ -12,8 +12,9 @@ class AdService {
   bool isAdLoading = false;
 
   // Use test ID during development. Replace with your actual ad unit ID for release.
-  final String _adUnitId = (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
-      ? 'ca-app-pub-3940256099942544/5224354917' 
+  final String _adUnitId =
+      (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+      ? 'ca-app-pub-3940256099942544/5224354917'
       : 'ca-app-pub-3940256099942544/1712485313';
 
   Future<void> initConfigs() async {
@@ -26,7 +27,7 @@ class AdService {
     if (kIsWeb) return;
     if (isAdLoading) return;
     isAdLoading = true;
-    
+
     RewardedAd.load(
       adUnitId: _adUnitId,
       request: const AdRequest(),
@@ -47,12 +48,15 @@ class AdService {
     );
   }
 
-  void showRewardedAd({required Function(int rewardAmount) onRewardEarned, VoidCallback? onAdClosed}) {
+  void showRewardedAd({
+    required Function(int rewardAmount) onRewardEarned,
+    VoidCallback? onAdClosed,
+  }) {
     if (kIsWeb) {
       // Simulate ad reward on web for development
       debugPrint('Simulating Ad reward on Web');
       onRewardEarned(10);
-      if(onAdClosed != null) onAdClosed();
+      if (onAdClosed != null) onAdClosed();
       return;
     }
 
@@ -63,14 +67,15 @@ class AdService {
     }
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) => debugPrint('$ad onAdShowedFullScreenContent.'),
+      onAdShowedFullScreenContent: (ad) =>
+          debugPrint('$ad onAdShowedFullScreenContent.'),
       onAdDismissedFullScreenContent: (ad) {
         debugPrint('$ad onAdDismissedFullScreenContent.');
         ad.dispose();
         _rewardedAd = null;
         isAdLoaded = false;
         _loadRewardedAd(); // Load the next ad
-        if(onAdClosed != null) onAdClosed();
+        if (onAdClosed != null) onAdClosed();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         debugPrint('$ad onAdFailedToShowFullScreenContent: $error');
@@ -78,13 +83,17 @@ class AdService {
         _rewardedAd = null;
         isAdLoaded = false;
         _loadRewardedAd(); // Load the next ad
-        if(onAdClosed != null) onAdClosed();
+        if (onAdClosed != null) onAdClosed();
       },
     );
 
-    _rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
-      // Reward is given
-      onRewardEarned(10); // for example, give 10 gems per ad. User can configure this.
-    });
+    _rewardedAd!.show(
+      onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+        // Reward is given
+        onRewardEarned(
+          10,
+        ); // for example, give 10 gems per ad. User can configure this.
+      },
+    );
   }
 }

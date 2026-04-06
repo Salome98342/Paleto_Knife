@@ -7,16 +7,14 @@ import '../main.dart';
 class EquipmentScreen extends StatefulWidget {
   final GameController gameController;
 
-  const EquipmentScreen({
-    super.key,
-    required this.gameController,
-  });
+  const EquipmentScreen({super.key, required this.gameController});
 
   @override
   State<EquipmentScreen> createState() => _EquipmentScreenState();
 }
 
-class _EquipmentScreenState extends State<EquipmentScreen> with SingleTickerProviderStateMixin {
+class _EquipmentScreenState extends State<EquipmentScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -51,7 +49,9 @@ class _EquipmentScreenState extends State<EquipmentScreen> with SingleTickerProv
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: const BoxDecoration(
                 color: PixelColors.bgPanel,
-                border: Border(bottom: BorderSide(color: PixelColors.accent, width: 2)),
+                border: Border(
+                  bottom: BorderSide(color: PixelColors.accent, width: 2),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -66,14 +66,24 @@ class _EquipmentScreenState extends State<EquipmentScreen> with SingleTickerProv
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: PixelColors.bgCard,
-                          border: Border.all(color: PixelColors.border, width: 2),
+                          border: Border.all(
+                            color: PixelColors.border,
+                            width: 2,
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.restaurant, color: PixelColors.text, size: 14),
+                            const Icon(
+                              Icons.restaurant,
+                              color: PixelColors.text,
+                              size: 14,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               widget.gameController.knifeFragments.toString(),
@@ -87,14 +97,24 @@ class _EquipmentScreenState extends State<EquipmentScreen> with SingleTickerProv
                       ),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: PixelColors.bgCard,
-                          border: Border.all(color: PixelColors.accent, width: 2),
+                          border: Border.all(
+                            color: PixelColors.accent,
+                            width: 2,
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.monetization_on, color: PixelColors.accent, size: 14),
+                            const Icon(
+                              Icons.monetization_on,
+                              color: PixelColors.accent,
+                              size: 14,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               widget.gameController.gold.toStringAsFixed(0),
@@ -197,9 +217,7 @@ class _KnivesTab extends StatelessWidget {
                 color: Color(knife.rarity.getColor()).withOpacity(0.2),
                 border: Border.all(color: PixelColors.border, width: 1),
               ),
-              child: const Center(
-                child: Icon(Icons.restaurant, size: 30),
-              ),
+              child: const Center(child: Icon(Icons.restaurant, size: 30)),
             ),
             title: Text(
               knife.name.toUpperCase(),
@@ -219,7 +237,10 @@ class _KnivesTab extends StatelessWidget {
                 ? const Icon(Icons.check_circle, color: PixelColors.health)
                 : OutlinedButton(
                     onPressed: () => gameController.equipKnife(index),
-                    child: Text('EQUIPAR', style: GoogleFonts.pressStart2p(fontSize: 6)),
+                    child: Text(
+                      'EQUIPAR',
+                      style: GoogleFonts.pressStart2p(fontSize: 6),
+                    ),
                   ),
           ),
         );
@@ -263,17 +284,30 @@ class _JewelsTab extends StatelessWidget {
         final jewel = jewels[index];
         return Card(
           child: ListTile(
-            leading: const Icon(Icons.diamond, size: 34, color: PixelColors.mana),
-            title: Text(jewel.name.toUpperCase(), style: GoogleFonts.pressStart2p(fontSize: 8)),
+            leading: const Icon(
+              Icons.diamond,
+              size: 34,
+              color: PixelColors.mana,
+            ),
+            title: Text(
+              jewel.name.toUpperCase(),
+              style: GoogleFonts.pressStart2p(fontSize: 8),
+            ),
             subtitle: Text(
               jewel.description,
-              style: GoogleFonts.pressStart2p(fontSize: 6, color: PixelColors.textDim),
+              style: GoogleFonts.pressStart2p(
+                fontSize: 6,
+                color: PixelColors.textDim,
+              ),
             ),
             trailing: jewel.isEquipped
                 ? const Icon(Icons.check_circle, color: PixelColors.health)
                 : OutlinedButton(
                     onPressed: () => gameController.equipJewel(index),
-                    child: Text('EQUIPAR', style: GoogleFonts.pressStart2p(fontSize: 6)),
+                    child: Text(
+                      'EQUIPAR',
+                      style: GoogleFonts.pressStart2p(fontSize: 6),
+                    ),
                   ),
           ),
         );
@@ -296,7 +330,11 @@ class _RelicsTab extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.auto_awesome, size: 60, color: PixelColors.textDim),
+            const Icon(
+              Icons.auto_awesome,
+              size: 60,
+              color: PixelColors.textDim,
+            ),
             const SizedBox(height: 16),
             Text(
               'NO TIENES RELIQUIAS',
@@ -317,11 +355,21 @@ class _RelicsTab extends StatelessWidget {
         final relic = relics[index];
         return Card(
           child: ListTile(
-            leading: const Icon(Icons.auto_awesome, size: 34, color: PixelColors.accentAlt),
-            title: Text(relic.name.toUpperCase(), style: GoogleFonts.pressStart2p(fontSize: 8)),
+            leading: const Icon(
+              Icons.auto_awesome,
+              size: 34,
+              color: PixelColors.accentAlt,
+            ),
+            title: Text(
+              relic.name.toUpperCase(),
+              style: GoogleFonts.pressStart2p(fontSize: 8),
+            ),
             subtitle: Text(
               relic.description,
-              style: GoogleFonts.pressStart2p(fontSize: 6, color: PixelColors.textDim),
+              style: GoogleFonts.pressStart2p(
+                fontSize: 6,
+                color: PixelColors.textDim,
+              ),
             ),
           ),
         );
@@ -344,7 +392,11 @@ class _IdolsTab extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.emoji_objects, size: 60, color: PixelColors.textDim),
+            const Icon(
+              Icons.emoji_objects,
+              size: 60,
+              color: PixelColors.textDim,
+            ),
             const SizedBox(height: 16),
             Text(
               'NO TIENES IDOLOS',
@@ -365,14 +417,24 @@ class _IdolsTab extends StatelessWidget {
         final idol = idols[index];
         return Card(
           child: ListTile(
-            leading: const Icon(Icons.emoji_objects, size: 34, color: PixelColors.accent),
-            title: Text(idol.name.toUpperCase(), style: GoogleFonts.pressStart2p(fontSize: 8)),
+            leading: const Icon(
+              Icons.emoji_objects,
+              size: 34,
+              color: PixelColors.accent,
+            ),
+            title: Text(
+              idol.name.toUpperCase(),
+              style: GoogleFonts.pressStart2p(fontSize: 8),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   idol.description,
-                  style: GoogleFonts.pressStart2p(fontSize: 6, color: PixelColors.textDim),
+                  style: GoogleFonts.pressStart2p(
+                    fontSize: 6,
+                    color: PixelColors.textDim,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(

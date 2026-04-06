@@ -35,17 +35,17 @@ class _AnimatedSpriteState extends State<AnimatedSprite>
   @override
   void initState() {
     super.initState();
-    
+
     // Configurar el controller para la animacion
-    final duration = Duration(milliseconds: (1000 / widget.fps * widget.frameCount).round());
-    
-    _controller = AnimationController(
-      vsync: this,
-      duration: duration,
+    final duration = Duration(
+      milliseconds: (1000 / widget.fps * widget.frameCount).round(),
     );
 
+    _controller = AnimationController(vsync: this, duration: duration);
+
     _controller.addListener(() {
-      final newFrame = (_controller.value * widget.frameCount).floor() % widget.frameCount;
+      final newFrame =
+          (_controller.value * widget.frameCount).floor() % widget.frameCount;
       if (newFrame != _currentFrame) {
         setState(() {
           _currentFrame = newFrame;
@@ -71,7 +71,7 @@ class _AnimatedSpriteState extends State<AnimatedSprite>
   Widget build(BuildContext context) {
     // Imagen total: frameCount * frameWidth de ancho
     // Queremos mostrar solo frameWidth de ancho, empezando en _currentFrame * frameWidth
-    
+
     return ClipRect(
       child: SizedBox(
         width: widget.displayWidth,

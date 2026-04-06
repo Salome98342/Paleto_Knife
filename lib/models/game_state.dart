@@ -11,19 +11,19 @@ class GameState {
   // Recursos basicos
   double gold; // Oro actual
   int knifeFragments; // Fragmentos de cuchillo
-  
+
   // Sistema de drops especiales
   int relicChests; // Cofres de Reliquia (necesitas 3 para abrir)
   double relicChestProgress; // Progreso hacia el siguiente cofre (0-1)
   int cultHearts; // Corazones de Culto (necesitas 3 para abrir)
   double cultHeartProgress; // Progreso hacia el siguiente corazon (0-1)
-  
+
   // Progreso
   int currentLevel; // Nivel actual (1-500+)
   int currentWorld; // Mundo actual (1-12)
   int enemiesDefeated; // Total de enemigos derrotados
   int totalClicks; // Total de clicks realizados
-  
+
   // Estadisticas del Chef
   double baseDamage;
   double attackSpeed;
@@ -31,20 +31,20 @@ class GameState {
   double critMultiplier;
   double accuracy;
   double goldBonus;
-  
+
   // Système de mejoras
   List<Technique> techniques; // Tecnicas del Chef
   List<SousChef> sousChefs; // Sous-chefs disponibles
-  
+
   // Equipamiento
   List<Knife> knives; // Cuchillos coleccionables
   List<Jewel> jewels; // Joyas (collares y anillos)
   List<Relic> relics; // Reliquias para sous-chefs
   List<Idol> idols; // Idolos culinarios
-  
+
   // Sistema de reinicio
   ResetState resetState;
-  
+
   // Metadatos
   DateTime lastSaveTime; // Ultima vez que se guardo el juego
 
@@ -73,19 +73,19 @@ class GameState {
     List<Idol>? idols,
     ResetState? resetState,
     DateTime? lastSaveTime,
-  })  : techniques = techniques ?? Technique.getDefaultTechniques(),
-        sousChefs = sousChefs ?? SousChef.getDefaultSousChefs(),
-        knives = knives ?? Knife.getDefaultKnives(),
-        jewels = jewels ?? Jewel.getDefaultJewels(),
-        relics = relics ?? Relic.getDefaultRelics(),
-        idols = idols ?? Idol.getDefaultIdols(),
-        resetState = resetState ?? ResetState(),
-        lastSaveTime = lastSaveTime ?? DateTime.now();
+  }) : techniques = techniques ?? Technique.getDefaultTechniques(),
+       sousChefs = sousChefs ?? SousChef.getDefaultSousChefs(),
+       knives = knives ?? Knife.getDefaultKnives(),
+       jewels = jewels ?? Jewel.getDefaultJewels(),
+       relics = relics ?? Relic.getDefaultRelics(),
+       idols = idols ?? Idol.getDefaultIdols(),
+       resetState = resetState ?? ResetState(),
+       lastSaveTime = lastSaveTime ?? DateTime.now();
 
   /// Calcula el DPS total de los sous-chefs activos
   double getTotalSousChefDps() {
     double totalDps = 0;
-    
+
     for (var chef in sousChefs.where((c) => c.isActive)) {
       // Buscar si tiene reliquia equipada
       double relicBonus = 0;
@@ -96,10 +96,10 @@ class GameState {
         );
         relicBonus = relic.damageBonus;
       }
-      
+
       totalDps += chef.getCurrentDps(relicBonus: relicBonus);
     }
-    
+
     return totalDps;
   }
 
@@ -107,7 +107,7 @@ class GameState {
   void applyTechniqueBoosts() {
     for (var technique in techniques) {
       if (technique.level == 0) continue;
-      
+
       switch (technique.type) {
         case TechniqueType.damage:
           baseDamage += technique.totalEffect;
@@ -129,7 +129,7 @@ class GameState {
           break;
       }
     }
-    
+
     // Limitar valores
     critChance = critChance.clamp(0.0, 0.75); // Maximo 75% critico
     accuracy = accuracy.clamp(0.0, 0.99); // Maximo 99% precision
@@ -142,7 +142,7 @@ class GameState {
       (k) => k.isEquipped,
       orElse: () => knives.first,
     );
-    
+
     switch (equippedKnife.ability) {
       case KnifeAbility.damageBoost:
         baseDamage *= (1 + equippedKnife.abilityBonus);
@@ -163,7 +163,7 @@ class GameState {
         // Multi-strike is handled during damage calculation
         break;
     }
-    
+
     // Joyas equipadas
     for (var jewel in jewels.where((j) => j.isEquipped)) {
       switch (jewel.stat) {
@@ -181,13 +181,13 @@ class GameState {
           break;
       }
     }
-    
+
     // Idolo activo
     var activeIdol = idols.firstWhere(
       (i) => i.isActive,
       orElse: () => idols.first..isActive = false,
     );
-    
+
     if (activeIdol.isActive) {
       // Aplicar bonus
       switch (activeIdol.bonusType) {
@@ -225,35 +225,35 @@ class GameState {
     bool gotCultHeart = false;
     Relic? newRelic;
     Idol? newIdol;
-    
+
     // 8% de chance de cofre de reliquia
     if (random.nextDouble() < 0.08) {
       relicChests++;
       gotRelicChest = true;
       relicChestProgress = 0.0;
     }
-    
+
     // Si tienes 3 cofres acumulados, obtienes una reliquia automaticamente
     if (relicChests >= 3) {
       relicChests -= 3;
       newRelic = generateRandomRelic();
       relics.add(newRelic);
     }
-    
+
     // 3% de chance de corazon de culto
     if (random.nextDouble() < 0.03) {
       cultHearts++;
       gotCultHeart = true;
       cultHeartProgress = 0.0;
     }
-    
+
     // Si tienes 3 corazones acumulados, obtienes un idolo automaticamente
     if (cultHearts >= 3) {
       cultHearts -= 3;
       newIdol = generateRandomIdol();
       idols.add(newIdol);
     }
-    
+
     return DropResult(
       gotRelicChest: gotRelicChest,
       gotCultHeart: gotCultHeart,
@@ -265,27 +265,28 @@ class GameState {
   /// Genera una reliquia aleatoria segun el nivel actual
   Relic generateRandomRelic() {
     final random = Random();
-    
+
     // Tier basado en mundo actual (1-5)
     int tier = (currentWorld / 2).ceil().clamp(1, 5);
-    
+
     // Tipo: especifica o elemental (50/50)
     bool isElemental = random.nextBool();
-    
+
     String id = 'relic_${DateTime.now().millisecondsSinceEpoch}';
     String name;
     double bonus = 0.5 + (tier * 0.3); // 50% + 30% por tier
-    
+
     if (isElemental) {
       // Reliquia elemental
       final elements = [ElementType.fire, ElementType.water, ElementType.earth];
       ElementType element = elements[random.nextInt(elements.length)];
       name = 'Tomo de ${element.name}';
-      
+
       return Relic(
         id: id,
         name: name,
-        description: '+${(bonus * 100).toStringAsFixed(0)}% DPS a sous-chefs de ${element.name}',
+        description:
+            '+${(bonus * 100).toStringAsFixed(0)}% DPS a sous-chefs de ${element.name}',
         tier: tier,
         damageBonus: bonus,
         targetElement: element,
@@ -298,14 +299,16 @@ class GameState {
         // Si no hay sous-chefs, crear una elemental por defecto
         return generateRandomRelic();
       }
-      
-      SousChef targetChef = availableChefs[random.nextInt(availableChefs.length)];
+
+      SousChef targetChef =
+          availableChefs[random.nextInt(availableChefs.length)];
       name = 'Emblema de ${targetChef.name}';
-      
+
       return Relic(
         id: id,
         name: name,
-        description: '+${(bonus * 100).toStringAsFixed(0)}% DPS a ${targetChef.name}',
+        description:
+            '+${(bonus * 100).toStringAsFixed(0)}% DPS a ${targetChef.name}',
         tier: tier,
         damageBonus: bonus,
         targetSousChefId: targetChef.id,
@@ -317,18 +320,36 @@ class GameState {
   /// Genera un idolo aleatorio
   Idol generateRandomIdol() {
     final random = Random();
-    
+
     // Tipos de idolos segun documento
     final idolTypes = [
-      {'name': 'Cuchillo Carnicero', 'bonus': IdolBonus.damage, 'value': 1.0, 'penalty': IdolPenalty.crit, 'penaltyValue': 0.5},
-      {'name': 'Cuchara de Oro', 'bonus': IdolBonus.gold, 'value': 2.0, 'penalty': IdolPenalty.damage, 'penaltyValue': 0.5},
-      {'name': 'Batidor Relampago', 'bonus': IdolBonus.speed, 'value': 1.0, 'penalty': IdolPenalty.damage, 'penaltyValue': 0.25},
+      {
+        'name': 'Cuchillo Carnicero',
+        'bonus': IdolBonus.damage,
+        'value': 1.0,
+        'penalty': IdolPenalty.crit,
+        'penaltyValue': 0.5,
+      },
+      {
+        'name': 'Cuchara de Oro',
+        'bonus': IdolBonus.gold,
+        'value': 2.0,
+        'penalty': IdolPenalty.damage,
+        'penaltyValue': 0.5,
+      },
+      {
+        'name': 'Batidor Relampago',
+        'bonus': IdolBonus.speed,
+        'value': 1.0,
+        'penalty': IdolPenalty.damage,
+        'penaltyValue': 0.25,
+      },
     ];
-    
+
     var selectedType = idolTypes[random.nextInt(idolTypes.length)];
-    
+
     String id = 'idol_${DateTime.now().millisecondsSinceEpoch}';
-    
+
     return Idol(
       id: id,
       name: selectedType['name'] as String,
@@ -340,7 +361,6 @@ class GameState {
       isActive: false,
     );
   }
-
 
   /// Convierte el estado del juego a un Map para persistencia
   Map<String, dynamic> toJson() {

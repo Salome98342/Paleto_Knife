@@ -10,7 +10,7 @@ class Player {
   Offset position; // Posicion en pantalla
   double health; // Vida actual
   double maxHealth; // Vida maxima
-  
+
   // Estadisticas de combate base
   double baseDamage; // Dano base por cuchillo
   double attackSpeed; // Velocidad de ataque (ataques por segundo)
@@ -18,18 +18,18 @@ class Player {
   double critMultiplier; // Multiplicador de dano critico (ej: 2.0 = x2)
   double accuracy; // Precision (0.0 a 1.0, reduce misses)
   double goldBonus; // Bonus de oro ganado (0.0 = sin bonus, 0.5 = +50%)
-  
+
   // Movimiento
   double movementSpeed; // Velocidad de movimiento horizontal
   bool isAlive; // Si el jugador esta vivo
-  
+
   // Poder especial
   bool powerActive; // Si el poder esta activo
   double powerDuration; // Duracion del poder en segundos
   double powerCooldown; // Tiempo de cooldown en segundos
   double powerRemainingTime; // Tiempo restante del poder activo
   double powerCooldownRemaining; // Tiempo restante de cooldown
-  
+
   // Recursos
   double gold; // Oro actual
   int knifeFragments; // Fragmentos de cuchillo
@@ -58,11 +58,11 @@ class Player {
   /// Mueve el jugador horizontalmente
   void moveHorizontal(double dx, double screenWidth) {
     double newX = position.dx + dx;
-    
+
     // Limitar movimiento al ancho de la pantalla (con margen)
     const playerWidth = spriteWidth;
     newX = newX.clamp(playerWidth / 2, screenWidth - playerWidth / 2);
-    
+
     position = Offset(newX, position.dy);
   }
 
@@ -73,7 +73,10 @@ class Player {
     double minY = 0,
     double maxYPadding = 70,
   }) {
-    final clampedX = target.dx.clamp(spriteWidth / 2, screenSize.width - spriteWidth / 2);
+    final clampedX = target.dx.clamp(
+      spriteWidth / 2,
+      screenSize.width - spriteWidth / 2,
+    );
     final clampedY = target.dy.clamp(minY, screenSize.height - maxYPadding);
     position = Offset(clampedX, clampedY);
   }
@@ -108,17 +111,17 @@ class Player {
   /// Calcula el dano de un ataque considerando criticos
   double calculateDamage({bool forceCrit = false}) {
     double damage = baseDamage;
-    
+
     // Aplicar multiplicador de poder si esta activo
     if (powerActive) {
       damage *= 2.0;
     }
-    
+
     // Aplicar critico
     if (forceCrit || rollCritical()) {
       damage *= critMultiplier;
     }
-    
+
     return damage;
   }
 
@@ -170,7 +173,7 @@ class Player {
         powerRemainingTime = 0;
       }
     }
-    
+
     if (powerCooldownRemaining > 0) {
       powerCooldownRemaining -= deltaTime;
       if (powerCooldownRemaining < 0) {
@@ -245,7 +248,8 @@ class Player {
       powerDuration: powerDuration ?? this.powerDuration,
       powerCooldown: powerCooldown ?? this.powerCooldown,
       powerRemainingTime: powerRemainingTime ?? this.powerRemainingTime,
-      powerCooldownRemaining: powerCooldownRemaining ?? this.powerCooldownRemaining,
+      powerCooldownRemaining:
+          powerCooldownRemaining ?? this.powerCooldownRemaining,
       gold: gold ?? this.gold,
       knifeFragments: knifeFragments ?? this.knifeFragments,
     );

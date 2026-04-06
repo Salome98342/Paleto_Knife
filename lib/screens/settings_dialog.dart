@@ -72,7 +72,11 @@ class _SettingsDialogState extends State<SettingsDialog> {
     );
   }
 
-  Widget _buildSlider(String label, double value, ValueChanged<double> onChanged) {
+  Widget _buildSlider(
+    String label,
+    double value,
+    ValueChanged<double> onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

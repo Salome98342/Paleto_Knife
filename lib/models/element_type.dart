@@ -15,7 +15,7 @@ enum ElementType {
     if (this == ElementType.master || other == ElementType.neutral) {
       return 1.0; // Sin ventaja especial
     }
-    
+
     if (this == ElementType.neutral) {
       return 1.0; // Neutral no tiene ventajas
     }

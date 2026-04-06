@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
@@ -13,25 +13,36 @@ class GachaStoreView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 100, bottom: 100),
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 100,
+        bottom: 100,
+      ),
       children: [
         Center(
           child: Text(
-            "MERCADO NEGRO", 
-            style: RetroStyle.font(size: 18, color: RetroStyle.accent)
+            "MERCADO NEGRO",
+            style: RetroStyle.font(size: 18, color: RetroStyle.accent),
           ).animate().slideY(begin: -0.5).fadeIn(duration: 500.ms),
         ),
         const SizedBox(height: 24),
-        
+
         // --- SECCION: OFERTAS DEL DIA ---
         _buildSectionTitle("OFERTAS DIARIAS", Icons.local_offer),
-        _buildOfferCard(context, "Ficha Epica Aleatoria", "Obten fragmentos garantizados", Icons.card_giftcard, 500),
+        _buildOfferCard(
+          context,
+          "Ficha Epica Aleatoria",
+          "Obten fragmentos garantizados",
+          Icons.card_giftcard,
+          500,
+        ),
         const SizedBox(height: 32),
 
         // --- SECCION: RECLUTAMIENTO DE CHEFS ---
         _buildSectionTitle(
-          "RECLUTAR CHEFS", 
-          Icons.group_add, 
+          "RECLUTAR CHEFS",
+          Icons.group_add,
           actionView: Builder(
             builder: (ctx) => GestureDetector(
               onTap: () => _showProbabilities(ctx),
@@ -44,9 +55,16 @@ class GachaStoreView extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, size: 12, color: RetroStyle.accent),
+                    const Icon(
+                      Icons.info_outline,
+                      size: 12,
+                      color: RetroStyle.accent,
+                    ),
                     const SizedBox(width: 4),
-                    Text("TASAS", style: RetroStyle.font(size: 8, color: RetroStyle.accent)),
+                    Text(
+                      "TASAS",
+                      style: RetroStyle.font(size: 8, color: RetroStyle.accent),
+                    ),
                   ],
                 ),
               ),
@@ -86,8 +104,8 @@ class GachaStoreView extends StatelessWidget {
 
         // --- SECCION: FORJA DE CUCHILLOS ---
         _buildSectionTitle(
-          "FORJA DE CUCHILLOS", 
-          Icons.restaurant, 
+          "FORJA DE CUCHILLOS",
+          Icons.restaurant,
           actionView: Builder(
             builder: (ctx) => GestureDetector(
               onTap: () => _showProbabilities(ctx),
@@ -100,9 +118,16 @@ class GachaStoreView extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, size: 12, color: RetroStyle.accent),
+                    const Icon(
+                      Icons.info_outline,
+                      size: 12,
+                      color: RetroStyle.accent,
+                    ),
                     const SizedBox(width: 4),
-                    Text("TASAS", style: RetroStyle.font(size: 8, color: RetroStyle.accent)),
+                    Text(
+                      "TASAS",
+                      style: RetroStyle.font(size: 8, color: RetroStyle.accent),
+                    ),
                   ],
                 ),
               ),
@@ -142,12 +167,40 @@ class GachaStoreView extends StatelessWidget {
 
         // --- SECCION: BANCO / PREMIUM ---
         _buildSectionTitle("BANCO / PREMIUM", Icons.account_balance),
-        _buildAdCard(context, "Anuncio con Recompensa", "Recompensa: +10 Gemas", Icons.play_circle_fill),
+        _buildAdCard(
+          context,
+          "Anuncio con Recompensa",
+          "Recompensa: +10 Gemas",
+          Icons.play_circle_fill,
+        ),
         const SizedBox(height: 16),
-        _buildExchangeCard(context, "Saco de Monedas", "+10,000 Monedas", Icons.monetization_on, 100, isGemsCost: true),
+        _buildExchangeCard(
+          context,
+          "Saco de Monedas",
+          "+10,000 Monedas",
+          Icons.monetization_on,
+          100,
+          isGemsCost: true,
+        ),
         const SizedBox(height: 16),
-        _buildExchangeCard(context, "Punado de Gemas", "+500 Gemas", Icons.diamond, 1, isGemsCost: false, isRealMoney: true),
-        _buildExchangeCard(context, "Cofre de Gemas", "+5,000 Gemas", Icons.diamond, 5, isGemsCost: false, isRealMoney: true),
+        _buildExchangeCard(
+          context,
+          "Punado de Gemas",
+          "+500 Gemas",
+          Icons.diamond,
+          1,
+          isGemsCost: false,
+          isRealMoney: true,
+        ),
+        _buildExchangeCard(
+          context,
+          "Cofre de Gemas",
+          "+5,000 Gemas",
+          Icons.diamond,
+          5,
+          isGemsCost: false,
+          isRealMoney: true,
+        ),
         const SizedBox(height: 40),
       ],
     );
@@ -160,11 +213,11 @@ class GachaStoreView extends StatelessWidget {
         children: [
           Icon(icon, color: RetroStyle.primary, size: 24),
           const SizedBox(width: 8),
-          Text(title, style: RetroStyle.font(size: 14, color: RetroStyle.textDark)),
-          if (actionView != null) ...[
-            const SizedBox(width: 8),
-            actionView,
-          ],
+          Text(
+            title,
+            style: RetroStyle.font(size: 14, color: RetroStyle.textDark),
+          ),
+          if (actionView != null) ...[const SizedBox(width: 8), actionView],
           const SizedBox(width: 8),
           Expanded(child: Divider(color: RetroStyle.primary, thickness: 2)),
         ],
@@ -172,38 +225,56 @@ class GachaStoreView extends StatelessWidget {
     );
   }
 
-  Widget _buildOfferCard(BuildContext context, String name, String subtitle, IconData icon, int cost) {
+  Widget _buildOfferCard(
+    BuildContext context,
+    String name,
+    String subtitle,
+    IconData icon,
+    int cost,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: RetroStyle.box(color: Colors.white).copyWith(
-        border: Border.all(color: Colors.amber, width: 4),
-      ),
+      decoration: RetroStyle.box(
+        color: Colors.white,
+      ).copyWith(border: Border.all(color: Colors.amber, width: 4)),
       child: Row(
         children: [
           Icon(icon, size: 40, color: Colors.amber)
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .scaleXY(end: 1.1, duration: 600.ms),
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .scaleXY(end: 1.1, duration: 600.ms),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: RetroStyle.font(size: 12, color: RetroStyle.primary)),
+                Text(
+                  name,
+                  style: RetroStyle.font(size: 12, color: RetroStyle.primary),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: RetroStyle.font(size: 8, color: Colors.grey[700]!)),
+                Text(
+                  subtitle,
+                  style: RetroStyle.font(size: 8, color: Colors.grey[700]!),
+                ),
               ],
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: RetroStyle.accent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+              ),
             ),
             onPressed: () {
               final eco = context.read<EconomyController>();
               if (eco.gems >= cost) {
                 eco.spendGems(cost);
-                RetroStyle.showSuccess(context, "FICHA ADQUIRIDA", icon: Icons.card_giftcard);
+                RetroStyle.showSuccess(
+                  context,
+                  "FICHA ADQUIRIDA",
+                  icon: Icons.card_giftcard,
+                );
               } else {
                 RetroStyle.showInsufficient(context, "GEMAS INSUFICIENTES");
               }
@@ -213,7 +284,10 @@ class GachaStoreView extends StatelessWidget {
               children: [
                 const Icon(Icons.diamond, size: 14, color: Colors.white),
                 const SizedBox(width: 4),
-                Text("$cost", style: RetroStyle.font(size: 12, color: Colors.white)),
+                Text(
+                  "$cost",
+                  style: RetroStyle.font(size: 12, color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -222,31 +296,54 @@ class GachaStoreView extends StatelessWidget {
     );
   }
 
-  Widget _buildExchangeCard(BuildContext context, String name, String subtitle, IconData icon, int cost, {required bool isGemsCost, bool isRealMoney = false}) {
+  Widget _buildExchangeCard(
+    BuildContext context,
+    String name,
+    String subtitle,
+    IconData icon,
+    int cost, {
+    required bool isGemsCost,
+    bool isRealMoney = false,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: RetroStyle.box(color: RetroStyle.panel).copyWith(
-        border: Border.all(color: isRealMoney ? Colors.green : Colors.grey, width: 2),
+        border: Border.all(
+          color: isRealMoney ? Colors.green : Colors.grey,
+          width: 2,
+        ),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 32, color: isGemsCost ? Colors.yellow : Colors.purpleAccent),
+          Icon(
+            icon,
+            size: 32,
+            color: isGemsCost ? Colors.yellow : Colors.purpleAccent,
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: RetroStyle.font(size: 12, color: RetroStyle.textDark)),
+                Text(
+                  name,
+                  style: RetroStyle.font(size: 12, color: RetroStyle.textDark),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: RetroStyle.font(size: 10, color: RetroStyle.primary)),
+                Text(
+                  subtitle,
+                  style: RetroStyle.font(size: 10, color: RetroStyle.primary),
+                ),
               ],
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: isRealMoney ? Colors.green : RetroStyle.accent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+              ),
             ),
             onPressed: () {
               final eco = context.read<EconomyController>();
@@ -258,7 +355,10 @@ class GachaStoreView extends StatelessWidget {
                 } else if (name.contains("Cofre")) {
                   eco.addGems(5000);
                 }
-                RetroStyle.showSuccess(context, "!$subtitle COMPRADOS!\nGRACIAS :)");
+                RetroStyle.showSuccess(
+                  context,
+                  "!$subtitle COMPRADOS!\nGRACIAS :)",
+                );
               } else if (isGemsCost) {
                 // Comprando con Gemas
                 if (eco.gems >= cost) {
@@ -267,7 +367,11 @@ class GachaStoreView extends StatelessWidget {
                   if (name.contains("Monedas")) {
                     eco.addCoins(10000);
                   }
-                  RetroStyle.showSuccess(context, "$name OBTENIDO", icon: Icons.monetization_on);
+                  RetroStyle.showSuccess(
+                    context,
+                    "$name OBTENIDO",
+                    icon: Icons.monetization_on,
+                  );
                 } else {
                   RetroStyle.showInsufficient(context, "GEMAS INSUFICIENTES");
                 }
@@ -284,9 +388,17 @@ class GachaStoreView extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!isRealMoney) Icon(isGemsCost ? Icons.diamond : Icons.monetization_on, size: 14, color: Colors.white),
+                if (!isRealMoney)
+                  Icon(
+                    isGemsCost ? Icons.diamond : Icons.monetization_on,
+                    size: 14,
+                    color: Colors.white,
+                  ),
                 if (!isRealMoney) const SizedBox(width: 4),
-                Text(isRealMoney ? "\$$cost.99" : "$cost", style: RetroStyle.font(size: 12, color: Colors.white)),
+                Text(
+                  isRealMoney ? "\$$cost.99" : "$cost",
+                  style: RetroStyle.font(size: 12, color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -295,33 +407,46 @@ class GachaStoreView extends StatelessWidget {
     );
   }
 
-  Widget _buildAdCard(BuildContext context, String name, String subtitle, IconData icon) {
+  Widget _buildAdCard(
+    BuildContext context,
+    String name,
+    String subtitle,
+    IconData icon,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
-      decoration: RetroStyle.box(color: RetroStyle.panel).copyWith(
-        border: Border.all(color: Colors.amberAccent, width: 2),
-      ),
+      decoration: RetroStyle.box(
+        color: RetroStyle.panel,
+      ).copyWith(border: Border.all(color: Colors.amberAccent, width: 2)),
       child: Row(
         children: [
           Icon(icon, size: 32, color: Colors.amberAccent)
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .scaleXY(end: 1.1, duration: 800.ms),
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .scaleXY(end: 1.1, duration: 800.ms),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: RetroStyle.font(size: 12, color: RetroStyle.textDark)),
+                Text(
+                  name,
+                  style: RetroStyle.font(size: 12, color: RetroStyle.textDark),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: RetroStyle.font(size: 10, color: RetroStyle.primary)),
+                Text(
+                  subtitle,
+                  style: RetroStyle.font(size: 10, color: RetroStyle.primary),
+                ),
               ],
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: RetroStyle.accent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+              ),
             ),
             onPressed: () {
               final adService = AdService();
@@ -330,14 +455,21 @@ class GachaStoreView extends StatelessWidget {
                   onRewardEarned: (amount) {
                     final eco = context.read<EconomyController>();
                     eco.addGems(amount);
-                    RetroStyle.showSuccess(context, "+$amount GEMAS OBTENIDAS", icon: Icons.diamond);
+                    RetroStyle.showSuccess(
+                      context,
+                      "+$amount GEMAS OBTENIDAS",
+                      icon: Icons.diamond,
+                    );
                   },
                   onAdClosed: () {
                     // Acciones adicionales si necesitas
-                  }
+                  },
                 );
               } else {
-                RetroStyle.showInsufficient(context, "ANUNCIO NO DISPONIBLE. INTENTA MAS TARDE.");
+                RetroStyle.showInsufficient(
+                  context,
+                  "ANUNCIO NO DISPONIBLE. INTENTA MAS TARDE.",
+                );
               }
             },
             child: Row(
@@ -345,7 +477,10 @@ class GachaStoreView extends StatelessWidget {
               children: [
                 const Icon(Icons.play_arrow, size: 14, color: Colors.white),
                 const SizedBox(width: 4),
-                Text("VER", style: RetroStyle.font(size: 12, color: Colors.white)),
+                Text(
+                  "VER",
+                  style: RetroStyle.font(size: 12, color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -382,7 +517,7 @@ class GachaStoreView extends StatelessWidget {
             color: color.withValues(alpha: 0.4),
             blurRadius: 10,
             spreadRadius: 2,
-          )
+          ),
         ],
         border: Border.all(color: color, width: 2),
       ),
@@ -397,13 +532,18 @@ class GachaStoreView extends StatelessWidget {
                   color: Colors.black45,
                   border: Border.all(color: color, width: 2),
                   boxShadow: [
-                    BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 15)
-                  ]
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.6),
+                      blurRadius: 15,
+                    ),
+                  ],
                 ),
                 child: Icon(icon, size: 40, color: Colors.white)
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .slideY(begin: -0.1, end: 0.1, duration: 1.seconds)
-                  .shimmer(duration: 1500.ms, color: color),
+                    .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true),
+                    )
+                    .slideY(begin: -0.1, end: 0.1, duration: 1.seconds)
+                    .shimmer(duration: 1500.ms, color: color),
               ),
               const SizedBox(width: 20),
               Expanded(
@@ -414,25 +554,45 @@ class GachaStoreView extends StatelessWidget {
                       name.toUpperCase(),
                       style: RetroStyle.font(size: 14, color: Colors.white)
                           .copyWith(
-                            shadows: [Shadow(color: color, blurRadius: 10)]
+                            shadows: [Shadow(color: color, blurRadius: 10)],
                           ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isChef ? "Desbloquea chefs y sus habilidades" : "Forja equipamiento para tu equipo",
+                      isChef
+                          ? "Desbloquea chefs y sus habilidades"
+                          : "Forja equipamiento para tu equipo",
                       style: RetroStyle.font(size: 8, color: Colors.white70),
-                    )
-                  ]
-                )
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: _buildBuyButton(context, "1 TIRADA", cost1x, color, name, isChef)),
+              Expanded(
+                child: _buildBuyButton(
+                  context,
+                  "1 TIRADA",
+                  cost1x,
+                  color,
+                  name,
+                  isChef,
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _buildBuyButton(context, "10 TIRADAS", cost10x, color, name, isChef)),
+              Expanded(
+                child: _buildBuyButton(
+                  context,
+                  "10 TIRADAS",
+                  cost10x,
+                  color,
+                  name,
+                  isChef,
+                ),
+              ),
             ],
           ),
         ],
@@ -440,25 +600,37 @@ class GachaStoreView extends StatelessWidget {
     );
   }
 
-  Widget _buildBuyButton(BuildContext context, String amount, int cost, Color color, String rarityInfo, bool isChef) {
+  Widget _buildBuyButton(
+    BuildContext context,
+    String amount,
+    int cost,
+    Color color,
+    String rarityInfo,
+    bool isChef,
+  ) {
     return GestureDetector(
       onTap: () {
         final eco = context.read<EconomyController>();
         final chefController = context.read<ChefController>();
-        
+
         if (eco.gems >= cost) {
           eco.spendGems(cost);
-          
+
           final rollAmount = amount.contains("1 ") || amount == "1x" ? 1 : 10;
-          
-          final results = chefController.rollGacha(isChef, rollAmount, rarityInfo, eco);
-          
+
+          final results = chefController.rollGacha(
+            isChef,
+            rollAmount,
+            rarityInfo,
+            eco,
+          );
+
           showDialog(
             context: context,
-            barrierColor: Colors.black87, 
-            barrierDismissible: false, 
+            barrierColor: Colors.black87,
+            barrierDismissible: false,
             builder: (_) => GachaRevealOverlay(
-              rarityColor: color, 
+              rarityColor: color,
               rarityName: rarityInfo,
               results: results,
             ),
@@ -486,9 +658,12 @@ class GachaStoreView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.diamond, color: Colors.purpleAccent, size: 14),
-                Text(" $cost", style: RetroStyle.font(size: 12, color: Colors.amber)),
+                Text(
+                  " $cost",
+                  style: RetroStyle.font(size: 12, color: Colors.amber),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -503,23 +678,37 @@ class GachaStoreView extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         content: Container(
           padding: const EdgeInsets.all(16),
-          decoration: RetroStyle.box(color: RetroStyle.panel).copyWith(
-            border: Border.all(color: RetroStyle.accent, width: 4),
-          ),
+          decoration: RetroStyle.box(
+            color: RetroStyle.panel,
+          ).copyWith(border: Border.all(color: RetroStyle.accent, width: 4)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "PROBABILIDADES OBTENCION", 
+                "PROBABILIDADES OBTENCION",
                 style: RetroStyle.font(size: 14, color: RetroStyle.accent),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              _buildProbRow("COFRE COMUN", Colors.grey, ["Comun: 90%", "Raro: 10%"]),
-              _buildProbRow("COFRE RARO", Colors.blue, ["Comun: 60%", "Raro: 30%", "Epico: 10%"]),
-              _buildProbRow("COFRE EPICO", Colors.purple, ["Raro: 60%", "Epico: 30%", "Legendario: 10%"]),
-              _buildProbRow("COFRE LEGENDARIO", Colors.orange, ["Epico: 70%", "Legendario: 30%"]),
-              
+              _buildProbRow("COFRE COMUN", Colors.grey, [
+                "Comun: 90%",
+                "Raro: 10%",
+              ]),
+              _buildProbRow("COFRE RARO", Colors.blue, [
+                "Comun: 60%",
+                "Raro: 30%",
+                "Epico: 10%",
+              ]),
+              _buildProbRow("COFRE EPICO", Colors.purple, [
+                "Raro: 60%",
+                "Epico: 30%",
+                "Legendario: 10%",
+              ]),
+              _buildProbRow("COFRE LEGENDARIO", Colors.orange, [
+                "Epico: 70%",
+                "Legendario: 30%",
+              ]),
+
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(8),
@@ -529,20 +718,36 @@ class GachaStoreView extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Text("- SISTEMA PITY -", style: RetroStyle.font(size: 10, color: Colors.amber)),
+                    Text(
+                      "- SISTEMA PITY -",
+                      style: RetroStyle.font(size: 10, color: Colors.amber),
+                    ),
                     const SizedBox(height: 4),
-                    Text("Cada 50 tiradas: Epico (SSR) Garantizado", style: RetroStyle.font(size: 8, color: Colors.white), textAlign: TextAlign.center),
+                    Text(
+                      "Cada 50 tiradas: Epico (SSR) Garantizado",
+                      style: RetroStyle.font(size: 8, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 2),
-                    Text("Cada 100 tiradas: Legendario (UR) Garantizado", style: RetroStyle.font(size: 8, color: Colors.white), textAlign: TextAlign.center),
+                    Text(
+                      "Cada 100 tiradas: Legendario (UR) Garantizado",
+                      style: RetroStyle.font(size: 8, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
-                )
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: RetroStyle.primary),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: RetroStyle.primary,
+                ),
                 onPressed: () => Navigator.pop(ctx),
-                child: Text("ENTENDIDO", style: RetroStyle.font(size: 10, color: Colors.white)),
-              )
+                child: Text(
+                  "ENTENDIDO",
+                  style: RetroStyle.font(size: 10, color: Colors.white),
+                ),
+              ),
             ],
           ),
         ),
@@ -569,15 +774,21 @@ class GachaStoreView extends StatelessWidget {
             flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: rates.map((r) => Padding(
-                padding: const EdgeInsets.only(bottom: 2),
-                child: Text(r, style: RetroStyle.font(size: 8, color: Colors.white70)),
-              )).toList(),
+              children: rates
+                  .map(
+                    (r) => Padding(
+                      padding: const EdgeInsets.only(bottom: 2),
+                      child: Text(
+                        r,
+                        style: RetroStyle.font(size: 8, color: Colors.white70),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
-          )
+          ),
         ],
-      )
+      ),
     );
   }
-
 }

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../paleto_game.dart';
 
-class BulletComponent extends PositionComponent with HasGameReference<PaletoGame> {
+class BulletComponent extends PositionComponent
+    with HasGameReference<PaletoGame> {
   bool isActive = false;
   Vector2 velocity = Vector2.zero();
-  bool isPlayerBullet = true; // True if it hurts enemies, false if it hurts player
+  bool isPlayerBullet =
+      true; // True if it hurts enemies, false if it hurts player
   late Paint _paint;
 
   BulletComponent() : super(size: Vector2(10, 10), anchor: Anchor.center) {
@@ -24,7 +26,7 @@ class BulletComponent extends PositionComponent with HasGameReference<PaletoGame
   @override
   void update(double dt) {
     if (!isActive) return;
-    
+
     position.add(velocity * dt);
 
     // Destruir el proyectil si sale de la pantalla extendida (pooling)
