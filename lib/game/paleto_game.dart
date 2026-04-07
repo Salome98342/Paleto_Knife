@@ -10,6 +10,7 @@ import 'player/player.dart';
 import 'enemies/enemy.dart';
 
 import '../controllers/world_controller.dart';
+import '../services/audio_service.dart';
 
 class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
   final LocationData locationData;
@@ -54,6 +55,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
   bool _isSpawningBoss = false;
   bool _showBossAlert = false;
   double _bossAlertTimer = 0.0;
+  bool _bossMusicPlaying = false; // Controlar que la música de boss no se repita
   final TextPaint _alertPaint = TextPaint(
     style: const TextStyle(
       color: Colors.redAccent,
@@ -133,7 +135,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
 
       final style = _alertPaint.style;
       final pulsatingPaint = TextPaint(
-        style: style.copyWith(color: style.color!.withOpacity(opacity)),
+        style: style.copyWith(color: style.color!.withValues(alpha: opacity)),
       );
 
       pulsatingPaint.render(
@@ -191,6 +193,26 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     if (isBoss && !_isSpawningBoss) {
       _isSpawningBoss = true;
       _showBossAlert = true;
+      
+      // Reproducir alerta de boss
+      try {
+        AudioService.instance.playBossAlert();
+      } catch (_) {}
+      
+      // Reproducir música de boss según la ubicación
+      if (!_bossMusicPlaying) {
+        _bossMusicPlaying = true;
+        try {
+          final locationName = locationData.name.toLowerCase();
+          if (locationName == 'america') {
+            AudioService.instance.playAmericaBossMusic();
+          } else if (locationName == 'asia') {
+            AudioService.instance.playAsiaBossMusic();
+          } else if (locationName == 'europa') {
+            AudioService.instance.playEuropaBossMusic();
+          }
+        } catch (_) {}
+      }
 
       Future.delayed(const Duration(seconds: 3), () {
         _showBossAlert = false;
@@ -261,10 +283,24 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
             // Efecto de hit
             ExplosionHelper.spawn(this, bullet.position, color: Colors.yellow);
 
+            // Reproducir sonido de hit
+            try {
+              AudioService.instance.playHitSound();
+            } catch (_) {}
+            
             final damage = getPlayerDamage != null ? getPlayerDamage!() : 10.0;
             final isDead = enemy.takeDamage(damage);
 
             if (isDead) {
+              // Reproducir sonido de muerte según el tipo
+              try {
+                if (enemy.isBoss) {
+                  AudioService.instance.playBossDeath();
+                } else {
+                  AudioService.instance.playEnemyDeath();
+                }
+              } catch (_) {}
+              
               // Efecto visual de muerte
               shakeScreen(
                 enemy.isBoss ? 15.0 : 8.0,
@@ -284,10 +320,24 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
               if (enemiesKilledInWave >= enemiesToKillNextWave + 1) {
                 _isSpawningBoss = false;
                 _showBossAlert = false;
+                _bossMusicPlaying = false; // Reset para la próxima onda de boss
                 currentWave++;
                 enemiesKilledInWave = 0;
                 enemiesSpawnedInWave = 0;
                 enemiesToKillNextWave += (currentWave * 5); // Olas mas largas
+                // Volver a música de gameplay después de matar boss
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  try {
+                    final locationName = locationData.name.toLowerCase();
+                    if (locationName == 'america') {
+                      AudioService.instance.playAmericaMusic();
+                    } else if (locationName == 'asia') {
+                      AudioService.instance.playAsiaMusic();
+                    } else if (locationName == 'europa') {
+                      AudioService.instance.playEuropaMusic();
+                    }
+                  } catch (_) {}
+                });
                 Future.delayed(const Duration(seconds: 3), () {
                   pauseEngine();
                   overlays.add('WaveClear');

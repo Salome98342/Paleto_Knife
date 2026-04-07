@@ -10,6 +10,7 @@ import 'controllers/world_controller.dart';
 import 'controllers/chef_controller.dart';
 import 'services/audio_service.dart';
 import 'services/ad_service.dart';
+import 'game_logic/combat_system_initializer.dart';
 
 // Paleta pixel art global
 class PixelColors {
@@ -39,9 +40,13 @@ void main() async {
     ),
   );
 
-  // Inicializacion de servicios cri­ticos
+  // Inicializacion de servicios críticos
   await AudioService.init();
   await AdService().initConfigs();
+  
+  // Initialize combat system
+  initializeCombatSystem();
+  assert(isCombatSystemInitialized(), 'Combat system failed to initialize');
 
   runApp(
     MultiProvider(

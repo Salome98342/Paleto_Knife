@@ -43,7 +43,7 @@ class PlayerComponent extends PositionComponent
 
     if (isInvulnerable) {
       // Efecto parpadeo
-      _paint.color = Colors.cyanAccent.withOpacity(0.5);
+      _paint.color = Colors.cyanAccent.withValues(alpha: 0.5);
     } else {
       _paint.color = Colors.blue;
     }

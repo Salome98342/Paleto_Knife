@@ -26,6 +26,22 @@ class _GameplayScreenState extends State<GameplayScreen> {
   @override
   void initState() {
     super.initState();
+    // Reproducir música de gameplay al entrar (según la ubicación)
+    try {
+      final locationData = context.read<WorldController>().selectedLocation;
+      final locationName = locationData.name.toLowerCase();
+      
+      if (locationName == 'america') {
+        AudioService.instance.playAmericaMusic();
+      } else if (locationName == 'asia') {
+        AudioService.instance.playAsiaMusic();
+      } else if (locationName == 'europa') {
+        AudioService.instance.playEuropaMusic();
+      } else {
+        AudioService.instance.playGameplayMusic();
+      }
+    } catch (_) {}
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<EconomyController>().setMaxHp(
         context.read<ChefController>().activeChef.currentHp,
@@ -58,6 +74,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
             context.read<ChefController>().processBossKillReward(eco, context);
           }
           try {
+            // Reproducir sonido de moneda al ganar recompensa
             AudioService.instance.playCoinCollect();
           } catch (_) {}
         }
@@ -71,6 +88,15 @@ class _GameplayScreenState extends State<GameplayScreen> {
         return 10.0;
       },
     );
+  }
+
+  @override
+  void dispose() {
+    // Volver a música de menú cuando sales de gameplay
+    try {
+      AudioService.instance.playMenuMusic();
+    } catch (_) {}
+    super.dispose();
   }
 
   @override

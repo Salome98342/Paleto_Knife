@@ -201,7 +201,7 @@ class _QuestsViewState extends State<QuestsView> {
                         decoration: BoxDecoration(
                           color: isFilled
                               ? (isClaimed ? Colors.grey : RetroStyle.primary)
-                              : Colors.black.withOpacity(0.3),
+                              : Colors.black.withValues(alpha: 0.3),
                           border: Border.all(color: Colors.black54, width: 2),
                         ),
                       ),
@@ -276,7 +276,7 @@ class _QuestsViewState extends State<QuestsView> {
                                           boxShadow: [
                                             BoxShadow(
                                               color: RetroStyle.accent
-                                                  .withOpacity(0.8),
+                                                  .withValues(alpha: 0.8),
                                               blurRadius: 8,
                                               spreadRadius: 2,
                                             ),

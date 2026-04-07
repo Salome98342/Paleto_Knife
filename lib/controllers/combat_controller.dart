@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/enemy.dart';
 import '../models/projectile.dart';
+import '../models/element_type.dart';
 import '../game_logic/projectile_system.dart';
 import '../game_logic/player_controller.dart';
 import '../game_logic/enemy_controller.dart';
@@ -248,8 +249,60 @@ class CombatController extends ChangeNotifier {
     // Limpiar proyectiles
     _projectileSystem.clear();
 
+    // Cambiar música según si es boss o not
+    if (isBoss) {
+      _playBossMusic(currentElement);
+    } else {
+      _playGameplayMusicForElement(currentElement);
+    }
+
     debugPrint('Nivel $currentLevel - ${isBoss ? "JEFE" : "Amalgama normal"}');
     notifyListeners();
+  }
+
+  /// Helper para reproducir música de boss según el elemento de la región
+  void _playBossMusic(ElementType element) {
+    try {
+      switch (element) {
+        case ElementType.water:
+          AudioService.instance.playAmericaBossMusic();
+          break;
+        case ElementType.fire:
+          AudioService.instance.playAsiaBossMusic();
+          break;
+        case ElementType.earth:
+          AudioService.instance.playEuropaBossMusic();
+          break;
+        default:
+          // Para neutral y master, usar gameplay music
+          break;
+      }
+    } catch (e) {
+      debugPrint('Error playing boss music: $e');
+    }
+  }
+
+  /// Helper para reproducir música de gameplay según el elemento
+  void _playGameplayMusicForElement(ElementType element) {
+    try {
+      switch (element) {
+        case ElementType.water:
+          AudioService.instance.playAmericaMusic();
+          break;
+        case ElementType.fire:
+          AudioService.instance.playAsiaMusic();
+          break;
+        case ElementType.earth:
+          AudioService.instance.playEuropaMusic();
+          break;
+        default:
+          // Para neutral y master, usar gameplay music normal
+          AudioService.instance.playGameplayMusic();
+          break;
+      }
+    } catch (e) {
+      debugPrint('Error playing gameplay music: $e');
+    }
   }
 
   /// Mueve el jugador a una posicion horizontal especifica (movimiento tactil)

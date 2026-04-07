@@ -443,7 +443,7 @@ class _ChefsViewState extends State<ChefsView>
                                                   ? [
                                                       BoxShadow(
                                                         color: RetroStyle.accent
-                                                            .withOpacity(0.6),
+                                                            .withValues(alpha: 0.6),
                                                         blurRadius: 12,
                                                         spreadRadius: 4,
                                                       ),

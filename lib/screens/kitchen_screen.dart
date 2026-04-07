@@ -223,7 +223,7 @@ class _SousChefCard extends StatelessWidget {
           boxShadow: canAfford
               ? [
                   BoxShadow(
-                    color: PixelColors.accent.withOpacity(0.3),
+                    color: PixelColors.accent.withValues(alpha: 0.3),
                     offset: const Offset(3, 3),
                   ),
                 ]
@@ -235,7 +235,7 @@ class _SousChefCard extends StatelessWidget {
             Container(
               width: 52,
               height: 52,
-              color: Color(chef.element.getColor()).withOpacity(0.15),
+              color: Color(chef.element.getColor()).withValues(alpha: 0.15),
               child: Center(
                 child: Text(
                   chef.element.getEmoji(),

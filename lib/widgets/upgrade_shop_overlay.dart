@@ -19,7 +19,7 @@ class UpgradeShopOverlay extends StatelessWidget {
           width: MediaQuery.of(context).size.width * 0.85,
           padding: const EdgeInsets.all(20),
           decoration: AppTheme.cardDecoration.copyWith(
-            color: AppTheme.surface.withOpacity(0.95), // Casi solido
+            color: AppTheme.surface.withValues(alpha: 0.95), // Casi solido
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -35,6 +35,10 @@ class UpgradeShopOverlay extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.close, color: AppTheme.textMain),
                     onPressed: () {
+                      try {
+                        // Volver a música de juego cuando se cierra
+                        import_audio.AudioService.instance.playLastGameplayMusic();
+                      } catch (_) {}
                       game.resumeEngine();
                       game.resumeEngine();
                       game.overlays.remove('UpgradeShop');
@@ -83,7 +87,7 @@ class UpgradeShopOverlay extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.danger.withOpacity(0.2),
+                  color: AppTheme.danger.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -192,7 +196,7 @@ class UpgradeShopOverlay extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.danger.withOpacity(0.2),
+                  color: AppTheme.danger.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(

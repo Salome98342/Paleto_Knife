@@ -26,7 +26,7 @@ class _MainGameScreenState extends State<MainGameScreen> {
   void initState() {
     super.initState();
     _gameController = GameController();
-    AudioService.instance.playGameplayMusic();
+    // No reproducire música aquí - cada pantalla maneja su propia música
     _initializeGame();
   }
 
@@ -97,11 +97,25 @@ class _MainGameScreenState extends State<MainGameScreen> {
             setState(() {
               _currentIndex = index;
             });
-            // Si entra a Tecnicas (2) o Equipo (3), que suena a la Tienda
-            if (index == 2 || index == 3) {
-              AudioService.instance.playShopMusic();
-            } else {
-              AudioService.instance.playGameplayMusic();
+            // Manejar música según la pantalla seleccionada
+            switch (index) {
+              case 0:
+                // Combate - reproducir última música de región o gameplay por defecto
+                AudioService.instance.playLastGameplayMusic();
+                break;
+              case 1:
+                // Cocina - música de menú
+                AudioService.instance.playMenuMusic();
+                break;
+              case 2:
+              case 3:
+                // Técnicas y Equipo - música de tienda
+                AudioService.instance.playShopMusic();
+                break;
+              case 4:
+                // Perfil - música de menú
+                AudioService.instance.playMenuMusic();
+                break;
             }
           },
           type: BottomNavigationBarType.fixed,

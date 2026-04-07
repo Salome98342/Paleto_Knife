@@ -29,6 +29,9 @@ class _CombatScreenState extends State<CombatScreen> {
   void initState() {
     super.initState();
     _combatController = CombatController();
+    
+    // Reproducir música de combate
+    AudioService.instance.playLastGameplayMusic();
 
     // Inicializar despues del primer frame para tener el tamano correcto
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -93,6 +96,12 @@ class _CombatScreenState extends State<CombatScreen> {
         return 'AGUA';
       case ElementType.earth:
         return 'TIERRA';
+      case ElementType.wind:
+        return 'VIENTO';
+      case ElementType.lava:
+        return 'LAVA';
+      case ElementType.plant:
+        return 'PLANTA';
       case ElementType.master:
         return 'MAESTRO';
       case ElementType.neutral:
@@ -307,7 +316,7 @@ class _CombatScreenState extends State<CombatScreen> {
                             border: Border.all(
                               color: Color(
                                 enemy.element.getColor(),
-                              ).withOpacity(0.75),
+                              ).withValues(alpha: 0.75),
                               width: 2,
                             ),
                           ),
@@ -364,7 +373,7 @@ class _CombatScreenState extends State<CombatScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.3),
+                                    color: Colors.green.withValues(alpha: 0.3),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
                                       color: Colors.green,
@@ -487,7 +496,7 @@ class _CombatScreenState extends State<CombatScreen> {
             if (!player.isAlive)
               Positioned.fill(
                 child: Container(
-                  color: Colors.red.shade900.withOpacity(0.8),
+                  color: Colors.red.shade900.withValues(alpha: 0.8),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -524,7 +533,7 @@ class _CombatScreenState extends State<CombatScreen> {
                 _combatController.worldManager.isCurrentLevelBoss)
               Positioned.fill(
                 child: Container(
-                  color: Colors.green.shade900.withOpacity(0.8),
+                  color: Colors.green.shade900.withValues(alpha: 0.8),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

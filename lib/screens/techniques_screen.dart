@@ -285,7 +285,7 @@ class _TechniqueCard extends StatelessWidget {
             Container(
               width: 52,
               height: 52,
-              decoration: BoxDecoration(color: color.withOpacity(0.2)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.2)),
               child: Icon(
                 _getIconForType(technique.type),
                 color: color,

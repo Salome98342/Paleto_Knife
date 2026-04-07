@@ -65,7 +65,7 @@ class RetroStyle {
                           border: Border.all(color: Colors.white, width: 4),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.redAccent.withOpacity(0.8),
+                              color: Colors.redAccent.withValues(alpha: 0.8),
                               blurRadius: 20,
                               spreadRadius: 4,
                             ),
@@ -146,7 +146,7 @@ class RetroStyle {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.greenAccent.withOpacity(0.8),
+                              color: Colors.greenAccent.withValues(alpha: 0.8),
                               blurRadius: 24,
                               spreadRadius: 4,
                             ),

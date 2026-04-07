@@ -27,11 +27,11 @@ class MovementControls extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.7),
+              color: Colors.blue.withValues(alpha: 0.7),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blue.withOpacity(0.3),
+                  color: Colors.blue.withValues(alpha: 0.3),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -53,11 +53,11 @@ class MovementControls extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.7),
+              color: Colors.blue.withValues(alpha: 0.7),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blue.withOpacity(0.3),
+                  color: Colors.blue.withValues(alpha: 0.3),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),

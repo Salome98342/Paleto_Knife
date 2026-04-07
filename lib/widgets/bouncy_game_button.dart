@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/audio_service.dart';
 
 class BouncyGameButton extends StatefulWidget {
   final VoidCallback onPressed;
@@ -48,7 +49,11 @@ class _BouncyGameButtonState extends State<BouncyGameButton>
   void _onTapCancel() => _controller.forward();
 
   void _playAudioFeedback() {
-    // AudioService.playClick(); -> Implementar luego
+    try {
+      AudioService.instance.playClickSound();
+    } catch (_) {
+      // Ignorar errores de audio
+    }
   }
 
   @override
@@ -61,3 +66,4 @@ class _BouncyGameButtonState extends State<BouncyGameButton>
     );
   }
 }
+

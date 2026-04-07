@@ -214,7 +214,7 @@ class _KnivesTab extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Color(knife.rarity.getColor()).withOpacity(0.2),
+                color: Color(knife.rarity.getColor()).withValues(alpha: 0.2),
                 border: Border.all(color: PixelColors.border, width: 1),
               ),
               child: const Center(child: Icon(Icons.restaurant, size: 30)),

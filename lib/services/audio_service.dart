@@ -10,13 +10,23 @@ class AudioService {
   static final AudioService instance = AudioService._();
 
   static const String menuSongPath = 'assets/audio/menu/menu_song.mp3';
-  static const String gameplaySongPath = 'assets/audio/gameplay/cuchillo.mp3';
-  static const String shopSongPath = 'assets/audio/gameplay/shop.mp3';
-  static const String cuchilloMenuPath =
-      'assets/audio/gameplay/cuchillo_menu.mp3'; // Cancion de config
+  // Música de gameplay - usa la región America por defecto
+  static const String gameplaySongPath = 'assets/audio/gameplay/america/america_wave.mp3';
+  static const String gameplayAsiaSongPath = 'assets/audio/gameplay/asia/asia_wave.mp3';
+  static const String gameplayEuropaSongPath = 'assets/audio/gameplay/europa/europa_wave.mp3';
+  // Música de tienda
+  static const String shopSongPath = 'assets/audio/tienda/shop.mp3';
+  // Música de configuración (usar menu_song por defecto)
+  static const String cuchilloMenuPath = 'assets/audio/menu/menu_song.mp3';
   static const String coinCollectPath = 'assets/audio/sfx/coin_collect.mp3';
   static const String hitSoundPath = 'assets/audio/sfx/hit.mp3';
   static const String powerupSoundPath = 'assets/audio/sfx/powerup.mp3';
+  static const String clickObjectsPath = 'assets/audio/sfx/click_objetos.mp3';
+  static const String clickGachaPath = 'assets/audio/tienda/click_gacha.mp3';
+  static const String bossAlertPath = 'assets/audio/sfx/alerta_boss.mp3';
+  static const String enemyDeathPath = 'assets/audio/sfx/daño_a_enemigo.mp3';
+  static const String bossDeathPath = 'assets/audio/sfx/muerte_boss.mp3';
+  static const String knifeThrowPath = 'assets/audio/sfx/lanzar_cuchillo.mp3';
 
   final AudioPlayer _bgmPlayer = AudioPlayer(playerId: 'bgm_player');
   final List<AudioPlayer> _sfxPlayers = List.generate(
@@ -27,6 +37,7 @@ class AudioService {
 
   bool _initialized = false;
   _BgmTrack _currentTrack = _BgmTrack.none;
+  String? _lastRegionMusicPath; // Rastrear última música de región
 
   double _bgmVolume = 0.55;
   double _sfxVolume = 0.9;
@@ -104,6 +115,11 @@ class AudioService {
 
       _currentTrack = track;
 
+      // Guardar path si es gameplay (para recrear la región correcta después)
+      if (track == _BgmTrack.gameplay) {
+        _lastRegionMusicPath = path;
+      }
+
       // Detener y liberar recursos del track anterior
       try {
         if (_bgmPlayer.state == PlayerState.playing ||
@@ -132,6 +148,36 @@ class AudioService {
 
   Future<void> playGameplayMusic() =>
       _playBgm(gameplaySongPath, _BgmTrack.gameplay);
+
+  // Métodos para reproducir música de gameplay según la región
+  Future<void> playAmericaMusic() =>
+      _playBgm('assets/audio/gameplay/america/america_wave.mp3', _BgmTrack.gameplay);
+
+  Future<void> playAsiaMusic() =>
+      _playBgm('assets/audio/gameplay/asia/asia_wave.mp3', _BgmTrack.gameplay);
+
+  Future<void> playEuropaMusic() =>
+      _playBgm('assets/audio/gameplay/europa/europa_wave.mp3', _BgmTrack.gameplay);
+
+  // Métodos para reproducir música de boss según la región
+  Future<void> playAmericaBossMusic() =>
+      _playBgm('assets/audio/gameplay/america/boss_america.mp3', _BgmTrack.gameplay);
+
+  Future<void> playAsiaBossMusic() =>
+      _playBgm('assets/audio/gameplay/asia/boss_asia.mp3', _BgmTrack.gameplay);
+
+  Future<void> playEuropaBossMusic() =>
+      _playBgm('assets/audio/gameplay/europa/boss_europa.mp3', _BgmTrack.gameplay);
+
+  /// Reproduce la última música de region que se estaba tocando (para volver desde tienda)
+  Future<void> playLastGameplayMusic() async {
+    if (_lastRegionMusicPath != null) {
+      await _playBgm(_lastRegionMusicPath!, _BgmTrack.gameplay);
+    } else {
+      // Fallback a America si no hay última música
+      await playAmericaMusic();
+    }
+  }
 
   Future<void> playShopMusic() => _playBgm(shopSongPath, _BgmTrack.shop);
 
@@ -172,4 +218,16 @@ class AudioService {
   Future<void> playCoinCollect() => playSfx(coinCollectPath);
   Future<void> playHitSound() => playSfx(hitSoundPath);
   Future<void> playPowerupSound() => playSfx(powerupSoundPath);
+  Future<void> playClickSound() => playSfx(clickObjectsPath);
+  Future<void> playClickGacha() => playSfx(clickGachaPath);
+  Future<void> playBossAlert() => playSfx(bossAlertPath);
+  Future<void> playEnemyDeath() => playSfx(enemyDeathPath);
+  Future<void> playBossDeath() => playSfx(bossDeathPath);
+  Future<void> playKnifeThrow() => playSfx(knifeThrowPath);
+
+  // Alias compatibles con audio_manager para evitar refactoring
+  void playClick() => playClickSound();
+  void playGacha() => playClickGacha();
+  void playUpgrade() => playPowerupSound();
+  void playKnife() => playKnifeThrow();
 }

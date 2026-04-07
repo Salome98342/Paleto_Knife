@@ -91,7 +91,7 @@ class HudOverlay extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: RetroStyle.box(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
               ).copyWith(boxShadow: []),
               child: Text(
                 'WAVE ${game.currentWave}',

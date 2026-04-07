@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
+import '../widgets/enemy_card_widget.dart';
+import '../widgets/element_type_table_widget.dart';
 import '../controllers/world_controller.dart';
 
 class WorldView extends StatelessWidget {
@@ -90,106 +92,144 @@ class WorldView extends StatelessWidget {
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(16),
-              decoration: RetroStyle.box(color: Colors.white),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.black, width: 2),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white,
+                    loc.elementColor.withValues(alpha: 0.05),
+                  ],
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        "LOCALIZACION: ",
-                        style: RetroStyle.font(size: 10, color: Colors.black),
-                      ),
-                      Expanded(
-                        child: Text(
-                          loc.name,
-                          style: RetroStyle.font(
-                            size: 12,
-                            color: RetroStyle.primary,
+                  // Header temático de región
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: loc.elementColor, width: 2),
+                      color: loc.elementColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "REGIÓN: ${loc.name.toUpperCase()}",
+                                style: RetroStyle.font(
+                                  size: 12,
+                                  color: loc.elementColor,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                loc.description,
+                                style: RetroStyle.font(
+                                  size: 7,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      if (loc.isAlert)
-                        const Icon(Icons.warning, color: Colors.red, size: 16)
-                            .animate(onPlay: (c) => c.repeat())
-                            .shakeX(duration: 500.ms),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    loc.description,
-                    style: RetroStyle.font(
-                      size: 8,
-                      color: Colors.grey.shade800,
+                        if (loc.isAlert) ...[
+                          const SizedBox(width: 8),
+                          const Icon(Icons.warning, color: Colors.red, size: 28)
+                              .animate(onPlay: (c) => c.repeat())
+                              .scaleXY(
+                                begin: 0.8,
+                                end: 1.2,
+                                duration: 500.ms,
+                                curve: Curves.easeInOut,
+                              ),
+                        ],
+                      ],
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
+
+                  // Ventaja de elemento
                   Row(
                     children: [
                       Text(
-                        "ENTORNO / VENTAJA: ",
-                        style: RetroStyle.font(size: 8, color: Colors.black),
+                        "VENTAJA RECOMENDADA: ",
+                        style: RetroStyle.font(size: 9, color: Colors.black),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                        color: loc.elementColor.withOpacity(0.2),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: loc.elementColor, width: 2),
+                          color: loc.elementColor.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                         child: Text(
                           loc.recommendedElement,
                           style: RetroStyle.font(
-                            size: 8,
+                            size: 10,
                             color: loc.elementColor,
                           ),
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12),
-                  // Barra de liberacion
+
+                  // Barra de liberación mejorada
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "ESTADO DE LIBERACION:",
-                        style: RetroStyle.font(size: 10, color: Colors.black),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "ESTADO DE LIBERACIÓN",
+                            style: RetroStyle.font(size: 9, color: Colors.black),
+                          ),
+                          Text(
+                            "${world.getLiberation(loc.name).toStringAsFixed(0)}%",
+                            style: RetroStyle.font(
+                              size: 9,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        height: 15,
+                        height: 20,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
                           border: Border.all(color: Colors.black, width: 2),
+                          color: Colors.grey.shade200,
                         ),
                         child: FractionallySizedBox(
                           alignment: Alignment.centerLeft,
                           widthFactor: (world.getLiberation(loc.name) / 100.0)
                               .clamp(0.0, 1.0),
-                          child: Container(color: Colors.green),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  loc.elementColor.withValues(alpha: 0.7),
+                                  loc.elementColor,
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${world.getLiberation(loc.name).toStringAsFixed(0)}% LIBERADO",
-                            style: RetroStyle.font(
-                              size: 8,
-                              color: Colors.green.shade800,
-                            ),
-                          ),
-                          Text(
-                            "${(100.0 - world.getLiberation(loc.name)).toStringAsFixed(0)}% RESTANTE",
-                            style: RetroStyle.font(
-                              size: 8,
-                              color: Colors.red.shade800,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
@@ -199,101 +239,109 @@ class WorldView extends StatelessWidget {
                     child: Divider(color: Colors.black, thickness: 2),
                   ),
 
-                  Text(
-                    "GLOSARIO DE AMALGAMAS",
-                    style: RetroStyle.font(size: 10, color: Colors.black),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "GLOSARIO DE AMALGAMAS",
+                        style: RetroStyle.font(size: 10, color: Colors.black),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const ElementTypeTableWidget(),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: RetroStyle.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                            side: const BorderSide(color: Colors.black, width: 2),
+                          ),
+                        ),
+                        child: Text(
+                          "TABLA DE TIPOS",
+                          style: RetroStyle.font(size: 8, color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
 
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: loc.amalgams.length,
-                      itemBuilder: (context, idx) {
-                        final a = loc.amalgams[idx];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(a.icon, color: Colors.black, size: 24),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          a.name,
-                                          style: RetroStyle.font(
-                                            size: 8,
-                                            color: RetroStyle.primary,
-                                          ),
-                                        ),
-                                        if (a.isBoss) ...[
-                                          const SizedBox(width: 4),
-                                          Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 4,
-                                                      vertical: 2,
-                                                    ),
-                                                color: Colors.red,
-                                                child: Text(
-                                                  "JEFE",
-                                                  style: RetroStyle.font(
-                                                    size: 6,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              )
-                                              .animate(
-                                                onPlay: (c) =>
-                                                    c.repeat(reverse: true),
-                                              )
-                                              .scaleXY(
-                                                begin: 1.0,
-                                                end: 1.1,
-                                                duration: 400.ms,
-                                              ),
-                                        ],
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      a.description,
-                                      style: RetroStyle.font(
-                                        size: 6,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Elemento: \${a.element}",
-                                          style: RetroStyle.font(
-                                            size: 6,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          "Debilidad: \${a.weakness}",
-                                          style: RetroStyle.font(
-                                            size: 6,
-                                            color: Colors.orange.shade700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Enemigos con elementos
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: loc.amalgams.length,
+                            itemBuilder: (context, idx) {
+                              final a = loc.amalgams[idx];
+                              return EnemyCardWidget(
+                                name: a.name,
+                                description: a.description,
+                                icon: a.icon,
+                                element: a.element,
+                                weakness: a.weakness,
+                                isBoss: a.isBoss,
+                                region: loc.name,
+                                elementColor: loc.elementColor,
+                                isNeutral: false,
+                              );
+                            },
+                          ),
+                          // Sección de neutrales si existen
+                          if (loc.neutralEnemies.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color(0xFF999999),
+                                  width: 2,
+                                ),
+                                color: Color(0xFFB0B0B0).withValues(alpha: 0.2),
+                              ),
+                              child: Text(
+                                "⚪ NEUTRALES",
+                                style: RetroStyle.font(
+                                  size: 9,
+                                  color: Color(0xFF606060),
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      },
+                            ),
+                            const SizedBox(height: 8),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: loc.neutralEnemies.length,
+                              itemBuilder: (context, idx) {
+                                final a = loc.neutralEnemies[idx];
+                                return EnemyCardWidget(
+                                  name: a.name,
+                                  description: a.description,
+                                  icon: a.icon,
+                                  element: a.element,
+                                  weakness: a.weakness,
+                                  isBoss: a.isBoss,
+                                  region: loc.name,
+                                  elementColor: loc.elementColor,
+                                  isNeutral: true,
+                                );
+                              },
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 ],

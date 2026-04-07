@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../game_logic/enemy_system/enemy_types.dart';
+import '../models/element_type.dart';
 
 class AmalgamData {
   final String name;
@@ -26,6 +28,7 @@ class LocationData {
   final String recommendedElement;
   final Color elementColor;
   final List<AmalgamData> amalgams;
+  final List<AmalgamData> neutralEnemies; // Enemigos neutrales en sección separada
 
   LocationData(
     this.name,
@@ -33,114 +36,151 @@ class LocationData {
     this.isAlert,
     this.recommendedElement,
     this.elementColor,
-    this.amalgams,
-  );
+    this.amalgams, {
+    this.neutralEnemies = const [],
+  });
 }
 
 class WorldController extends ChangeNotifier {
-  final List<LocationData> locations = [
-    LocationData(
-      "Asia",
-      "Invasion de amalgamas de comida asiatica picante.",
-      true,
-      "Fuego",
-      Colors.redAccent,
-      [
-        AmalgamData(
-          "Sushi-Maki Letal",
-          "Un rollo relleno de arroz explosivo.",
-          Icons.set_meal,
-          element: "Fuego",
-          weakness: "Agua",
-        ),
-        AmalgamData(
-          "Ramen-Golem",
-          "Lanza fideos ultra calientes. Ten cuidado.",
-          Icons.ramen_dining,
-          element: "Fuego",
-          weakness: "Agua",
-        ),
-        AmalgamData(
-          "Dios Dragón Sriracha",
-          "Señor de la Capsaicina. Quema todo a su paso.",
-          Icons.local_fire_department,
-          element: "Fuego",
-          weakness: "Agua",
-          isBoss: true,
-        ),
-      ],
-    ),
-    LocationData(
-      "America",
-      "Comida chatarra radiactiva suelta en las calles.",
-      false,
-      "Agua",
-      Colors.lightBlue,
-      [
-        AmalgamData(
-          "Hamburguesaurio",
-          "Salpicara grasa por todas partes.",
-          Icons.fastfood,
-          element: "Agua",
-          weakness: "Tierra",
-        ),
-        AmalgamData(
-          "Pizza-Mutante",
-          "Discurre sus rebanadas buscando presa.",
-          Icons.local_pizza,
-          element: "Agua",
-          weakness: "Tierra",
-        ),
-        AmalgamData(
-          "Kaiser Rey Burger",
-          "Emperador de la comida rápida marina y grasienta.",
-          Icons.anchor,
-          element: "Agua",
-          weakness: "Tierra",
-          isBoss: true,
-        ),
-      ],
-    ),
-    LocationData(
-      "Europa",
-      "La panaderia fina se ha rebelado en masa.",
-      true,
-      "Tierra",
-      Colors.green,
-      [
-        AmalgamData(
-          "Baguette-Blade",
-          "Pan anejo que golpea como roca.",
-          Icons.bakery_dining,
-          element: "Tierra",
-          weakness: "Fuego",
-        ),
-        AmalgamData(
-          "Croissant-Bat",
-          "Vuela silenciosamente en picada.",
-          Icons.breakfast_dining,
-          element: "Tierra",
-          weakness: "Fuego",
-        ),
-        AmalgamData(
-          "Señor de la Masa Madre",
-          "Monstruo de harina inmenso. Controla terremotos.",
-          Icons.landscape,
-          element: "Tierra",
-          weakness: "Fuego",
-          isBoss: true,
-        ),
-      ],
-    ),
-  ];
+  final List<LocationData> locations = [];
 
   late LocationData selectedLocation;
 
   Map<String, double> liberationProgress = {};
 
   WorldController() {
-    selectedLocation = locations.first;
+    _initializeLocations();
+    selectedLocation = locations.isNotEmpty ? locations.first : _createEmptyLocation();
     _loadData();
+  }
+
+  void _initializeLocations() {
+    // Inicializar catálogo de tipos de enemigos
+    EnemyTypesCatalog.initializeDefaults();
+
+    // Cargar enemigos por región
+    final allRegions = [Region.asia, Region.caribbean, Region.europe];
+    
+    for (final region in allRegions) {
+      final regionName = _getRegionName(region);
+      final regionEnemies = EnemyTypesCatalog.getByRegion(region);
+      
+      if (regionEnemies.isNotEmpty) {
+        // Separar enemigos neutrales de enemigos con elemento
+        final nonNeutralEnemies = regionEnemies.where((e) => e.element != ElementType.neutral).toList();
+        final neutralEnemies = regionEnemies.where((e) => e.element == ElementType.neutral).toList();
+        
+        final amalgams = nonNeutralEnemies.map((enemy) {
+          return AmalgamData(
+            enemy.name,
+            enemy.description,
+            _getIconForElement(enemy.element),
+            element: enemy.element.name,
+            weakness: _getWeakness(enemy.element),
+            isBoss: enemy.role == 'boss',
+          );
+        }).toList();
+
+        final neutralAmalgams = neutralEnemies.map((enemy) {
+          return AmalgamData(
+            enemy.name,
+            enemy.description,
+            _getIconForElement(enemy.element),
+            element: enemy.element.name,
+            weakness: _getWeakness(enemy.element),
+            isBoss: enemy.role == 'boss',
+          );
+        }).toList();
+
+        final hasBoss = regionEnemies.any((e) => e.role == 'boss');
+        final recommendedElement = nonNeutralEnemies.isNotEmpty 
+            ? _getWeakness(nonNeutralEnemies.first.element) 
+            : "Ninguno";
+
+        locations.add(
+          LocationData(
+            regionName,
+            "Invasión de amalgamas de $regionName",
+            hasBoss,
+            recommendedElement,
+            _getRegionColor(region),
+            amalgams,
+            neutralEnemies: neutralAmalgams,
+          ),
+        );
+      }
+    }
+  }
+
+  String _getRegionName(Region region) {
+    switch (region) {
+      case Region.asia:
+        return 'Asia';
+      case Region.caribbean:
+        return 'Caribe';
+      case Region.europe:
+        return 'Europa';
+    }
+  }
+
+  IconData _getIconForElement(ElementType element) {
+    switch (element) {
+      case ElementType.fire:
+        return Icons.local_fire_department;
+      case ElementType.water:
+        return Icons.water;
+      case ElementType.earth:
+        return Icons.landscape;
+      case ElementType.wind:
+        return Icons.cloud;
+      case ElementType.lava:
+        return Icons.volcano;
+      case ElementType.plant:
+        return Icons.nature;
+      default:
+        return Icons.help;
+    }
+  }
+
+  String _getWeakness(ElementType element) {
+    switch (element) {
+      case ElementType.fire:
+        return "Agua";
+      case ElementType.water:
+        return "Tierra";
+      case ElementType.earth:
+        return "Fuego";
+      case ElementType.wind:
+        return "Tierra";
+      case ElementType.lava:
+        return "Agua";
+      case ElementType.plant:
+        return "Fuego";
+      default:
+        return "Ninguna";
+    }
+  }
+
+  Color _getRegionColor(Region region) {
+    switch (region) {
+      case Region.asia:
+        return Colors.redAccent;
+      case Region.caribbean:
+        return Colors.lightBlue;
+      case Region.europe:
+        return Colors.green;
+    }
+  }
+
+  LocationData _createEmptyLocation() {
+    return LocationData(
+      "Sin región",
+      "No hay región seleccionada",
+      false,
+      "Ninguno",
+      Colors.grey,
+      [],
+    );
   }
 
   void selectLocation(LocationData loc) {

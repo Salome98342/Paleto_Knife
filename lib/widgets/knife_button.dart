@@ -74,8 +74,8 @@ class _KnifeButtonState extends State<KnifeButton>
                 boxShadow: [
                   BoxShadow(
                     color: _isPressed
-                        ? Colors.orange.withOpacity(0.5)
-                        : Colors.orange.withOpacity(0.3),
+                        ? Colors.orange.withValues(alpha: 0.5)
+                        : Colors.orange.withValues(alpha: 0.3),
                     blurRadius: _isPressed ? 15 : 20,
                     spreadRadius: _isPressed ? 2 : 5,
                   ),

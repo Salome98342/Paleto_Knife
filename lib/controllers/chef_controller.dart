@@ -516,7 +516,7 @@ class ChefController extends ChangeNotifier {
     final rand = math.Random();
     if (rand.nextDouble() < 0.20) {
       // Te regalamos un pull de caja Epic gratis como recompensa gorda! (o rara, ajustemos balance)
-      final results = rollGacha(true, 1, "Raro", eco); // Cofre raro
+      rollGacha(true, 1, "Raro", eco); // Cofre raro
 
       // Mostrar feedback al usuario del drop especial del Jefe
       ScaffoldMessenger.of(context).showSnackBar(

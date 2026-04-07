@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
 import '../controllers/economy_controller.dart';
 import '../services/ad_service.dart';
+import '../services/audio_service.dart';
 import '../controllers/chef_controller.dart';
 import 'gacha_reveal_overlay.dart';
 
@@ -614,6 +615,9 @@ class GachaStoreView extends StatelessWidget {
         final chefController = context.read<ChefController>();
 
         if (eco.gems >= cost) {
+          // Reproducir sonido de gacha
+          AudioService.instance.playClickGacha();
+          
           eco.spendGems(cost);
 
           final rollAmount = amount.contains("1 ") || amount == "1x" ? 1 : 10;

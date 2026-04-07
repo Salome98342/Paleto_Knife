@@ -4,7 +4,7 @@ import '../widgets/retro_style.dart';
 class AppTheme {
   static const Color background = RetroStyle.background;
   static const Color surface = RetroStyle.panel;
-  static Color surfaceTransparent = RetroStyle.panel.withOpacity(0.9);
+  static Color surfaceTransparent = RetroStyle.panel.withValues(alpha: 0.9);
 
   static const Color textMain = Colors.white;
   static const Color textDim = Colors.white70;

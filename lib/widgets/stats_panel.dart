@@ -46,7 +46,7 @@ class StatsPanel extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
+            color: Colors.orange.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -60,7 +60,7 @@ class StatsPanel extends StatelessWidget {
               'Puntos',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -109,7 +109,7 @@ class StatsPanel extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -148,7 +148,7 @@ class _StatItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.8)),
+          style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.8)),
         ),
         const SizedBox(height: 2),
         Text(

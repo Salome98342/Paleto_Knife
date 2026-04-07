@@ -63,7 +63,7 @@ class PowerButton extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (isActive ? Colors.green : Colors.purple).withOpacity(
+                  color: (isActive ? Colors.green : Colors.purple).withValues(alpha: 
                     canUse ? 0.4 : 0.2,
                   ),
                   blurRadius: 15,

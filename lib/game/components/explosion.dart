@@ -27,7 +27,7 @@ class ExplosionHelper {
               child: ComputedParticle(
                 renderer: (canvas, particle) {
                   final paint = Paint()
-                    ..color = color.withOpacity(1.0 - particle.progress)
+                    ..color = color.withValues(alpha: 1.0 - particle.progress)
                     ..blendMode =
                         BlendMode.screen; // Da un brillo de neon (Game feel)
 

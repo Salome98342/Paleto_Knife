@@ -34,6 +34,17 @@ class _MainLayoutState extends State<MainLayout> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Iniciar musica de menu cuando se carga MainLayout
+    Future.microtask(() {
+      try {
+        AudioService.instance.playMenuMusic();
+      } catch (_) {}
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: RetroStyle.background,
@@ -184,6 +195,14 @@ class _MainLayoutState extends State<MainLayout> {
     return GestureDetector(
           onTap: () {
             setState(() => _currentIndex = index);
+            // Manejar música según tab seleccionado
+            if (index == 0) {
+              // Tienda
+              AudioService.instance.playShopMusic();
+            } else {
+              // Otros (Chefs, Misiones, Mundo) -> música de menú
+              AudioService.instance.playMenuMusic();
+            }
           },
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -245,7 +264,7 @@ class _MainLayoutState extends State<MainLayout> {
 }
 
 class _HomeTab extends StatelessWidget {
-  const _HomeTab({super.key});
+  const _HomeTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +280,7 @@ class _HomeTab extends StatelessWidget {
           GestureDetector(
                 onTap: () {
                   try {
-                    AudioService.instance.playMenuMusic();
+                    AudioService.instance.playGameplayMusic();
                   } catch (_) {}
                   Navigator.push(
                     context,

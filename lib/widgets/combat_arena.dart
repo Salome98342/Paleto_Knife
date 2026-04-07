@@ -81,6 +81,24 @@ class CombatArena extends StatelessWidget {
           Colors.green.shade700,
           Colors.lime.shade600,
         ];
+      case ElementType.wind:
+        return [
+          Colors.grey.shade800,
+          Colors.blueGrey.shade600,
+          Colors.cyan.shade300,
+        ];
+      case ElementType.lava:
+        return [
+          Colors.red.shade900,
+          Colors.orange.shade800,
+          Colors.amber.shade700,
+        ];
+      case ElementType.plant:
+        return [
+          Colors.green.shade900,
+          Colors.green.shade700,
+          Colors.lightGreen.shade600,
+        ];
       case ElementType.master:
         return [
           Colors.purple.shade900,
@@ -122,7 +140,7 @@ class CombatArena extends StatelessWidget {
               width: dotSize,
               height: dotSize,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
@@ -192,7 +210,7 @@ class CombatArena extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.amber.withOpacity(0.8),
+                        color: Colors.amber.withValues(alpha: 0.8),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -207,14 +225,14 @@ class CombatArena extends StatelessWidget {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
                     // Glow effect si tiene power activo
                     if (player.powerActive)
                       BoxShadow(
-                        color: Colors.amber.withOpacity(0.6),
+                        color: Colors.amber.withValues(alpha: 0.6),
                         blurRadius: 15,
                         spreadRadius: 3,
                       ),
@@ -280,7 +298,7 @@ class CombatArena extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.amber.withOpacity(0.6),
+                    color: Colors.amber.withValues(alpha: 0.6),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),
@@ -312,7 +330,7 @@ class CombatArena extends StatelessWidget {
               color: Colors.black87,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: elementColor.withOpacity(0.8),
+                color: elementColor.withValues(alpha: 0.8),
                 width: 2,
               ),
             ),
@@ -335,7 +353,7 @@ class CombatArena extends StatelessWidget {
               color: Colors.grey.shade900,
               borderRadius: BorderRadius.circular(4),
               border: Border.all(
-                color: elementColor.withOpacity(0.7),
+                color: elementColor.withValues(alpha: 0.7),
                 width: 2,
               ),
             ),
@@ -347,7 +365,7 @@ class CombatArena extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       _getHealthColor(enemy.healthPercentage),
-                      _getHealthColor(enemy.healthPercentage).withOpacity(0.7),
+                      _getHealthColor(enemy.healthPercentage).withValues(alpha: 0.7),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(2),
@@ -370,7 +388,7 @@ class CombatArena extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: elementColor.withOpacity(0.6),
+                        color: elementColor.withValues(alpha: 0.6),
                         blurRadius: 30,
                         spreadRadius: 10,
                       ),
@@ -429,11 +447,11 @@ class CombatArena extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.7),
+        color: color.withValues(alpha: 0.7),
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
             blurRadius: 8,
             spreadRadius: 2,
           ),
@@ -464,9 +482,9 @@ class CombatArena extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  projColor.withOpacity(0.8),
-                  projColor.withOpacity(0.3),
-                  projColor.withOpacity(0.0),
+                  projColor.withValues(alpha: 0.8),
+                  projColor.withValues(alpha: 0.3),
+                  projColor.withValues(alpha: 0.0),
                 ],
               ),
               borderRadius: BorderRadius.circular(8),
@@ -485,7 +503,7 @@ class CombatArena extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: projColor.withOpacity(0.8),
+                  color: projColor.withValues(alpha: 0.8),
                   blurRadius: 12,
                   spreadRadius: 3,
                 ),
@@ -507,11 +525,11 @@ class CombatArena extends StatelessWidget {
               width: 6,
               height: 6,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     blurRadius: 6,
                     spreadRadius: 2,
                   ),
