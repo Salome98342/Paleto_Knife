@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
+import '../widgets/pixel_art_icons.dart';
 import '../widgets/enemy_card_widget.dart';
-import '../widgets/element_type_table_widget.dart';
+import '../widgets/element_type_table_parchment.dart';
 import '../controllers/world_controller.dart';
 
 class WorldView extends StatelessWidget {
@@ -33,6 +34,7 @@ class WorldView extends StatelessWidget {
             decoration: RetroStyle.box(color: Colors.grey.shade900),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
               itemCount: world.locations.length,
               itemBuilder: (context, index) {
                 final l = world.locations[index];
@@ -50,15 +52,51 @@ class WorldView extends StatelessWidget {
                               ? RetroStyle.primary
                               : RetroStyle.panel,
                         ),
-                        child: Center(
-                          child: Text(
-                            l.name,
-                            style: RetroStyle.font(
-                              size: 12,
-                              color: isSelected ? Colors.white : Colors.black,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              l.name,
+                              style: RetroStyle.font(
+                                size: 12,
+                                color: isSelected ? Colors.white : Colors.black,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
+                            const SizedBox(height: 6),
+                            // Barra de progreso de recuperación
+                            if (l.name != 'Neutro') ...[
+                              SizedBox(
+                                height: 12,
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(2),
+                                      child: LinearProgressIndicator(
+                                        value: (world.liberationProgress[l.name] ?? 0.0) / 100,
+                                        backgroundColor: Colors.grey.shade400,
+                                        valueColor: AlwaysStoppedAnimation(
+                                          (world.liberationProgress[l.name] ?? 0.0) > 50
+                                              ? Colors.green
+                                              : Colors.orange,
+                                        ),
+                                        minHeight: 8,
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        '${(world.liberationProgress[l.name] ?? 0.0).toStringAsFixed(0)}%',
+                                        style: RetroStyle.font(
+                                          size: 6,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       if (l.isAlert && !isSelected)
@@ -95,14 +133,6 @@ class WorldView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: Colors.black, width: 2),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white,
-                    loc.elementColor.withValues(alpha: 0.05),
-                  ],
-                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +187,7 @@ class WorldView extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  // Ventaja de elemento
+                  // Ventaja de elemento con icono pixel art
                   Row(
                     children: [
                       Text(
@@ -174,12 +204,18 @@ class WorldView extends StatelessWidget {
                           color: loc.elementColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(
-                          loc.recommendedElement,
-                          style: RetroStyle.font(
-                            size: 10,
-                            color: loc.elementColor,
-                          ),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 16, height: 16, child: PixelArtIcons.getElementIcon(loc.recommendedElement, size: 16)),
+                            const SizedBox(width: 4),
+                            Text(
+                              loc.recommendedElement,
+                              style: RetroStyle.font(
+                                size: 9,
+                                color: loc.elementColor,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -187,7 +223,7 @@ class WorldView extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  // Barra de liberación mejorada
+                  // Barra de liberación mejorada con altura 24px
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -209,7 +245,7 @@ class WorldView extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        height: 20,
+                        height: 24,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black, width: 2),
@@ -217,8 +253,7 @@ class WorldView extends StatelessWidget {
                         ),
                         child: FractionallySizedBox(
                           alignment: Alignment.centerLeft,
-                          widthFactor: (world.getLiberation(loc.name) / 100.0)
-                              .clamp(0.0, 1.0),
+                          widthFactor: (world.getLiberation(loc.name) / 100.0).clamp(0.0, 1.0),
                           child: Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -250,7 +285,7 @@ class WorldView extends StatelessWidget {
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (context) => const ElementTypeTableWidget(),
+                            builder: (context) => const ElementTypeTableParchment(),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -296,9 +331,52 @@ class WorldView extends StatelessWidget {
                                 region: loc.name,
                                 elementColor: loc.elementColor,
                                 isNeutral: false,
+                                enemyDefinition: a.enemyDefinition,
                               );
                             },
                           ),
+                          // Sección de jefes si existen
+                          if (loc.bosses.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.yellow.shade700,
+                                  width: 2,
+                                ),
+                                color: Colors.yellow.withValues(alpha: 0.15),
+                              ),
+                              child: Text(
+                                "👑 SOBERANOS",
+                                style: RetroStyle.font(
+                                  size: 9,
+                                  color: Colors.yellow.shade700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: loc.bosses.length,
+                              itemBuilder: (context, idx) {
+                                final a = loc.bosses[idx];
+                                return EnemyCardWidget(
+                                  name: a.name,
+                                  description: a.description,
+                                  icon: a.icon,
+                                  element: a.element,
+                                  weakness: a.weakness,
+                                  isBoss: true,
+                                  region: loc.name,
+                                  elementColor: Colors.yellow.shade700,
+                                  isNeutral: false,
+                                  enemyDefinition: a.enemyDefinition,
+                                );
+                              },
+                            ),
+                          ],
                           // Sección de neutrales si existen
                           if (loc.neutralEnemies.isNotEmpty) ...[
                             const SizedBox(height: 12),
@@ -336,6 +414,7 @@ class WorldView extends StatelessWidget {
                                   region: loc.name,
                                   elementColor: loc.elementColor,
                                   isNeutral: true,
+                                  enemyDefinition: a.enemyDefinition,
                                 );
                               },
                             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
+import '../widgets/pixel_art_icons.dart';
 import '../controllers/economy_controller.dart';
 import '../services/ad_service.dart';
 import '../services/audio_service.dart';
@@ -23,14 +24,58 @@ class GachaStoreView extends StatelessWidget {
       children: [
         Center(
           child: Text(
-            "MERCADO NEGRO",
+            "TIENDA",
             style: RetroStyle.font(size: 18, color: RetroStyle.accent),
           ).animate().slideY(begin: -0.5).fadeIn(duration: 500.ms),
         ),
         const SizedBox(height: 24),
 
-        // --- SECCION: OFERTAS DEL DIA ---
-        _buildSectionTitle("OFERTAS DIARIAS", Icons.local_offer),
+        // --- SECCION: OFERTAS PATROCINADAS (PROMINENTE) ---
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.orange, width: 3),
+            color: Colors.orange.withValues(alpha: 0.1),
+            boxShadow: [BoxShadow(color: Colors.orange.withValues(alpha: 0.3), blurRadius: 8, spreadRadius: 2)],
+          ),
+          child: Column(
+            children: [
+              PixelArtIcons.playIcon(size: 40),
+              const SizedBox(height: 12),
+              Text(
+                "¡GANA GEMAS GRATIS!",
+                style: RetroStyle.font(size: 12, color: Colors.orange[800]!),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "+10 GEMAS",
+                style: RetroStyle.font(size: 14, color: Colors.orange),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero, side: const BorderSide(color: Colors.black, width: 2)),
+                ),
+                onPressed: () {
+                  final eco = context.read<EconomyController>();
+                  eco.addGems(10);
+                  RetroStyle.showSuccess(context, "¡+10 GEMAS!", icon: Icons.diamond);
+                },
+                child: Text(
+                  "VER",
+                  style: RetroStyle.font(size: 12, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ).animate().slideY(begin: -0.3, duration: 400.ms).fadeIn(),
+        const SizedBox(height: 32),
+
+        // --- SECCION: OFERTAS DIARIAS ---
+        _buildSectionTitle("OFERTAS DIARIAS", PixelArtIcons.shopIcon()),
         _buildOfferCard(
           context,
           "Ficha Epica Aleatoria",
@@ -43,7 +88,7 @@ class GachaStoreView extends StatelessWidget {
         // --- SECCION: RECLUTAMIENTO DE CHEFS ---
         _buildSectionTitle(
           "RECLUTAR CHEFS",
-          Icons.group_add,
+          PixelArtIcons.chefIcon(),
           actionView: Builder(
             builder: (ctx) => GestureDetector(
               onTap: () => _showProbabilities(ctx),
@@ -106,7 +151,7 @@ class GachaStoreView extends StatelessWidget {
         // --- SECCION: FORJA DE CUCHILLOS ---
         _buildSectionTitle(
           "FORJA DE CUCHILLOS",
-          Icons.restaurant,
+          PixelArtIcons.questIcon(),
           actionView: Builder(
             builder: (ctx) => GestureDetector(
               onTap: () => _showProbabilities(ctx),
@@ -167,7 +212,7 @@ class GachaStoreView extends StatelessWidget {
         const SizedBox(height: 32),
 
         // --- SECCION: BANCO / PREMIUM ---
-        _buildSectionTitle("BANCO / PREMIUM", Icons.account_balance),
+        _buildSectionTitle("BANCO / PREMIUM", PixelArtIcons.gemIcon()),
         _buildAdCard(
           context,
           "Anuncio con Recompensa",
@@ -207,12 +252,12 @@ class GachaStoreView extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title, IconData icon, {Widget? actionView}) {
+  Widget _buildSectionTitle(String title, Widget icon, {Widget? actionView}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
-          Icon(icon, color: RetroStyle.primary, size: 24),
+          SizedBox(width: 24, height: 24, child: icon),
           const SizedBox(width: 8),
           Text(
             title,

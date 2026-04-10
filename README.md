@@ -1,271 +1,188 @@
-# Knife Clicker
+# 🔪 Paleto Knife - Clicker Game en Flutter
 
-Un juego híbrido de **clicker incremental** y **combate de acción** desarrollado en Flutter para dispositivos móviles Android.
+**Paleto Knife** es un juego clicker/autobattler desarrollado en **Flutter** con un estilo visual retro de 8 bits. El jugador entrena chefs (sous chefs) para combatir contra enemigos, mejora su equipo, realiza tiradas de gacha y explora diferentes regiones del mundo para progresar en el juego.
 
-## 🎮 Descripción
+## 🎮 Características Principales
 
-Knife Clicker es un juego que combina dos modos de juego:
+### 🏪 Sistema de Chefs (Chef System)
+- Recluta y entrena sous chefs mediante el sistema de gacha
+- Cada chef tiene atributos únicos: nombre, nivel, experiencia, rareza
+- Asigna equipamiento y técnicas especiales a cada chef
+- Los chefs ganan experiencia en combate y suben de nivel
 
-### 🔘 Modo Clicker (Incremental)
-Juego tipo clicker clásico donde acumulas puntos haciendo click en un cuchillo y compras mejoras para:
-- Aumentar puntos por click
-- Generar puntos automáticamente 
-- Multiplicar tus ganancias
+### ⚔️ Sistema de Combate (Combat System)
+- **Autobattler**: El combate es automático basado en stats de chefs vs enemigos
+- **Enemigos con elementos**: Fuego, agua, tierra, viento, lava, planta, maestro y neutral
+- **Modificadores de enemigos**: Resist, Strong, Weak, Armor modifican la dificultad
+- **Olas de enemigos**: Progresa a través de múltiples olas antes de enfrentar un boss
+- **3 Regiones con dificultad progresiva**: Asia, Caribbean, Europe
+- **3 Bosses únicos**: Cada región tiene su jefe final
 
-### ⚔️ Modo Combate (Acción)
-Modo de acción donde controlas un personaje que debe derrotar enemigos a través de diferentes mundos con:
-- Disparo automático del jugador y enemigos
-- Movimiento horizontal para esquivar ataques
-- Poder especial con cooldown
-- Escalado progresivo de dificultad por mundos
+### 🎲 Sistema de Gacha
+- Realiza tiradas para obtener nuevos chefs
+- Tasas de rareza balanceadas: Common, Uncommon, Rare, Epic, Legendary
+- Animaciones visuales al revelar resultados
+- Sistema de pity/garantía para tiradas garantizadas
 
-## ✨ Características Principales
+### 🎵 Sistema de Audio
+- **BGM (Background Music)**: Música de menú y de combate
+- **SFX (Sound Effects)**: Efectos de sonido para acciones del jugador
+- Control independiente de volumen para BGM y SFX
+- Sistema de audio reactivo basado en estados del juego
 
-### Modo Clicker
-- ✅ Sistema de click con feedback visual animado
-- ✅ Múltiples tipos de mejoras (click, auto-generación, multiplicadores)
-- ✅ Progresión exponencial balanceada
-- ✅ Guardado automático cada 30 segundos
-- ✅ Puntos offline (genera puntos mientras la app está cerrada)
-- ✅ Interfaz responsive optimizada para móviles
+### 📈 Sistema de Economía y Progresión
+- **Monedas (Gold)**: Ganadas en combate, usadas para mejoras
+- **Gemas (Gems)**: Moneda premium para tiradas de gacha
+- **Experiencia (XP)**: Sistema de nivel para el jugador
+- **Misiones (Quests)**: Objetivos diarios y especiales con recompensas
+- **Daily Bonuses**: Logeos diarios dan recompensas
 
-### Modo Combate
-- ✅ Sistema de proyectiles con detección de colisiones
-- ✅ Movimiento horizontal del jugador
-- ✅ Disparo automático para jugador y enemigos
-- ✅ Poder especial temporal con indicador visual de cooldown
-- ✅ Sistema de mundos con escalado progresivo de dificultad
-- ✅ Barras de vida para jugador y enemigos
-- ✅ Efectos visuales y animaciones fluidas
+### 🌍 Sistema de Mundo (World System)
+- **Mapa interactivo**: Selecciona locaciones del mapa para combatir
+- **Progresión regional**: Desbloquea nuevas regiones conforme avanzas
+- **Sistema de elementos**: Cada locación responde a un elemento específico
+- **Indicadores de dificultad**: Muestra enemigos recomendados para cada zona
 
-## 📁 Arquitectura del Proyecto
+### 📦 Mejoras de Equipo (Equipment System)
+- Diversos tipos de equipo: armas, armadura, accesorios
+- Sistema de rareza y poder
+- Equipamiento automático o manual
+
+### 🛠️ Sistema de Técnicas
+- Técnicas especiales que los chefs pueden aprender
+- Diferentes tipos: ataque, defensa, soporte
+- Combinaciones estratégicas para combate
+
+## 🛠️ Stack Tecnológico
+
+| Componente | Tecnología |
+|-----------|-----------|
+| **Framework** | Flutter 3.9+ |
+| **Lenguaje** | Dart 3.9+ |
+| **Estado** | Provider 6.1.5 |
+| **Gráficos/Motor** | Flame 1.18.0 |
+| **Audio** | AudioPlayers 6.1.0 |
+| **Almacenamiento** | SharedPreferences 2.5.5 |
+| **Fuentes** | Google Fonts (Press Start 2P) |
+| **Plataformas** | Android, iOS, Web, Windows |
+
+## 📁 Estructura del Proyecto
 
 ```
 lib/
-├── main.dart                           # Punto de entrada
-├── models/                             # Modelos de datos
-│   ├── upgrade.dart                   # Modelo de mejoras (clicker)
-│   ├── game_state.dart                # Estado del juego clicker
-│   ├── projectile.dart                # Modelo de proyectiles
-│   ├── player.dart                    # Modelo del jugador
-│   ├── enemy.dart                     # Modelo de enemigos
-│   └── world.dart                     # Modelo de mundos
-├── controllers/                        # Controladores de lógica
-│   ├── game_controller.dart           # Controlador del modo clicker
-│   └── combat_controller.dart         # Controlador del modo combate
-├── game_logic/                         # Lógica específica de juego
-│   ├── projectile_system.dart         # Sistema de proyectiles
-│   ├── player_controller.dart         # Control del jugador
-│   ├── enemy_controller.dart          # Control de enemigos
-│   └── world_manager.dart             # Gestión de mundos
-├── services/                           # Servicios externos
-│   └── storage_service.dart           # Persistencia con SharedPreferences
-├── widgets/                            # Componentes visuales
-│   ├── knife_button.dart              # Botón del cuchillo (clicker)
-│   ├── upgrade_card.dart              # Tarjeta de mejora
-│   ├── stats_panel.dart               # Panel de estadísticas
-│   ├── movement_controls.dart         # Controles de movimiento
-│   ├── power_button.dart              # Botón de poder especial
-│   └── combat_arena.dart              # Arena de combate
-└── screens/                            # Pantallas
-    ├── menu_screen.dart               # Menú principal
-    ├── game_screen.dart               # Pantalla modo clicker
-    └── combat_screen.dart             # Pantalla modo combate
+├── main.dart                    # Punto de entrada
+├── controllers/                 # Controladores de estado
+│   ├── chef_controller.dart
+│   ├── combat_controller.dart
+│   ├── economy_controller.dart
+│   ├── game_controller.dart
+│   └── world_controller.dart
+├── screens/                     # Pantallas principales
+│   ├── main_layout.dart
+│   ├── gameplay_screen.dart
+│   ├── world_view.dart
+│   ├── chefs_view.dart
+│   ├── gacha_store_view.dart
+│   ├── quests_view.dart
+│   ├── profile_screen.dart
+│   └── settings_dialog.dart
+├── services/                    # Servicios globales
+│   ├── audio_service.dart
+│   ├── storage_service.dart
+│   ├── ad_service.dart
+│   └── audio_game_state.dart
+├── models/                      # Modelos de datos
+│   ├── chef.dart
+│   ├── player.dart
+│   ├── element_type.dart
+│   ├── game_state.dart
+│   └── ... (otros modelos)
+├── game/                        # Lógica de juego Flame
+│   ├── components/
+│   ├── enemies/
+│   └── player/
+├── game_logic/                  # Sistemas de juego
+│   ├── combat_system/
+│   ├── enemy_system/
+│   └── wave_system/
+└── widgets/                     # Componentes reutilizables
+    ├── retro_style.dart
+    ├── element_type_table_widget.dart
+    └── ... (otros widgets)
 ```
-
-## 🎯 Mecánicas de Combate
-
-### Sistema de Disparo Automático
-- El jugador dispara proyectiles automáticamente hacia arriba
-- Los enemigos disparan proyectiles hacia abajo
-- La velocidad de disparo se basa en `attackSpeed` configurable
-- Los proyectiles se destruyen al colisionar o salir de pantalla
-
-### Movimiento del Jugador
-- Botones de movimiento izquierda/derecha en la interfaz
-- El jugador se mueve horizontalmente para esquivar proyectiles
-- El movimiento está limitado a los bordes de la pantalla
-- Velocidad de movimiento configurable en el modelo Player
-
-### Poder Especial
-- Se activa presionando el botón de poder
-- Efectos durante el poder activo:
-  - **x2 daño** en los proyectiles del jugador
-  - **+50% velocidad de ataque**
-  - Efecto visual brillante en el jugador
-- Duración: 5 segundos (configurable)
-- Cooldown: 15 segundos (configurable)
-- Indicador visual circular muestra el progreso
-
-### Sistema de Mundos
-Los mundos escalan progresivamente:
-
-| Mundo | Nombre | Dificultad | Recompensas |
-|-------|--------|-----------|-------------|
-| 1 | Novato | x1.0 | x1.0 |
-| 2 | Intermedio | x1.5 | x1.5 |
-| 3 | Avanzado | x2.0 | x2.0 |
-| 4 | Maestro | x3.0 | x3.0 |
-
-**Escalado por mundo:**
-- **Velocidad de ataque enemigo**: +10% por nivel
-- **Daño enemigo**: +15% por nivel
-- **Vida enemigo**: +50% por nivel
-- **Estadísticas del jugador**: también escalan al avanzar
-
-### Detección de Colisiones
-- Sistema de hitboxes rectangulares
-- Proyectiles del jugador detectan colisión con enemigos
-- Proyectiles enemigos detectan colisión con el jugador
-- Los proyectiles se destruyen al impactar
 
 ## 🚀 Instalación y Ejecución
 
-### Requisitos
-- Flutter SDK 3.9.2 o superior
-- Dart 3.9.2 o superior
-- Android Studio o VS Code con extensiones de Flutter
+### Prerequisites
+- Flutter SDK (3.9+)
+- Dart SDK (3.9+)
+- Android Studio o Xcode (para compilación nativa)
 
 ### Pasos
 
-1. **Clonar el repositorio**
 ```bash
-git clone <repository-url>
-cd knife_clicker
-```
+# 1. Clonar repo
+git clone <repo-url>
+cd Paleto\ Knife
 
-2. **Instalar dependencias**
-```bash
+# 2. Instalar dependencias
 flutter pub get
+
+# 3. Ejecutar en desarrollo
+flutter run                    # Ejecuta en dispositivo/emulador conectado
+flutter run -d chrome         # Ejecuta en navegador
+flutter run -d windows        # Ejecuta en Windows
+
+# 4. Build para producción
+flutter build android         # APK para Android
+flutter build ios             # App para iOS
+flutter build web             # Deploy web
+flutter build windows         # Ejecutable Windows
 ```
 
-3. **Ejecutar en dispositivo/emulador**
-```bash
-flutter run
-```
+## 🎯 Estado Actual del Proyecto
 
-4. **Compilar APK para Android**
-```bash
-flutter build apk --release
-```
+### ✅ Completado
+- Sistema de combate automático con 3 regiones
+- 21 tipos de enemigos con modificadores
+- 3 bosses únicos por región
+- Sistema de gacha con tiradas
+- Sistema de audio (BGM/SFX)
+- UI retro estilo 8 bits
+- Mapa interactivo
+- Sistema de chefs y equipamiento
+- Misiones y logros diarios
+- Almacenamiento persistente
 
-El APK se generará en: `build/app/outputs/flutter-apk/app-release.apk`
+### 🔄 Mejoras Recientes
+- Refactorización y limpieza de código (eliminados 12 archivos duplicados)
+- Consolidación del servicio de audio
+- Mejoras visuales del mapa (hover effects, animaciones)
+- Redesign de tabla de tipos de elemento (4 columnas, iconos compactos)
 
-## 📦 Dependencias
+### ⏳ En Desarrollo / Mejoras Futuras
+- Balanceo de dificultad
+- Sistema de bandas/cooperativo
+- Mas tipos de enemigos
+- Sistema de logros avanzado
+- Optimización para web
 
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^1.0.8
-  shared_preferences: ^2.2.2  # Persistencia local
-```
+## 📊 Estadísticas del Código
 
-## 🎨 Características Técnicas
+- **83 archivos Dart** activos
+- **0 dependencias duplicadas**
+- **Compilación limpia** (sin errores)
+- **Cobertura**: Combat System, Audio System, Gacha System
 
-### Patrones de Diseño
-- **MVC**: Separación de Modelos, Vistas y Controladores
-- **Observer (ChangeNotifier)**: Actualización reactiva de la UI
-- **Service Pattern**: Abstracción de servicios externos
-- **Component-based**: Widgets reutilizables y modulares
+## 🤝 Contribuciones
 
-### Rendimiento
-- Game loop optimizado a 60 FPS
-- Actualización eficiente de proyectiles
-- Eliminación automática de proyectiles inactivos
-- Gestión adecuada de memoria con dispose()
+El proyecto está en desarrollo activo. Los sistemas principales están implementados y probados. Se acepta feedback sobre balanceo, nuevas features y optimizaciones.
 
-### Persistencia
-- Guardado automático cada 30 segundos (modo clicker)
-- Serialización JSON de todo el estado del juego
-- Cálculo de puntos offline basado en tiempo transcurrido
+## 📝 Licencia
 
-## 🎮 Cómo Jugar
-
-### Modo Clicker
-1. Haz click en el cuchillo para ganar puntos
-2. Compra mejoras cuando tengas suficientes puntos
-3. Mejoras de **Click Power**: aumentan puntos por click
-4. Mejoras de **Auto Clicker**: generan puntos automáticamente
-5. Mejoras de **Multiplicador**: amplifican todas las ganancias
-6. Tu progreso se guarda automáticamente
-
-### Modo Combate
-1. Usa los botones ⬅️ ➡️ para moverte y esquivar proyectiles
-2. Tu personaje dispara automáticamente hacia arriba
-3. Evita los proyectiles enemigos
-4. Presiona el botón ⚡ para activar tu poder especial
-5. Derrota al enemigo para avanzar al siguiente mundo
-6. En cada mundo, tus estadísticas y las del enemigo aumentan
-
-## 🔧 Configuración del Juego
-
-### Ajustar Dificultad del Modo Combate
-
-Edita `lib/models/player.dart`:
-```dart
-Player({
-  this.health = 100,              // Vida inicial
-  this.attackSpeed = 1.0,         // Disparos por segundo
-  this.baseDamage = 10,           // Daño base
-  this.movementSpeed = 300,       // Velocidad de movimiento
-  this.powerDuration = 5.0,       // Duración del poder
-  this.powerCooldown = 15.0,      // Cooldown del poder
-})
-```
-
-Edita `lib/models/enemy.dart`:
-```dart
-Enemy({
-  this.attackSpeed = 0.5,         // Disparos por segundo
-  this.baseDamage = 5,            // Daño base
-})
-```
-
-### Ajustar Balance del Modo Clicker
-
-Edita `lib/controllers/game_controller.dart` en `_createInitialGameState()`:
-```dart
-Upgrade(
-  baseCost: 10,                   // Costo inicial
-  costMultiplier: 1.15,           // Escalado de costo
-  effect: 1,                      // Efecto base
-)
-```
-
-## 🌟 Futuras Mejoras
-
-### Planeadas
-- [ ] Más tipos de enemigos con patrones únicos
-- [ ] Jefes finales por mundo
-- [ ] Sistema de logros
-- [ ] Skins de personajes y cuchillos
-- [ ] Efectos de sonido y música
-- [ ] Más poderes especiales
-- [ ] Sistema de estadísticas y records
-- [ ] Sincronización en la nube (Firebase)
-
-### Posibles Expansiones
-- [ ] Modo historia
-- [ ] Multijugador cooperativo
-- [ ] Eventos especiales limitados
-- [ ] Sistema de clanes
-- [ ] Tabla de clasificación global
-
-## 📄 Licencia
-
-Este proyecto está desarrollado como demostración educativa.
-
-## 👨‍💻 Desarrollo
-
-Desarrollado completamente en Flutter siguiendo mejores prácticas de:
-- Arquitectura limpia y escalable
-- Código modular y reutilizable
-- Documentación completa
-- Gestión eficiente de recursos
-- Optimización para dispositivos móviles
+Proyecto privado en desarrollo.
 
 ---
 
-**Versión:** 1.0.0  
-**Última actualización:** 2026
+**Última actualización**: Abril 2026
+**Versión**: 1.0.0

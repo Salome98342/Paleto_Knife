@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'components/bullet.dart';
 import 'components/explosion.dart';
+import 'components/treasure_chest.dart';
 import 'player/player.dart';
 import 'enemies/enemy.dart';
 
 import '../controllers/world_controller.dart';
 import '../services/audio_service.dart';
 
-class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
+class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallbacks {
   final LocationData locationData;
   final IconData? playerIcon;
   final Function(int wave, bool isBoss)? onEnemyKilled;
@@ -39,10 +41,14 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     300,
     (_) => BulletComponent(),
   );
-  final List<EnemyComponent> _enemyPool = List.generate(
+  final List<EnemyComponent> enemyPool = List.generate(
     50,
     (_) => EnemyComponent(),
   );
+
+  // Sistema de Cofres
+  final List<TreasureChestComponent> treasures = [];
+  List<TreasureReward> waveRewards = [];
 
   // Sistema de Olas (Waves)
   int currentWave = 1;
@@ -89,6 +95,13 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     );
     await super.onLoad();
 
+    // Configurar cantidad de enemigos según alerta
+    if (locationData.isAlert) {
+      enemiesToKillNextWave = 25; // +67% más enemigos en alerta
+    } else {
+      enemiesToKillNextWave = 15;
+    }
+
     player = PlayerComponent(
       position: Vector2(size.x / 2, size.y * 0.8),
       icon: playerIcon,
@@ -98,7 +111,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     for (var b in _bulletPool) {
       await add(b);
     }
-    for (var e in _enemyPool) {
+    for (var e in enemyPool) {
       await add(e);
     }
   }
@@ -148,6 +161,17 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     }
 
     super.render(canvas);
+
+    // Renderizar cofres
+    for (var treasure in treasures) {
+      if (treasure.isActive) {
+        canvas.save();
+        canvas.translate(treasure.position.x, treasure.position.y);
+        treasure.render(canvas);
+        canvas.restore();
+      }
+    }
+
     canvas.restore();
   }
 
@@ -180,6 +204,11 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     if (_enemySpawnTimer >= _currentSpawnInterval) {
       _enemySpawnTimer = 0;
       _spawnEnemy();
+    }
+
+    // Actualizar cofres
+    for (var treasure in treasures) {
+      treasure.update(dt);
     }
 
     _checkCollisions();
@@ -217,23 +246,19 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
       Future.delayed(const Duration(seconds: 3), () {
         _showBossAlert = false;
         try {
-          final enemy = _enemyPool.firstWhere((e) => !e.isActive);
+          final enemy = enemyPool.firstWhere((e) => !e.isActive);
           final randomX = (math.Random().nextDouble() * (size.x - 80)) + 40;
           final randomAmalgam = locationData
               .amalgams[math.Random().nextInt(locationData.amalgams.length)];
 
-          int patternLimit = 1;
-          if (currentWave >= 3) patternLimit = 2; // Espirales
-          if (currentWave >= 6) patternLimit = 3; // Radiales
-
-          final pattern = math.Random().nextInt(patternLimit);
-          enemy.spawn(
-            Vector2(randomX, 50),
-            pattern,
-            randomAmalgam,
-            isBoss: true,
-          );
-          enemiesSpawnedInWave++;
+          if (randomAmalgam.enemyDefinition != null) {
+            enemy.spawn(
+              Vector2(randomX, 50),
+              randomAmalgam.enemyDefinition!,
+              isBoss: true,
+            );
+            enemiesSpawnedInWave++;
+          }
         } catch (e) {}
       });
       return;
@@ -242,19 +267,16 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     }
 
     try {
-      final enemy = _enemyPool.firstWhere((e) => !e.isActive);
+      final enemy = enemyPool.firstWhere((e) => !e.isActive);
       final randomX = (math.Random().nextDouble() * (size.x - 80)) + 40;
 
       final randomAmalgam = locationData
           .amalgams[math.Random().nextInt(locationData.amalgams.length)];
 
-      int patternLimit = 1;
-      if (currentWave >= 3) patternLimit = 2; // Espirales
-      if (currentWave >= 6) patternLimit = 3; // Radiales
-
-      final pattern = math.Random().nextInt(patternLimit);
-      enemy.spawn(Vector2(randomX, 50), pattern, randomAmalgam, isBoss: isBoss);
-      enemiesSpawnedInWave++;
+      if (randomAmalgam.enemyDefinition != null) {
+        enemy.spawn(Vector2(randomX, 50), randomAmalgam.enemyDefinition!, isBoss: isBoss);
+        enemiesSpawnedInWave++;
+      }
     } catch (e) {}
   }
 
@@ -269,7 +291,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
 
   void _checkCollisions() {
     final activeBullets = _bulletPool.where((b) => b.isActive).toList();
-    final activeEnemies = _enemyPool.where((e) => e.isActive).toList();
+    final activeEnemies = enemyPool.where((e) => e.isActive).toList();
 
     for (var bullet in activeBullets) {
       if (!bullet.isActive) continue;
@@ -312,6 +334,11 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
                 onEnemyKilled!(currentWave, enemy.isBoss);
               }
 
+              // Si es un jefe, 30% de chance de soltar cofre
+              if (enemy.isBoss && math.Random().nextDouble() < 0.3) {
+                spawnTreasure(enemy.position);
+              }
+
               enemy.despawn();
 
               // Progresion de Olas
@@ -324,7 +351,12 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
                 currentWave++;
                 enemiesKilledInWave = 0;
                 enemiesSpawnedInWave = 0;
-                enemiesToKillNextWave += (currentWave * 5); // Olas mas largas
+                // Incremento más agresivo en sitios en alerta
+                if (locationData.isAlert) {
+                  enemiesToKillNextWave += (currentWave * 8); // +60% más que normal
+                } else {
+                  enemiesToKillNextWave += (currentWave * 5);
+                }
                 // Volver a música de gameplay después de matar boss
                 Future.delayed(const Duration(milliseconds: 500), () {
                   try {
@@ -386,19 +418,80 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector {
     player.dash();
   }
 
+  @override
+  void onTapUp(TapUpEvent event) {
+    // Intentar abrir un cofre en esta posición
+    final treasure = getTreasureAt(event.localPosition);
+    if (treasure != null) {
+      final index = treasures.indexOf(treasure);
+      openTreasure(index);
+    }
+  }
+
   void resetGame() {
     currentWave = 1;
     enemiesKilledInWave = 0;
     enemiesSpawnedInWave = 0;
     enemiesToKillNextWave = 15;
+    waveRewards.clear();
+    for (var t in treasures) {
+      t.despawn();
+    }
+    treasures.clear();
 
     for (var b in _bulletPool) {
       b.isActive = false;
     }
-    for (var e in _enemyPool) {
+    for (var e in enemyPool) {
       e.despawn();
     }
 
     player.position = Vector2(size.x / 2, size.y * 0.8);
   }
+
+  void spawnTreasure(Vector2 position) {
+    final treasure = TreasureChestComponent();
+    treasure.spawn(position);
+    treasures.add(treasure);
+  }
+
+  void openTreasure(int index) {
+    if (index >= 0 && index < treasures.length) {
+      final treasure = treasures[index];
+      if (!treasure.isOpened) {
+        treasure.open();
+        
+        // Agregar recompensa a la lista de rewards
+        final reward = TreasureReward(
+          'Cofre Abierto',
+          'Has obtenido recursos del jefe',
+          Random().nextInt(50) + 50, // Gemas aleatorias
+        );
+        waveRewards.add(reward);
+      }
+    }
+  }
+
+  TreasureChestComponent? getTreasureAt(Vector2 clickPos) {
+    for (int i = treasures.length - 1; i >= 0; i--) {
+      if (treasures[i].checkClick(clickPos)) {
+        return treasures[i];
+      }
+    }
+    return null;
+  }
+
+  double getWaveRecoveryPercentage() {
+    if (locationData.amalgams.isEmpty) return 0.0;
+    return (enemiesKilledInWave / (enemiesToKillNextWave + 1)) * 100;
+  }
 }
+
+class TreasureReward {
+  final String title;
+  final String description;
+  final int gemAmount;
+
+  TreasureReward(this.title, this.description, this.gemAmount);
+}
+

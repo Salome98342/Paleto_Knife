@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math' as math;
 import '../game_logic/enemy_system/enemy_types.dart';
 import '../models/element_type.dart';
 
@@ -10,6 +11,7 @@ class AmalgamData {
   final String element;
   final String weakness;
   final bool isBoss;
+  final EnemyTypeDefinition? enemyDefinition; // Referencia al enemigo completo
 
   AmalgamData(
     this.name,
@@ -18,6 +20,7 @@ class AmalgamData {
     this.element = "Normal",
     this.weakness = "Ninguna",
     this.isBoss = false,
+    this.enemyDefinition,
   });
 }
 
@@ -29,6 +32,7 @@ class LocationData {
   final Color elementColor;
   final List<AmalgamData> amalgams;
   final List<AmalgamData> neutralEnemies; // Enemigos neutrales en sección separada
+  final List<AmalgamData> bosses; // Jefes en sección separada
 
   LocationData(
     this.name,
@@ -38,6 +42,7 @@ class LocationData {
     this.elementColor,
     this.amalgams, {
     this.neutralEnemies = const [],
+    this.bosses = const [],
   });
 }
 
@@ -60,15 +65,21 @@ class WorldController extends ChangeNotifier {
 
     // Cargar enemigos por región
     final allRegions = [Region.asia, Region.caribbean, Region.europe];
+    final allNeutralEnemies = <AmalgamData>[];
+    final allBosses = <AmalgamData>[];
     
     for (final region in allRegions) {
       final regionName = _getRegionName(region);
       final regionEnemies = EnemyTypesCatalog.getByRegion(region);
       
       if (regionEnemies.isNotEmpty) {
+        // Separar jefes de enemigos normales
+        final bosses = regionEnemies.where((e) => e.role == 'boss').toList();
+        final normalEnemies = regionEnemies.where((e) => e.role != 'boss').toList();
+        
         // Separar enemigos neutrales de enemigos con elemento
-        final nonNeutralEnemies = regionEnemies.where((e) => e.element != ElementType.neutral).toList();
-        final neutralEnemies = regionEnemies.where((e) => e.element == ElementType.neutral).toList();
+        final nonNeutralEnemies = normalEnemies.where((e) => e.element != ElementType.neutral).toList();
+        final neutralEnemies = normalEnemies.where((e) => e.element == ElementType.neutral).toList();
         
         final amalgams = nonNeutralEnemies.map((enemy) {
           return AmalgamData(
@@ -77,7 +88,8 @@ class WorldController extends ChangeNotifier {
             _getIconForElement(enemy.element),
             element: enemy.element.name,
             weakness: _getWeakness(enemy.element),
-            isBoss: enemy.role == 'boss',
+            isBoss: false,
+            enemyDefinition: enemy,
           );
         }).toList();
 
@@ -88,11 +100,28 @@ class WorldController extends ChangeNotifier {
             _getIconForElement(enemy.element),
             element: enemy.element.name,
             weakness: _getWeakness(enemy.element),
-            isBoss: enemy.role == 'boss',
+            isBoss: false,
+            enemyDefinition: enemy,
           );
         }).toList();
 
-        final hasBoss = regionEnemies.any((e) => e.role == 'boss');
+        final bossAmalgams = bosses.map((enemy) {
+          return AmalgamData(
+            enemy.name,
+            enemy.description,
+            Icons.shield,
+            element: enemy.element.name,
+            weakness: _getWeakness(enemy.element),
+            isBoss: true,
+            enemyDefinition: enemy,
+          );
+        }).toList();
+
+        // Agregar neutrales y jefes a las listas globales
+        allNeutralEnemies.addAll(neutralAmalgams);
+        allBosses.addAll(bossAmalgams);
+
+        final isAlert = region == Region.asia; // Asia está en peligro
         final recommendedElement = nonNeutralEnemies.isNotEmpty 
             ? _getWeakness(nonNeutralEnemies.first.element) 
             : "Ninguno";
@@ -101,14 +130,31 @@ class WorldController extends ChangeNotifier {
           LocationData(
             regionName,
             "Invasión de amalgamas de $regionName",
-            hasBoss,
+            isAlert,
             recommendedElement,
             _getRegionColor(region),
             amalgams,
-            neutralEnemies: neutralAmalgams,
+            neutralEnemies: region == Region.asia ? [] : neutralAmalgams,
+            bosses: bossAmalgams,
           ),
         );
       }
+    }
+
+    // Agregar sección de enemigos neutrales de todas las regiones
+    if (allNeutralEnemies.isNotEmpty || allBosses.isNotEmpty) {
+      locations.add(
+        LocationData(
+          'Neutro',
+          'Amalgamas sin afinidad de elemento + Soberanos',
+          false,
+          'Ninguno',
+          Color(0xFF808080),
+          allNeutralEnemies,
+          neutralEnemies: [],
+          bosses: allBosses,
+        ),
+      );
     }
   }
 
@@ -213,5 +259,15 @@ class WorldController extends ChangeNotifier {
           prefs.getDouble('liberation_${loc.name}') ?? 0.0;
     }
     notifyListeners();
+  }
+
+  Future<void> updateRecoveryProgress(String locationName, double recoveryPercentage) async {
+    if (liberationProgress.containsKey(locationName)) {
+      // Tomar el máximo entre el progreso anterior y el nuevo
+      liberationProgress[locationName] = 
+          math.max(liberationProgress[locationName]!, recoveryPercentage);
+      await _saveData();
+      notifyListeners();
+    }
   }
 }

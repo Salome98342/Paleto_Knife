@@ -1,197 +1,395 @@
-# Knife Clicker - Arquitectura del Proyecto
+# 🏗️ Arquitectura - Paleto Knife
 
-## Estructura del Proyecto
+## Visión General
+
+Paleto Knife es una aplicación Flutter que implementa un **clicker game/autobattler** con arquitectura en capas basada en el patrón Provider para manejo de estado.
 
 ```
-lib/
-├── main.dart                      # Punto de entrada de la aplicación
-├── models/                        # Modelos de datos
-│   ├── upgrade.dart              # Modelo de mejoras/upgrades
-│   └── game_state.dart           # Estado completo del juego
-├── controllers/                   # Lógica de negocio
-│   └── game_controller.dart      # Controlador principal del juego
-├── services/                      # Servicios externos
-│   └── storage_service.dart      # Persistencia de datos (SharedPreferences)
-├── widgets/                       # Widgets reutilizables
-│   ├── knife_button.dart         # Botón principal del cuchillo
-│   ├── upgrade_card.dart         # Tarjeta de mejora
-│   └── stats_panel.dart          # Panel de estadísticas
-└── screens/                       # Pantallas de la aplicación
-    └── game_screen.dart          # Pantalla principal del juego
+┌─────────────────────────────────────────────────────┐
+│                   UI LAYER (Screens)                │
+│        (Widgets que renderean la interfaz)          │
+└─────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────┐
+│            PROVIDER STATE LAYER                     │
+│      (ChangeNotifier Controllers - Lógica)          │
+└─────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────┐
+│          BUSINESS LOGIC LAYER                       │
+│  (Combat System, Enemy System, Wave System)         │
+└─────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────┐
+│          DATA & SERVICES LAYER                      │
+│  (Storage, Audio, Models, Flame Components)         │
+└─────────────────────────────────────────────────────┘
 ```
 
-## Descripción de Módulos
+---
 
-### 1. **Models** (`models/`)
+## Estructura de Directorios
 
-Contiene las clases de datos que representan el estado del juego.
+### `/lib` - Código Principal
 
-- **`upgrade.dart`**: Define el modelo `Upgrade` que representa una mejora en el juego.
-  - Propiedades: id, nombre, descripción, costo base, multiplicador de costo, tipo, efecto, nivel
-  - Métodos: cálculo de costo actual, efecto actual, compra de niveles
-  - Serialización: `toJson()` y `fromJson()` para persistencia
+#### `main.dart`
+- **Responsabilidad**: Punto de entrada de la aplicación
+- **Qué hace**: Inicializa Provider, configura tema, carga servicios
+- **Dependencias**: Material, Provider, AudioService, StorageService
 
-- **`game_state.dart`**: Define el modelo `GameState` que almacena todo el estado del juego.
-  - Propiedades: puntos, puntos totales, puntos por click, puntos por segundo, multiplicador global, total de clicks, lista de upgrades
-  - Serialización completa para guardar/cargar el progreso
+#### `/controllers` - Controladores de Estado
+Utilizan `ChangeNotifier` para notificar cambios a widgets observadores.
 
-### 2. **Controllers** (`controllers/`)
+| Archivo | Responsabilidad |
+|---------|-----------------|
+| `game_controller.dart` | Estado global del juego (nivel, experiencia) |
+| `chef_controller.dart` | Gestión de chefs (lista, selección, stats) |
+| `combat_controller.dart` | Orquestación de combates (turno por turno/ automático) |
+| `economy_controller.dart` | Dinero, gemas y currency |
+| `world_controller.dart` | Mapa, locaciones, selección de región |
 
-Contiene la lógica central del juego usando el patrón ChangeNotifier.
+**Patrón de uso**:
+```dart
+final controller = context.watch<GameController>();  // Se rebuilda si cambia
+final ctrl = context.read<ChefController>();         // Solo lectura, sin rebuild
+```
 
-- **`game_controller.dart`**: Controlador principal que gestiona toda la lógica del juego.
-  - Inicialización del juego (carga de datos guardados)
-  - Manejo de clicks del jugador
-  - Sistema de compra de mejoras
-  - Recalculo automático de estadísticas
-  - Generación automática de puntos (auto-clickers)
-  - Guardado automático periódico
-  - Cálculo de puntos offline (puntos generados mientras la app está cerrada)
+#### `/screens` - Pantallas Principales
+Componentes visuales principales del juego. Cada uno es un `StatefulWidget` que observa controladores.
 
-### 3. **Services** (`services/`)
+| Pantalla | Contenido |
+|----------|----------|
+| `main_layout.dart` | Layout principal - barra de navegación + contenido |
+| `gameplay_screen.dart` | Pantalla de combate automático |
+| `world_view.dart` | Mapa interactivo con locaciones |
+| `gacha_store_view.dart` | Tienda de gacha, tiradas de chefs |
+| `chefs_view.dart` | Inventario y gestión de chefs |
+| `quests_view.dart` | Misiones diarias y especiales |
+| `profile_screen.dart` | Perfil del jugador |
+| `settings_dialog.dart` | Configuración (volumen, idioma, etc.) |
 
-Servicios que manejan operaciones externas como almacenamiento.
+#### `/widgets` - Componentes Reutilizables
+Widgets menores que se usan en múltiples pantallas.
 
-- **`storage_service.dart`**: Servicio de persistencia usando SharedPreferences.
-  - Guardar estado del juego
-  - Cargar estado del juego
-  - Verificar existencia de datos guardados
-  - Borrar progreso (reset)
+| Widget | Uso |
+|--------|-----|
+| `retro_style.dart` | Tema visual retro (colores, fuentes, estilos) |
+| `element_type_table_widget.dart` | Tabla de 8 tipos de elementos |
+| `enemy_card_widget.dart` | Card que muestra un enemigo |
+| `hud_overlay.dart` | Overlay HUD durante combate |
+| `pause_menu_overlay.dart` | Menú de pausa |
+| `game_over_overlay.dart` | Pantalla de game over |
+| etc. | Otros componentes |
 
-### 4. **Widgets** (`widgets/`)
+#### `/services` - Servicios Globales
+Servicios singleton que se inicializan en `main.dart` y se usan en toda la app.
 
-Componentes visuales reutilizables de la interfaz.
+| Servicio | Propósito |
+|---------|-----------|
+| `audio_service.dart` | Manejo de música (BGM) y efectos (SFX) |
+| `storage_service.dart` | Persistencia en SharedPreferences |
+| `ad_service.dart` | Sistema de anuncios |
+| `audio_game_state.dart` | Estado de audio sincronizado con juego |
 
-- **`knife_button.dart`**: Botón animado del cuchillo principal.
-  - Animación de escala al presionar
-  - Feedback táctil visual
-  - Sombras dinámicas
+#### `/models` - Modelos de Datos
+Clases que representan datos del juego.
 
-- **`upgrade_card.dart`**: Tarjeta que muestra información de una mejora.
-  - Muestra nombre, descripción, nivel y costo
-  - Indicador visual de si se puede comprar
-  - Colores diferentes según el tipo de mejora
-  - Formato de números grandes (K, M, B)
+| Modelo | Representa |
+|--------|-----------|
+| `game_state.dart` | Estado persistente del juego |
+| `player.dart` | Datos del jugador principal |
+| `chef.dart` | Sous chef (atributos, nivel, equipo) |
+| `enemy.dart` | Enemigo en combate |
+| `element_type.dart` | Tipo de elemento (enum + info) |
+| `equipment.dart` | Equipo (arma, armadura, etc.) |
+| `technique.dart` | Técnica especial |
+| `sous_chef.dart` | Sous chef específico |
+| `upgrade.dart` | Mejora de stats |
+| `gacha_result.dart` | Resultado de tirada gach |
+| `world.dart` | Mapa y locaciones |
+| `projectile.dart` | Proyectl en combate |
+| `reset_bonus.dart` | Bonificaciones de reset |
 
-- **`stats_panel.dart`**: Panel superior con estadísticas del jugador.
-  - Muestra puntos actuales (grande y destacado)
-  - Estadísticas secundarias: puntos por click, por segundo, multiplicador
-  - Total de clicks realizados
-  - Diseño con gradiente y sombras
+#### `/game` - Lógica Flame Engine
+Componentes y sistemas de Flame (engine gráfico).
 
-### 5. **Screens** (`screens/`)
+```
+/game
+├── /components         # Componentes renderables
+│   ├── player_component.dart
+│   ├── enemy_component.dart
+│   └── effect_component.dart
+├── /enemies           # Datos y comportamiento de enemigos
+└── /player            # Componentes del jugador
+```
 
-Pantallas completas de la aplicación.
+#### `/game_logic` - Sistemas de Juego
+Lógica de reglas independiente de la UI.
 
-- **`game_screen.dart`**: Pantalla principal del juego.
-  - Integra todos los widgets
-  - Maneja la interacción con el GameController
-  - Animaciones de feedback al hacer click
-  - Lista de mejoras disponibles
-  - Diálogo de confirmación para reset
+```
+/game_logic
+├── /combat_system
+│   ├── combat_system.dart      # Cálculo de daño y flujo
+│   ├── damage_calculator.dart  # Fórmulas de daño
+│   └── modifier_system.dart    # Modificadores (Resist, Strong, etc.)
+├── /enemy_system
+│   ├── enemy_types.dart        # Catálogo de 21 enemigos
+│   ├── enemy_modifiers.dart    # Modificadores (Armor, etc.)
+│   └── boss_system/           # Lógica de bosses
+└── /wave_system
+    └── wave_manager.dart       # Olas de enemigos antes de boss
+```
 
-### 6. **Main** (`main.dart`)
+#### `/assets` - Recursos Estáticos
+```
+/assets
+├── /audio
+│   ├── /menu
+│   │   └── menu_song.mp3
+│   ├── /gameplay
+│   │   └── gameplay_song.mp3
+│   └── /sfx
+│       ├── attack.mp3
+│       ├── heal.mp3
+│       └── ...
+└── /images
+    ├── /enemies
+    ├── /equipment
+    └── /ui
+```
 
-Punto de entrada de la aplicación.
-- Configuración de orientación (solo vertical para móviles)
-- Configuración del tema de la app
-- Inicialización de la primera pantalla
+---
 
 ## Flujo de Datos
 
-1. **Inicio de la App**:
-   - `main.dart` inicia la aplicación
-   - `GameScreen` se monta y crea un `GameController`
-   - `GameController` intenta cargar datos guardados con `StorageService`
-   - Si hay datos, se cargan; si no, se crea un nuevo juego
-   - Se calculan puntos offline si aplica
+### Ciclo Típico de Actualización
 
-2. **Click del Usuario**:
-   - Usuario toca el `KnifeButton`
-   - `GameScreen` llama a `gameController.handleClick()`
-   - `GameController` actualiza puntos y notifica listeners
-   - `GameScreen` se reconstruye mostrando nuevos valores
-   - Animación visual de "+puntos" aparece
-
-3. **Compra de Mejora**:
-   - Usuario toca una `UpgradeCard`
-   - `GameScreen` llama a `gameController.tryBuyUpgrade()`
-   - `GameController` verifica si hay suficientes puntos
-   - Si sí, resta puntos, aumenta nivel de upgrade, recalcula estadísticas
-   - Notifica listeners y la UI se actualiza
-
-4. **Generación Automática**:
-   - `GameController` ejecuta un Timer cada 0.1 segundos
-   - Si hay mejoras de auto-click, genera puntos automáticamente
-   - Actualiza el estado y notifica a la UI
-
-5. **Guardado**:
-   - Timer de guardado automático ejecuta cada 30 segundos
-   - `GameController` serializa el `GameState` a JSON
-   - `StorageService` guarda en SharedPreferences
-   - También se guarda al cerrar la app
-
-## Patrones de Diseño Utilizados
-
-1. **MVC (Model-View-Controller)**:
-   - Models: `Upgrade`, `GameState`
-   - Views: Widgets y Screens
-   - Controller: `GameController`
-
-2. **Observer Pattern (ChangeNotifier)**:
-   - `GameController` extiende `ChangeNotifier`
-   - Widgets escuchan cambios y se reconstruyen automáticamente
-
-3. **Service Pattern**:
-   - `StorageService` abstrae la lógica de persistencia
-   - Fácil de cambiar a otra forma de almacenamiento
-
-4. **Singleton (implícito)**:
-   - Un solo `GameController` por sesión de juego
-
-## Escalabilidad
-
-El proyecto está preparado para extensiones futuras:
-
-### Fácil de agregar:
-- **Nuevas mejoras**: Solo agregar en el array de `_createInitialGameState()`
-- **Nuevos tipos de upgrade**: Agregar al enum `UpgradeType` y actualizar lógica
-- **Skins de cuchillos**: Agregar propiedad en `GameState` y cambiar icono en `KnifeButton`
-- **Logros**: Crear modelo `Achievement` y sistema de verificación en `GameController`
-- **Sonidos**: Agregar en el momento del click y compra de mejoras
-- **Efectos visuales**: Expandir animaciones en widgets
-- **Niveles del jugador**: Agregar sistema de XP basado en puntos totales
-- **Economía completa**: Múltiples monedas, prestigio, etc.
-
-### Posibles mejoras:
-- Usar un gestor de estado más robusto (Riverpod, Bloc)
-- Separar configuración de upgrades en archivo JSON
-- Añadir pruebas unitarias y de integración
-- Implementar analytics para trackear progresión
-- Añadir sincronización en la nube (Firebase)
-
-## Dependencias
-
-- **flutter**: Framework principal
-- **shared_preferences**: Persistencia local de datos
-
-## Ejecución
-
-```bash
-# Instalar dependencias
-flutter pub get
-
-# Ejecutar en dispositivo/emulador
-flutter run
-
-# Compilar APK para Android
-flutter build apk --release
+```
+1. Usuario interactúa (toca botón)
+                ↓
+2. Método en Controller ejecuta
+   (ej: controller.doSomething())
+                ↓
+3. Controller llama lógica de negocio
+   (ej: CombatSystem.calculateDamage())
+                ↓
+4. Controller actualiza su estado interno
+   (ej: this.health = newHealth)
+                ↓
+5. Controller llama notifyListeners()
+                ↓
+6. Todos los Widgets observadores se rebuildan
+   con el nuevo estado
+                ↓
+7. UI renderiza cambios
 ```
 
-## Notas Técnicas
+### Ejemplo Práctico
 
-- El juego guarda automáticamente cada 30 segundos
-- Los puntos offline se calculan al abrir la app basándose en el tiempo transcurrido
-- La animación del auto-clicker se ejecuta cada 0.1 segundos para suavidad visual
-- Los costos de upgrades escalan exponencialmente para balance del juego
-- La UI es completamente responsive y optimizada para móviles
+```dart
+// En pantalla (Gameplay Screen)
+Consumer<CombatController>(
+  builder: (context, combat, _) {
+    return GestureDetector(
+      onTap: () {
+        // Usuario toca pantalla
+        combat.executeAttack();  // 1. Llama método del controller
+      },
+      child: Text('Enemy HP: ${combat.enemyHP}'),  // 7. Renderiza nuevo valor
+    );
+  },
+);
+
+// En CombatController
+class CombatController extends ChangeNotifier {
+  void executeAttack() {
+    // 3. Lógica de negocio
+    int damage = CombatSystem.calculateDamage(player, enemy);
+    
+    // 4. Actualiza estado
+    enemyHP -= damage;
+    
+    // 5. Notifica observadores
+    notifyListeners();
+  }
+}
+```
+
+---
+
+## Patrones Implementados
+
+### 1. Provider Pattern (State Management)
+- **Qué**: Controladores extenden `ChangeNotifier`
+- **Dónde**: `main.dart` con `MultiProvider`
+- **Beneficio**: Desacoplamiento entre UI y lógica, reutilización fácil
+
+### 2. Dependency Injection
+```dart
+// En main.dart
+MultiProvider(
+  providers: [
+    ChangeNotifierProvider(create: (_) => GameController()),
+    ChangeNotifierProvider(create: (_) => ChefController()),
+    // ...
+  ],
+)
+
+// En screens
+final game = context.read<GameController>();
+```
+
+### 3. Repository Pattern (implicit)
+- `StorageService` maneja persistencia
+- `AudioService` maneja reproducción de audio
+- Separa interfaz de implementación
+
+### 4. Singleton Services
+- `AudioService`
+- `StorageService`
+- Instanciados una sola vez en `main.dart`
+
+---
+
+## Diagrama de Dependencias
+
+```
+main.dart (punto de entrada)
+  ├── AudioService (singleton)
+  ├── StorageService (singleton)
+  │
+  ├── GameController (ChangeNotifier)
+  │   └── observado por: main_layout, gameplay_screen
+  │
+  ├── ChefController (ChangeNotifier)
+  │   └── observado por: chefs_view, gameplay_screen
+  │
+  ├── CombatController (ChangeNotifier)
+  │   └── observado por: gameplay_screen
+  │   └── usa: CombatSystem, EnemySystemsystem, WaveSystem
+  │
+  ├── EconomyController (ChangeNotifier)
+  │   └── observado por: gacha_store_view, profile_screen
+  │
+  └── WorldController (ChangeNotifier)
+      └── observado por: world_view
+```
+
+---
+
+## Flujos Principales
+
+### 🎮 Flujo de Combate
+
+```
+user toca "start combat"
+        ↓
+CombatController.startCombat()
+        ↓
+CombatController crea enemigos (WaveSystem)
+        ↓
+CombatController auto-simula turnos en loop
+        ↓
+por cada turno:
+  - CombatSystem.calculateDamage()
+  - Actualiza HP
+  - CombatController.notifyListeners() → UI rebuilda
+        ↓
+si enemigo muere:
+  - EconomyController recibe dinero
+  - Wave siguiente o Boss
+        ↓
+si derrota:
+  - GameOver Overlay
+  - Reset combat
+```
+
+### 🎲 Flujo de Gacha
+
+```
+usuario toca "pull"
+        ↓
+verifica si tiene gemas (EconomyController)
+        ↓
+genera número aleatorio
+        ↓
+determina rareza según tasas
+        ↓
+busca chef aleatorio de esa rareza
+        ↓
+GachaRevealOverlay anima revelación
+        ↓
+ChefController agrega chef a inventario
+        ↓
+StorageService guarda cambio
+```
+
+---
+
+## Convenciones de Código
+
+### Nombrado de Archivos
+- Minúsculas con guiones: `my_controller.dart`
+- Clases con PascalCase: `class MyController`
+- Variables con camelCase: `myVariable`
+
+### Estructura de Clase Controller
+```dart
+class MyController extends ChangeNotifier {
+  // 1. Propiedades privadas
+  int _value = 0;
+  
+  // 2. Getters
+  int get value => _value;
+  
+  // 3. Métodos
+  void doSomething() {
+    _value++;
+    notifyListeners();
+  }
+}
+```
+
+### Estructura de Pantalla
+```dart
+class MyScreen extends StatefulWidget {
+  @override
+  State<MyScreen> createState() => _MyScreenState();
+}
+
+class _MyScreenState extends State<MyScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<MyController>(
+      builder: (context, controller, _) {
+        return Center(
+          child: Text(controller.value.toString()),
+        );
+      },
+    );
+  }
+}
+```
+
+---
+
+## Optimizaciones Implementadas
+
+1. **Consolidación de Audio Service**: Un único `AudioService` extendiendo `ChangeNotifier`
+2. **Eliminación de duplicados**: Removidos servicios duplicados (AudioManager, etc.)
+3. **Lazy loading de widgets**: Widgets se cargan solo cuando son visibles
+4. **Asset caching**: SharedPreferences cachea datos persistentes
+
+---
+
+## Posibles Mejoras Futuras
+
+1. **Riverpod/Bloc**: Migrar de Provider a sistema más robusto
+2. **Database local**: Pasar de SharedPreferences a Hive/Isar
+3. **Networking**: Sincronización con servidor backend
+4. **Modularización**: Dividir en packages separados por feature
+5. **Testing**: Aumentar cobertura de unit tests
+
+---
+
+Última actualización: Abril 2026

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/audio_manager.dart';
+import '../services/audio_service.dart';
 
 /// Widget modal con ajustes de audio
 /// Permite controlar volumen y habilitar/deshabilitar música y SFX
@@ -44,7 +44,7 @@ class _AudioSettingsModalState extends State<AudioSettingsModal> {
               width: 2,
             ),
           ),
-          child: Consumer<AudioManager>(
+          child: Consumer<AudioService>(
             builder: (context, audioManager, _) => SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -264,7 +264,7 @@ class AudioStatusBar extends StatelessWidget {
       alignment: alignment,
       child: Padding(
         padding: padding,
-        child: Consumer<AudioManager>(
+        child: Consumer<AudioService>(
           builder: (context, audioManager, _) => Row(
             mainAxisSize: MainAxisSize.min,
             children: [

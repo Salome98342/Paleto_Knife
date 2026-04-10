@@ -686,6 +686,91 @@ class EnemyTypesCatalog {
       visualDescription: 'Forma esbelta y vigilante',
     ));
 
+    // ============================================================
+    // 👑 JEFES (BOSSES)
+    // ============================================================
+
+    // 👑 Emperador Dumpling (Boss - Asia)
+    register(EnemyTypeDefinition(
+      id: 'emperador_dumpling',
+      name: 'Emperador Dumpling',
+      description: 'El soberano ancestral de la tierra',
+      lore: 'Legenda cuenta que el primer dumpling que cobró vida ascendió a emperador tras siglos de dominio',
+      region: Region.asia,
+      element: ElementType.earth,
+      role: 'boss',
+      baseHealth: 500.0,
+      behavior: Behavior(
+        type: BehaviorType.keepDistance,
+        speed: 100.0,
+        preferredDistance: 200.0,
+      ),
+      attackPattern: AttackPattern(
+        type: AttackPatternType.radial,
+        cooldown: 1.2,
+        bulletSpeed: 200.0,
+        bulletDamage: 15.0,
+        bulletCount: 12,
+      ),
+      debugColor: 0xFF6D4C41,
+      counters: ['🔥', '🌋'],
+      visualDescription: 'Enorme, coronado, con aura de tierra',
+    ));
+
+    // 👑 Soberana del Fuego (Boss - Caribe)
+    register(EnemyTypeDefinition(
+      id: 'soberana_fuego',
+      name: 'Soberana del Fuego',
+      description: 'Recina infernal de los volcanes caribeños',
+      lore: 'Emerger del corazón del volcán con furia primigenia acumulada',
+      region: Region.caribbean,
+      element: ElementType.fire,
+      role: 'boss',
+      baseHealth: 480.0,
+      behavior: Behavior(
+        type: BehaviorType.circlePlayer,
+        speed: 130.0,
+        preferredDistance: 180.0,
+      ),
+      attackPattern: AttackPattern(
+        type: AttackPatternType.spread,
+        cooldown: 1.0,
+        bulletSpeed: 250.0,
+        bulletDamage: 16.0,
+        bulletCount: 8,
+        spreadAngle: 90.0,
+      ),
+      debugColor: 0xFFD84315,
+      counters: ['💧', '🌱'],
+      visualDescription: 'Humanoides de fuego, corona de llamas',
+    ));
+
+    // 👑 Guardián de Hielo (Boss - Europa)
+    register(EnemyTypeDefinition(
+      id: 'guardian_hielo',
+      name: 'Guardián de Hielo',
+      description: 'Centinela eterno de los picos nevados',
+      lore: 'Manifestación del frío absoluto que protege los secretos de la montaña',
+      region: Region.europe,
+      element: ElementType.water,
+      role: 'boss',
+      baseHealth: 520.0,
+      behavior: Behavior(
+        type: BehaviorType.chase,
+        speed: 120.0,
+      ),
+      attackPattern: AttackPattern(
+        type: AttackPatternType.aimed,
+        cooldown: 0.8,
+        bulletSpeed: 280.0,
+        bulletDamage: 14.0,
+        bulletCount: 3,
+      ),
+      debugColor: 0xFF00BCD4,
+      counters: ['🔥', '🌋'],
+      visualDescription: 'Cristales de hielo, forma angular y amenazante',
+    ));
+
     // ⚫ ELITE - Versión mejorada de Grunt
     register(EnemyTypeDefinition(
       id: 'elite',

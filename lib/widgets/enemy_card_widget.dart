@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'retro_style.dart';
+import './enemy_details_dialog.dart';
+import '../game_logic/enemy_system/enemy_types.dart';
 
 /// Tarjeta mejorada para mostrar enemigos en el glosario (Estética Retro)
 class EnemyCardWidget extends StatefulWidget {
@@ -12,6 +14,7 @@ class EnemyCardWidget extends StatefulWidget {
   final String region;
   final Color elementColor;
   final bool isNeutral;
+  final EnemyTypeDefinition? enemyDefinition;
 
   const EnemyCardWidget({
     Key? key,
@@ -24,6 +27,7 @@ class EnemyCardWidget extends StatefulWidget {
     required this.region,
     required this.elementColor,
     this.isNeutral = false,
+    this.enemyDefinition,
   }) : super(key: key);
 
   @override
@@ -115,112 +119,115 @@ class _EnemyCardWidgetState extends State<EnemyCardWidget>
     return MouseRegion(
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        decoration: RetroStyle.box(
-          color: widget.isNeutral 
-              ? Color(0xFFB0B0B0).withValues(alpha: 0.4)
-              : widget.elementColor.withValues(alpha: 0.15),
-          isPressed: isHovered,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              // Icono con fondo retro
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 1),
-                  color: widget.isNeutral
-                      ? Color(0xFFE0E0E0)
-                      : widget.elementColor.withValues(alpha: 0.3),
+      child: GestureDetector(
+        onTap: widget.enemyDefinition != null
+            ? () {
+                showDialog(
+                  context: context,
+                  builder: (context) =>
+                      EnemyDetailsDialog(enemy: widget.enemyDefinition!),
+                );
+              }
+            : null,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          decoration: RetroStyle.box(
+            color: Colors.white,
+            isPressed: isHovered,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                // Icono con fondo retro
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 1),
+                    color: Colors.grey.shade200,
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    color: Colors.black87,
+                    size: 18,
+                  ),
                 ),
-                child: Icon(
-                  widget.icon,
-                  color: widget.isNeutral
-                      ? Color(0xFF808080)
-                      : widget.elementColor,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Información
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Nombre y badge
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.name,
-                            style: RetroStyle.font(
-                              size: 8,
-                              color: widget.isNeutral
-                                  ? Color(0xFF606060)
-                                  : widget.elementColor,
+                const SizedBox(width: 8),
+                // Información
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Nombre y badge
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.name,
+                              style: RetroStyle.font(
+                                size: 8,
+                                color: Colors.black,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
+                          if (widget.isBoss)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 3,
+                                vertical: 1,
+                              ),
+                              decoration: RetroStyle.box(
+                                color: RetroStyle.primary,
+                              ),
+                              child: Text(
+                                '👑',
+                                style: RetroStyle.font(size: 6),
+                              ),
+                            ),
+                          if (widget.isNeutral)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 3,
+                                vertical: 1,
+                              ),
+                              decoration: RetroStyle.box(
+                                color: Color(0xFF999999),
+                              ),
+                              child: Text(
+                                '⚪',
+                                style: RetroStyle.font(size: 6),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      // Elemento y debilidad
+                      Text(
+                        '${getElementEmoji()} ${widget.element} → 🛡️ ${widget.weakness}',
+                        style: RetroStyle.font(
+                          size: 6,
+                          color: Colors.black87,
                         ),
-                        if (widget.isBoss)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 3,
-                              vertical: 1,
-                            ),
-                            decoration: RetroStyle.box(
-                              color: RetroStyle.primary,
-                            ),
-                            child: Text(
-                              '👑',
-                              style: RetroStyle.font(size: 6),
-                            ),
-                          ),
-                        if (widget.isNeutral)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 3,
-                              vertical: 1,
-                            ),
-                            decoration: RetroStyle.box(
-                              color: Color(0xFF999999),
-                            ),
-                            child: Text(
-                              '⚪',
-                              style: RetroStyle.font(size: 6),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    // Elemento y debilidad
-                    Text(
-                      '${getElementEmoji()} ${widget.element} → 🛡️ ${widget.weakness}',
-                      style: RetroStyle.font(
-                        size: 6,
-                        color: RetroStyle.textDark,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    // Descripción
-                    Text(
-                      widget.description,
-                      style: RetroStyle.font(
-                        size: 5,
-                        color: RetroStyle.textDark,
+                      const SizedBox(height: 2),
+                      // Descripción
+                      Text(
+                        widget.description,
+                        style: RetroStyle.font(
+                          size: 5,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
