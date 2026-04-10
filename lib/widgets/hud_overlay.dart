@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../controllers/economy_controller.dart';
+import '../utils/responsive_utils.dart';
 import 'retro_style.dart';
 
 class HudOverlay extends StatelessWidget {
@@ -10,20 +11,23 @@ class HudOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Padding responsivo
+    final padding = ResponsiveUtils.spacing(context, 16);
+    
     return SafeArea(
       child: IgnorePointer(
         ignoring: false,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(padding),
           child: Column(
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHealthAndWaveInfo(),
-                  _buildPauseButton(),
-                  _buildCoinDisplay(),
+                  _buildHealthAndWaveInfo(context),
+                  _buildPauseButton(context),
+                  _buildCoinDisplay(context),
                 ],
               ),
             ],
@@ -33,7 +37,11 @@ class HudOverlay extends StatelessWidget {
     );
   }
 
-  Widget _buildPauseButton() {
+  Widget _buildPauseButton(BuildContext context) {
+    // Botón responsivo
+    final buttonSize = RetroStyle.responsiveButtonSize(context);
+    final iconSize = RetroStyle.responsiveIconSize(context, 20);
+    
     return GestureDetector(
       onTap: () {
         if (game.paused) {
@@ -46,18 +54,22 @@ class HudOverlay extends StatelessWidget {
         }
       },
       child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: RetroStyle.box(color: Colors.white),
+        padding: EdgeInsets.all(buttonSize * 0.3),
+        decoration: RetroStyle.responsiveBox(context, color: Colors.white),
         child: Icon(
           game.paused ? Icons.play_arrow : Icons.pause,
           color: RetroStyle.textDark,
-          size: 20,
+          size: iconSize,
         ),
       ),
     );
   }
 
-  Widget _buildHealthAndWaveInfo() {
+  Widget _buildHealthAndWaveInfo(BuildContext context) {
+    final spacing = ResponsiveUtils.spacing(context, 8);
+    final uiScale = ResponsiveUtils.getUIScaleFactor(context);
+    final fontSize = RetroStyle.responsiveLabel(context, color: Colors.white);
+    
     return Consumer<EconomyController>(
       builder: (context, economy, child) {
         double hp = economy.playerHp;
@@ -70,32 +82,43 @@ class HudOverlay extends StatelessWidget {
             ? Colors.orange
             : Colors.red;
 
+        // Barras responsivas
+        final barWidth = 120.0 * uiScale;
+        final barHeight = 12.0 * uiScale;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 120.0,
-              height: 12.0,
-              decoration: RetroStyle.box(color: Colors.grey.shade800),
+              width: barWidth,
+              height: barHeight,
+              decoration: RetroStyle.responsiveBox(
+                context,
+                color: Colors.grey.shade800,
+              ),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  width: 120.0 * hpPercent,
+                  width: barWidth * hpPercent,
                   height: double.infinity,
                   color: healthColor,
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: spacing),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: RetroStyle.box(
+              padding: EdgeInsets.symmetric(
+                horizontal: spacing * 0.5,
+                vertical: spacing * 0.25,
+              ),
+              decoration: RetroStyle.responsiveBox(
+                context,
                 color: Colors.black.withValues(alpha: 0.5),
               ).copyWith(boxShadow: []),
               child: Text(
                 'WAVE ${game.currentWave}',
-                style: RetroStyle.font(size: 10, color: Colors.white),
+                style: fontSize,
               ),
             ),
           ],
@@ -108,23 +131,30 @@ class HudOverlay extends StatelessWidget {
     );
   }
 
-  Widget _buildCoinDisplay() {
+  Widget _buildCoinDisplay(BuildContext context) {
+    final spacing = ResponsiveUtils.spacing(context, 8);
+    final fontSize = RetroStyle.responsiveBody(context, color: RetroStyle.textDark);
+    final iconSize = RetroStyle.responsiveIconSize(context, 16);
+    
     return Consumer<EconomyController>(
       builder: (context, economy, child) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: RetroStyle.box(color: Colors.white),
+          padding: EdgeInsets.symmetric(
+            horizontal: spacing * 0.75,
+            vertical: spacing * 0.5,
+          ),
+          decoration: RetroStyle.responsiveBox(context, color: Colors.white),
           child: Row(
             children: [
               Text(
                 '${economy.coins}',
-                style: RetroStyle.font(size: 12, color: RetroStyle.textDark),
+                style: fontSize,
               ),
-              const SizedBox(width: 8),
-              const Icon(
+              SizedBox(width: spacing * 0.5),
+              Icon(
                     Icons.monetization_on,
                     color: RetroStyle.accent,
-                    size: 16,
+                    size: iconSize,
                   )
                   .animate(key: ValueKey(economy.coins))
                   .scaleXY(begin: 1.5, end: 1.0, duration: 300.ms)

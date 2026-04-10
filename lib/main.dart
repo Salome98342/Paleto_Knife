@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import 'screens/main_layout.dart';
+import 'screens/splash_screen.dart';
 import 'controllers/game_controller.dart';
 import 'controllers/economy_controller.dart';
 import 'controllers/world_controller.dart';
@@ -11,6 +11,7 @@ import 'controllers/chef_controller.dart';
 import 'services/audio_service.dart';
 import 'services/ad_service.dart';
 import 'game_logic/combat_system_initializer.dart';
+import 'widgets/app_lifecycle_observer.dart';
 
 // Paleta pixel art global
 class PixelColors {
@@ -42,21 +43,25 @@ void main() async {
 
   // Inicializacion de servicios críticos
   await AudioService.init();
-  await AdService().initConfigs();
+  await AdService().init();
   
   // Initialize combat system
   initializeCombatSystem();
   assert(isCombatSystemInitialized(), 'Combat system failed to initialize');
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => GameController()..initialize()),
-        ChangeNotifierProvider(create: (_) => EconomyController()),
-        ChangeNotifierProvider(create: (_) => WorldController()),
-        ChangeNotifierProvider(create: (_) => ChefController()),
-      ],
-      child: const KnifeClickerApp(),
+    AppLifecycleObserver(
+      child: MultiProvider(
+        providers: [
+          // Audio Service DEBE ser registrado primero para que esté disponible globalmente
+          ChangeNotifierProvider<AudioService>.value(value: AudioService.instance),
+          ChangeNotifierProvider(create: (_) => GameController()..initialize()),
+          ChangeNotifierProvider(create: (_) => EconomyController()),
+          ChangeNotifierProvider(create: (_) => WorldController()),
+          ChangeNotifierProvider(create: (_) => ChefController()),
+        ],
+        child: const KnifeClickerApp(),
+      ),
     ),
   );
 }
@@ -172,7 +177,7 @@ class KnifeClickerApp extends StatelessWidget {
           color: PixelColors.accent,
         ),
       ),
-      home: const MainLayout(),
+      home: const SplashScreen(),
     );
   }
 }

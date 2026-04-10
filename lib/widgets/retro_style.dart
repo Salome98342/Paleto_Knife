@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../utils/responsive_utils.dart';
+import '../utils/retro_responsive_style.dart';
 
 class RetroStyle {
   static const Color background = Color(0xFF2B2B26);
@@ -10,6 +12,7 @@ class RetroStyle {
   static const Color textDark = Color(0xFF1E1E1E);
   static const Color textLight = Colors.white;
 
+  // Método antiguo - mantener para compatibilidad
   static BoxDecoration box({Color color = panel, bool isPressed = false}) {
     return BoxDecoration(
       color: color,
@@ -26,12 +29,93 @@ class RetroStyle {
     );
   }
 
+  // Método antiguo - mantener para compatibilidad
   static TextStyle font({double size = 16, Color color = textDark}) {
     return GoogleFonts.pressStart2p(
       fontSize: size,
       color: color,
       height: 1.5,
     ).copyWith(fontFamilyFallback: ['Roboto', 'sans-serif']);
+  }
+
+  // NUEVOS MÉTODOS RESPONSIVOS
+  
+  /// Obtener fuente responsiva (H1 - encabezados principales)
+  static TextStyle responsiveH1(
+    BuildContext context, {
+    Color color = textDark,
+  }) {
+    return RetroResponsiveStyle.h1(context, color: color);
+  }
+
+  /// Obtener fuente responsiva (H2 - encabezados secundarios)
+  static TextStyle responsiveH2(
+    BuildContext context, {
+    Color color = textDark,
+  }) {
+    return RetroResponsiveStyle.h2(context, color: color);
+  }
+
+  /// Obtener fuente responsiva (Body - texto normal)
+  static TextStyle responsiveBody(
+    BuildContext context, {
+    Color color = textDark,
+  }) {
+    return RetroResponsiveStyle.body(context, color: color);
+  }
+
+  /// Obtener fuente responsiva (Label - etiquetas)
+  static TextStyle responsiveLabel(
+    BuildContext context, {
+    Color color = textDark,
+  }) {
+    return RetroResponsiveStyle.label(context, color: color);
+  }
+
+  /// Decoración de caja responsiva
+  static BoxDecoration responsiveBox(
+    BuildContext context, {
+    Color color = panel,
+    bool isPressed = false,
+  }) {
+    return RetroResponsiveStyle.responsiveBox(
+      color: color,
+      isPressed: isPressed,
+      context: context,
+    );
+  }
+
+  /// Padding responsivo
+  static EdgeInsets responsivePadding(
+    BuildContext context, {
+    double horizontalMultiplier = 1.0,
+    double verticalMultiplier = 1.0,
+  }) {
+    return RetroResponsiveStyle.responsivePadding(
+      context,
+      horizontalMultiplier: horizontalMultiplier,
+      verticalMultiplier: verticalMultiplier,
+    );
+  }
+
+  /// Spacing responsivo
+  static double responsiveSpacing(BuildContext context, double baseSize) {
+    return RetroResponsiveStyle.spacing(context, baseSize);
+  }
+
+  /// Tamaño de icono responsivo
+  static double responsiveIconSize(BuildContext context, double baseSize) {
+    return RetroResponsiveStyle.iconSize(context, baseSize);
+  }
+
+  /// Tamaño de botón responsivo
+  static double responsiveButtonSize(BuildContext context) {
+    return RetroResponsiveStyle.buttonSize(context);
+  }
+
+  /// Altura de botón responsiva
+  static double responsiveButtonHeight(BuildContext context) {
+    return RetroResponsiveStyle.buttonHeight(context);
   }
 
   static void showInsufficient(BuildContext context, String message) {

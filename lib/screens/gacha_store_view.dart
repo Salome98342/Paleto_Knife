@@ -496,19 +496,16 @@ class GachaStoreView extends StatelessWidget {
             ),
             onPressed: () {
               final adService = AdService();
-              if (adService.isAdLoaded) {
-                adService.showRewardedAd(
-                  onRewardEarned: (amount) {
+              if (adService.isRewardedGemasReady) {
+                adService.showRewardedGemas(
+                  () {
                     final eco = context.read<EconomyController>();
-                    eco.addGems(amount);
+                    eco.addGems(10);
                     RetroStyle.showSuccess(
                       context,
-                      "+$amount GEMAS OBTENIDAS",
+                      "+10 GEMAS OBTENIDAS",
                       icon: Icons.diamond,
                     );
-                  },
-                  onAdClosed: () {
-                    // Acciones adicionales si necesitas
                   },
                 );
               } else {

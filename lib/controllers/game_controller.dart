@@ -46,7 +46,6 @@ class GameController extends ChangeNotifier {
 
     if (savedState != null) {
       _gameState = savedState;
-      // TODO: Calcular recompensas offline (oro de sous-chefs mientras la app estaba cerrada)
       _calculateOfflineRewards();
     } else {
       // Crear un nuevo juego con tecnicas base
@@ -171,7 +170,6 @@ class GameController extends ChangeNotifier {
 
     _gameState.relicChests--;
 
-    // Generar reliquia (el metodo ya esta en game_state.dart)
     final relic = _gameState.generateRandomRelic();
     _gameState.relics.add(relic);
 
@@ -189,7 +187,6 @@ class GameController extends ChangeNotifier {
 
     _gameState.cultHearts--;
 
-    // Generar idolo aleatorio (el metodo ya esta en game_state.dart)
     final idol = _gameState.generateRandomIdol();
     _gameState.idols.add(idol);
 

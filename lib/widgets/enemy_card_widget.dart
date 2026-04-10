@@ -130,19 +130,19 @@ class _EnemyCardWidgetState extends State<EnemyCardWidget>
               }
             : null,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
+          margin: const EdgeInsets.symmetric(vertical: 2),
           decoration: RetroStyle.box(
             color: Colors.white,
             isPressed: isHovered,
           ),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(5.0),
             child: Row(
               children: [
                 // Icono con fondo retro
                 Container(
-                  width: 32,
-                  height: 32,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black, width: 1),
                     color: Colors.grey.shade200,
@@ -150,10 +150,10 @@ class _EnemyCardWidgetState extends State<EnemyCardWidget>
                   child: Icon(
                     widget.icon,
                     color: Colors.black87,
-                    size: 18,
+                    size: 16,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 // Información
                 Expanded(
                   child: Column(
@@ -166,7 +166,7 @@ class _EnemyCardWidgetState extends State<EnemyCardWidget>
                             child: Text(
                               widget.name,
                               style: RetroStyle.font(
-                                size: 8,
+                                size: 7,
                                 color: Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -175,7 +175,7 @@ class _EnemyCardWidgetState extends State<EnemyCardWidget>
                           if (widget.isBoss)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
+                                horizontal: 2,
                                 vertical: 1,
                               ),
                               decoration: RetroStyle.box(
@@ -183,13 +183,13 @@ class _EnemyCardWidgetState extends State<EnemyCardWidget>
                               ),
                               child: Text(
                                 '👑',
-                                style: RetroStyle.font(size: 6),
+                                style: RetroStyle.font(size: 5),
                               ),
                             ),
                           if (widget.isNeutral)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 3,
+                                horizontal: 2,
                                 vertical: 1,
                               ),
                               decoration: RetroStyle.box(
@@ -197,27 +197,27 @@ class _EnemyCardWidgetState extends State<EnemyCardWidget>
                               ),
                               child: Text(
                                 '⚪',
-                                style: RetroStyle.font(size: 6),
+                                style: RetroStyle.font(size: 5),
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 1),
                       // Elemento y debilidad
                       Text(
                         '${getElementEmoji()} ${widget.element} → 🛡️ ${widget.weakness}',
                         style: RetroStyle.font(
-                          size: 6,
+                          size: 5,
                           color: Colors.black87,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 1),
                       // Descripción
                       Text(
                         widget.description,
                         style: RetroStyle.font(
-                          size: 5,
+                          size: 4,
                           color: Colors.black87,
                         ),
                         maxLines: 1,

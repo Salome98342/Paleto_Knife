@@ -16,21 +16,21 @@ class WorldView extends StatelessWidget {
     final loc = world.selectedLocation;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 80, bottom: 90, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 60, bottom: 90, left: 12, right: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Text(
               "MUNDO",
-              style: RetroStyle.font(size: 16, color: Colors.white),
+              style: RetroStyle.font(size: 14, color: Colors.white),
             ),
           ),
 
           Container(
-            height: 150,
-            padding: const EdgeInsets.all(8),
+            height: 100,
+            padding: const EdgeInsets.all(6),
             decoration: RetroStyle.box(color: Colors.grey.shade900),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -44,9 +44,9 @@ class WorldView extends StatelessWidget {
                   child: Stack(
                     children: [
                       Container(
-                        width: 120,
-                        margin: const EdgeInsets.only(right: 12, top: 12),
-                        padding: const EdgeInsets.all(8),
+                        width: 100,
+                        margin: const EdgeInsets.only(right: 12, top: 8),
+                        padding: const EdgeInsets.all(6),
                         decoration: RetroStyle.box(
                           color: isSelected
                               ? RetroStyle.primary
@@ -58,44 +58,11 @@ class WorldView extends StatelessWidget {
                             Text(
                               l.name,
                               style: RetroStyle.font(
-                                size: 12,
+                                size: 11,
                                 color: isSelected ? Colors.white : Colors.black,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 6),
-                            // Barra de progreso de recuperación
-                            if (l.name != 'Neutro') ...[
-                              SizedBox(
-                                height: 12,
-                                child: Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      child: LinearProgressIndicator(
-                                        value: (world.liberationProgress[l.name] ?? 0.0) / 100,
-                                        backgroundColor: Colors.grey.shade400,
-                                        valueColor: AlwaysStoppedAnimation(
-                                          (world.liberationProgress[l.name] ?? 0.0) > 50
-                                              ? Colors.green
-                                              : Colors.orange,
-                                        ),
-                                        minHeight: 8,
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Text(
-                                        '${(world.liberationProgress[l.name] ?? 0.0).toStringAsFixed(0)}%',
-                                        style: RetroStyle.font(
-                                          size: 6,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -125,11 +92,11 @@ class WorldView extends StatelessWidget {
             ),
           ).animate().fadeIn(duration: 400.ms),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
 
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: Colors.black, width: 2),
@@ -139,7 +106,7 @@ class WorldView extends StatelessWidget {
                 children: [
                   // Header temático de región
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       border: Border.all(color: loc.elementColor, width: 2),
                       color: loc.elementColor.withValues(alpha: 0.1),
@@ -155,15 +122,15 @@ class WorldView extends StatelessWidget {
                               Text(
                                 "REGIÓN: ${loc.name.toUpperCase()}",
                                 style: RetroStyle.font(
-                                  size: 12,
+                                  size: 10,
                                   color: loc.elementColor,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 2),
                               Text(
                                 loc.description,
                                 style: RetroStyle.font(
-                                  size: 7,
+                                  size: 6,
                                   color: Colors.black87,
                                 ),
                               ),
@@ -172,7 +139,7 @@ class WorldView extends StatelessWidget {
                         ),
                         if (loc.isAlert) ...[
                           const SizedBox(width: 8),
-                          const Icon(Icons.warning, color: Colors.red, size: 28)
+                          const Icon(Icons.warning, color: Colors.red, size: 24)
                               .animate(onPlay: (c) => c.repeat())
                               .scaleXY(
                                 begin: 0.8,
@@ -185,19 +152,19 @@ class WorldView extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
 
                   // Ventaja de elemento con icono pixel art
                   Row(
                     children: [
                       Text(
-                        "VENTAJA RECOMENDADA: ",
-                        style: RetroStyle.font(size: 9, color: Colors.black),
+                        "VENTAJA: ",
+                        style: RetroStyle.font(size: 8, color: Colors.black),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: 6,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(color: loc.elementColor, width: 2),
@@ -206,12 +173,12 @@ class WorldView extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            SizedBox(width: 16, height: 16, child: PixelArtIcons.getElementIcon(loc.recommendedElement, size: 16)),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 14, height: 14, child: PixelArtIcons.getElementIcon(loc.recommendedElement, size: 14)),
+                            const SizedBox(width: 3),
                             Text(
                               loc.recommendedElement,
                               style: RetroStyle.font(
-                                size: 9,
+                                size: 8,
                                 color: loc.elementColor,
                               ),
                             ),
@@ -221,7 +188,7 @@ class WorldView extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
                   // Barra de liberación mejorada con altura 24px
                   Column(
@@ -231,21 +198,21 @@ class WorldView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "ESTADO DE LIBERACIÓN",
-                            style: RetroStyle.font(size: 9, color: Colors.black),
+                            "LIBERACIÓN",
+                            style: RetroStyle.font(size: 8, color: Colors.black),
                           ),
                           Text(
                             "${world.getLiberation(loc.name).toStringAsFixed(0)}%",
                             style: RetroStyle.font(
-                              size: 9,
+                              size: 8,
                               color: Colors.green.shade700,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Container(
-                        height: 24,
+                        height: 16,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.black, width: 2),
@@ -270,7 +237,7 @@ class WorldView extends StatelessWidget {
                   ),
 
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
+                    padding: EdgeInsets.symmetric(vertical: 6.0),
                     child: Divider(color: Colors.black, thickness: 2),
                   ),
 
@@ -278,8 +245,8 @@ class WorldView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "GLOSARIO DE AMALGAMAS",
-                        style: RetroStyle.font(size: 10, color: Colors.black),
+                        "GLOSARIO",
+                        style: RetroStyle.font(size: 9, color: Colors.black),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -292,8 +259,8 @@ class WorldView extends StatelessWidget {
                           backgroundColor: RetroStyle.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+                            horizontal: 12,
+                            vertical: 6,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.zero,
@@ -301,13 +268,13 @@ class WorldView extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          "TABLA DE TIPOS",
-                          style: RetroStyle.font(size: 8, color: Colors.white),
+                          "TIPOS",
+                          style: RetroStyle.font(size: 7, color: Colors.white),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
 
                   Expanded(
                     child: SingleChildScrollView(
@@ -337,9 +304,9 @@ class WorldView extends StatelessWidget {
                           ),
                           // Sección de jefes si existen
                           if (loc.bosses.isNotEmpty) ...[
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 6),
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: Colors.yellow.shade700,
@@ -350,12 +317,12 @@ class WorldView extends StatelessWidget {
                               child: Text(
                                 "👑 SOBERANOS",
                                 style: RetroStyle.font(
-                                  size: 9,
+                                  size: 8,
                                   color: Colors.yellow.shade700,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
@@ -379,9 +346,9 @@ class WorldView extends StatelessWidget {
                           ],
                           // Sección de neutrales si existen
                           if (loc.neutralEnemies.isNotEmpty) ...[
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 6),
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: Color(0xFF999999),
@@ -392,12 +359,12 @@ class WorldView extends StatelessWidget {
                               child: Text(
                                 "⚪ NEUTRALES",
                                 style: RetroStyle.font(
-                                  size: 9,
+                                  size: 8,
                                   color: Color(0xFF606060),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),

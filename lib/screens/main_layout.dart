@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../widgets/retro_style.dart';
+import '../widgets/ad_banner_widget.dart';
 import '../controllers/world_controller.dart';
 import '../controllers/economy_controller.dart';
 import '../controllers/chef_controller.dart';
@@ -39,8 +40,12 @@ class _MainLayoutState extends State<MainLayout> {
     // Iniciar musica de menu cuando se carga MainLayout
     Future.microtask(() {
       try {
+        debugPrint('[MainLayout] 🎵 Iniciando música de menú');
         AudioService.instance.playMenuMusic();
-      } catch (_) {}
+      } catch (e, stack) {
+        debugPrint('[MainLayout] ❌ Error reproduciendo música: $e');
+        debugPrint(stack.toString());
+      }
     });
   }
 
@@ -64,6 +69,13 @@ class _MainLayoutState extends State<MainLayout> {
             ),
 
             Positioned(top: 16, left: 16, right: 16, child: _buildTopHUD()),
+
+            Positioned(
+              bottom: 80,
+              left: 0,
+              right: 0,
+              child: const AdBannerWidget(),
+            ),
 
             Positioned(bottom: 0, left: 0, right: 0, child: _buildBottomNav()),
           ],
