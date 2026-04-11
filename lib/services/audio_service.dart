@@ -12,24 +12,24 @@ class AudioService extends ChangeNotifier {
 
   static final AudioService instance = AudioService._();
 
-  static const String menuSongPath = 'assets/audio/menu/menu_song.mp3';
+  static const String menuSongPath = 'audio/menu/menu_song.mp3';
   // Música de gameplay - usa la región America por defecto
-  static const String gameplaySongPath = 'assets/audio/gameplay/america/america_wave.mp3';
-  static const String gameplayAsiaSongPath = 'assets/audio/gameplay/asia/asia_wave.mp3';
-  static const String gameplayEuropaSongPath = 'assets/audio/gameplay/europa/europa_wave.mp3';
+  static const String gameplaySongPath = 'audio/gameplay/america/america_wave.mp3';
+  static const String gameplayAsiaSongPath = 'audio/gameplay/asia/asia_wave.mp3';
+  static const String gameplayEuropaSongPath = 'audio/gameplay/europa/europa_wave.mp3';
   // Música de tienda
-  static const String shopSongPath = 'assets/audio/tienda/shop.mp3';
+  static const String shopSongPath = 'audio/tienda/shop.mp3';
   // Música de configuración (usar menu_song por defecto)
-  static const String cuchilloMenuPath = 'assets/audio/menu/menu_song.mp3';
-  static const String coinCollectPath = 'assets/audio/sfx/coin_collect.mp3';
-  static const String hitSoundPath = 'assets/audio/sfx/hit.mp3';
-  static const String powerupSoundPath = 'assets/audio/sfx/improve_weapon.mp3';
-  static const String clickObjectsPath = 'assets/audio/sfx/click_objetos.mp3';
-  static const String clickGachaPath = 'assets/audio/tienda/click_gacha.mp3';
-  static const String bossAlertPath = 'assets/audio/sfx/alerta_boss.mp3';
-  static const String enemyDeathPath = 'assets/audio/sfx/damage_enemy.mp3';
-  static const String bossDeathPath = 'assets/audio/sfx/muerte_boss.mp3';
-  static const String knifeThrowPath = 'assets/audio/sfx/lanzar_cuchillo.mp3';
+  static const String cuchilloMenuPath = 'audio/menu/menu_song.mp3';
+  static const String coinCollectPath = 'audio/sfx/coin_collect.mp3';
+  static const String hitSoundPath = 'audio/sfx/hit.mp3';
+  static const String powerupSoundPath = 'audio/sfx/improve_weapon.mp3';
+  static const String clickObjectsPath = 'audio/sfx/click_objetos.mp3';
+  static const String clickGachaPath = 'audio/tienda/click_gacha.mp3';
+  static const String bossAlertPath = 'audio/sfx/alerta_boss.mp3';
+  static const String enemyDeathPath = 'audio/sfx/damage_enemy.mp3';
+  static const String bossDeathPath = 'audio/sfx/muerte_boss.mp3';
+  static const String knifeThrowPath = 'audio/sfx/lanzar_cuchillo.mp3';
 
   final AudioPlayer _bgmPlayer = AudioPlayer(playerId: 'bgm_player');
   final List<AudioPlayer> _sfxPlayers = List.generate(
@@ -40,6 +40,7 @@ class AudioService extends ChangeNotifier {
 
   bool _initialized = false;
   _BgmTrack _currentTrack = _BgmTrack.none;
+  String? _currentBgmPath; // Rastrear la canción actual
   String? _lastRegionMusicPath;
   
   // Flags y control de estado mejorados
@@ -84,13 +85,6 @@ class AudioService extends ChangeNotifier {
     // Detectar si es web ANTES de chequear
     _isWeb = kIsWeb;
     debugPrint('[AudioService] 🔍 _isWeb = $_isWeb (kIsWeb = $kIsWeb)');
-    
-    if (_isWeb) {
-      debugPrint('[AudioService] Corriendo en Web - Audio deshabilitado (AudioPlayers no soporta web)');
-      _initialized = true;
-      if (!_isDisposed) notifyListeners();
-      return;
-    }
 
     try {
       debugPrint('[AudioService] 🔧 Inicializando AudioService en Android/iOS...');
@@ -109,6 +103,29 @@ class AudioService extends ChangeNotifier {
         ReleaseMode.loop,
         _bgmVolume,
       );
+      
+      // Configurar AudioContext para Android e iOS
+      if (!_isWeb) {
+        try {
+          await _bgmPlayer.setAudioContext(
+            AudioContext(
+              android: AudioContextAndroid(
+                isSpeakerphoneOn: true,
+                stayAwake: true,
+                contentType: AndroidContentType.music,
+                usageType: AndroidUsageType.media,
+              ),
+              iOS: AudioContextIOS(
+                category: AVAudioSessionCategory.playback,
+              ),
+            ),
+          );
+          debugPrint('[AudioService] ✓ AudioContext configurado para Android/iOS');
+        } catch (e) {
+          debugPrint('[AudioService] ⚠️ Error configurando AudioContext: $e');
+        }
+      }
+      
       debugPrint('[AudioService] ✓ BGM player configurado');
 
       // Configurar SFX players
@@ -133,7 +150,7 @@ class AudioService extends ChangeNotifier {
       // Reintentar conexión con backoff exponencial
       if (_initRetries < _maxInitRetries) {
         _initRetries++;
-        debugPrint('[AudioService] 🔄 Reintentando... (${_initRetries}/$_maxInitRetries)');
+        debugPrint('[AudioService] 🔄 Reintentando... ($_initRetries/$_maxInitRetries)');
         _initRetryTimer?.cancel();
         _initRetryTimer = Timer(
           _initRetryDelay * _initRetries,
@@ -160,12 +177,25 @@ class AudioService extends ChangeNotifier {
   }
 
   String _normalizeAssetPath(String path) {
-    // AudioPlayers v6.1.0 necesita el path completo con 'assets/'
-    // No remover nada - devolver el path tal cual
-    return path;
+    // Remover 'assets/' del inicio si existe
+    return path.replaceFirst('assets/', '');
   }
 
-  bool _isChangingTrack = false;
+  /// Crea un Source con estrategia correcta para Web vs Nativo
+  Source _getAudioSource(String path) {
+    final normalizedPath = _normalizeAssetPath(path);
+    
+    if (_isWeb) {
+      // En Web, usar UrlSource con la URL absoluta del asset
+      // Los assets en Flutter Web están en /assets/
+      final assetUrl = 'assets/$normalizedPath';
+      debugPrint('[AudioService] Web UrlSource: $assetUrl');
+      return UrlSource(assetUrl);
+    }
+    
+    // En Android/iOS, usar AssetSource normalmente
+    return AssetSource(normalizedPath);
+  }
 
   Future<void> _playBgm(String path, _BgmTrack track) async {
     if (_isDisposed) {
@@ -174,49 +204,53 @@ class AudioService extends ChangeNotifier {
     }
     
     try {
-      debugPrint('[🎵 AUDIO] Intentando reproducir: $path');
+      final normalizedPath = _normalizeAssetPath(path);
+      debugPrint('[AUDIO DEBUG] Playing: $normalizedPath');
       
-      // Asegurar que esté inicializado
-      await _ensureInitialized();
-      
+      // Bloquear inicialización correctamente
+      if (!_initialized) {
+        await _ensureInitialized();
+        if (!_initialized) {
+          debugPrint('[🎵 AUDIO] ❌ Initialization failed');
+          return;
+        }
+      }
+
       debugPrint('[🎵 AUDIO] _initialized=$_initialized, _isWeb=$_isWeb');
 
-      if (_isWeb) {
-        debugPrint('[🎵 AUDIO] Web detected - audio deshabilitado');
-        return;
-      }
-      
-      if (!_initialized) {
-        debugPrint('[🎵 AUDIO] ❌ Not initialized');
-        return;
-      }
-
-      // Si es la misma pista en reproducción, no hacer nada
-      if (_currentTrack == track && _bgmPlayer.state == PlayerState.playing) {
-        debugPrint('[🎵 AUDIO] Same track already playing');
+      // Si es la misma pista con el mismo path en reproducción, no hacer nada
+      if (_currentBgmPath == path && _currentTrack == track && _bgmPlayer.state == PlayerState.playing) {
+        debugPrint('[🎵 AUDIO] Same track already playing (path: $path)');
         return;
       }
 
       _currentTrack = track;
+      _currentBgmPath = path;
 
       // Detener música actual si está en reproducción
       try {
         if (_bgmPlayer.state != PlayerState.stopped) {
           debugPrint('[🎵 AUDIO] Stopping current track...');
           await _bgmPlayer.stop();
-          await Future.delayed(const Duration(milliseconds: 100));
+          await _bgmPlayer.release();
+          // Delay más largo en Web para permitir que se libere completamente
+          final stopDelay = _isWeb 
+              ? const Duration(milliseconds: 300)
+              : const Duration(milliseconds: 100);
+          await Future.delayed(stopDelay);
         }
       } catch (e) {
         debugPrint('[🎵 AUDIO] Error stopping: $e');
       }
 
       // Reproducir nueva canción
-      debugPrint('[🎵 AUDIO] Playing: $path');
+      debugPrint('[🎵 AUDIO] Playing: $normalizedPath');
       
       try {
-        await _bgmPlayer.play(AssetSource(path));
+        final audioSource = _getAudioSource(path);
+        await _bgmPlayer.play(audioSource);
         _isMusicPlaying = true;
-        debugPrint('[🎵 AUDIO] ✅ Playing: $path');
+        debugPrint('[🎵 AUDIO] ✅ Playing: $normalizedPath');
       } catch (e) {
         debugPrint('[🎵 AUDIO] ❌ Play error: $e');
         _isMusicPlaying = false;
@@ -242,28 +276,51 @@ class AudioService extends ChangeNotifier {
 
   Future<void> playGameplayMusic() {
     debugPrint('[AudioService] ▶ Reproduciendo música de gameplay');
+    _lastRegionMusicPath = gameplaySongPath;  // Guardar para playLastGameplayMusic()
     return _playBgm(gameplaySongPath, _BgmTrack.gameplay);
   }
 
   // Métodos para reproducir música de gameplay según la región
-  Future<void> playAmericaMusic() =>
-      _playBgm('assets/audio/gameplay/america/america_wave.mp3', _BgmTrack.gameplay);
+  Future<void> playAmericaMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/caribe/caribe_wave.mp3';
+    return _playBgm('audio/gameplay/caribe/caribe_wave.mp3', _BgmTrack.gameplay);
+  }
 
-  Future<void> playAsiaMusic() =>
-      _playBgm('assets/audio/gameplay/asia/asia_wave.mp3', _BgmTrack.gameplay);
+  Future<void> playCarribeMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/caribe/caribe_wave.mp3';
+    return _playBgm('audio/gameplay/caribe/caribe_wave.mp3', _BgmTrack.gameplay);
+  }
 
-  Future<void> playEuropaMusic() =>
-      _playBgm('assets/audio/gameplay/europa/europa_wave.mp3', _BgmTrack.gameplay);
+  Future<void> playAsiaMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/asia/asia_wave.mp3';
+    return _playBgm('audio/gameplay/asia/asia_wave.mp3', _BgmTrack.gameplay);
+  }
+
+  Future<void> playEuropaMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/europa/europa_wave.mp3';
+    return _playBgm('audio/gameplay/europa/europa_wave.mp3', _BgmTrack.gameplay);
+  }
 
   // Métodos para reproducir música de boss según la región
-  Future<void> playAmericaBossMusic() =>
-      _playBgm('assets/audio/gameplay/america/boss_america.mp3', _BgmTrack.gameplay);
+  Future<void> playAmericaBossMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/caribe/boss_caribe.mp3';
+    return _playBgm('audio/gameplay/caribe/boss_caribe.mp3', _BgmTrack.gameplay);
+  }
 
-  Future<void> playAsiaBossMusic() =>
-      _playBgm('assets/audio/gameplay/asia/boss_asia.mp3', _BgmTrack.gameplay);
+  Future<void> playCarribeBossMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/caribe/boss_caribe.mp3';
+    return _playBgm('audio/gameplay/caribe/boss_caribe.mp3', _BgmTrack.gameplay);
+  }
 
-  Future<void> playEuropaBossMusic() =>
-      _playBgm('assets/audio/gameplay/europa/boss_europa.mp3', _BgmTrack.gameplay);
+  Future<void> playAsiaBossMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/asia/boss_asia.mp3';
+    return _playBgm('audio/gameplay/asia/boss_asia.mp3', _BgmTrack.gameplay);
+  }
+
+  Future<void> playEuropaBossMusic() {
+    _lastRegionMusicPath = 'audio/gameplay/europa/boss_europa.mp3';
+    return _playBgm('audio/gameplay/europa/boss_europa.mp3', _BgmTrack.gameplay);
+  }
 
   /// Reproduce la última música de region que se estaba tocando (para volver desde tienda)
   Future<void> playLastGameplayMusic() async {
@@ -303,11 +360,12 @@ class AudioService extends ChangeNotifier {
   }
 
   Future<void> _playSfxInternal(String path, int index) async {
-    if (_isDisposed || _isWeb || !_initialized || !_sfxEnabled) return;
+    if (_isDisposed || !_initialized || !_sfxEnabled) return;
 
     try {
       final player = _sfxPlayers[index];
       final normalizedPath = _normalizeAssetPath(path);
+      debugPrint('[AUDIO DEBUG] Playing SFX: $normalizedPath');
 
       // Detener SFX actual de forma segura
       try {
@@ -322,7 +380,8 @@ class AudioService extends ChangeNotifier {
       await Future.delayed(const Duration(milliseconds: 50));
 
       // Reproducir con timeout
-      await player.play(AssetSource(normalizedPath)).timeout(
+      final audioSource = _getAudioSource(path);
+      await player.play(audioSource).timeout(
         const Duration(seconds: 2),
         onTimeout: () {
           debugPrint('[AudioService] Timeout reproduciendo SFX: $normalizedPath');
@@ -358,6 +417,28 @@ class AudioService extends ChangeNotifier {
   void playGacha() => playClickGacha();
   void playUpgrade() => playPowerupSound();
   void playKnife() => playKnifeThrow();
+
+  /// Test directo para verificar si el audio funciona en el sistema
+  Future<void> testAudio() async {
+    debugPrint('[AUDIO TEST] Iniciando test de audio...');
+    try {
+      final player = AudioPlayer();
+      debugPrint('[AUDIO TEST] Reproduciedo: audio/menu/menu_song.mp3');
+      
+      // Web usa UrlSource, nativo usa AssetSource
+      final source = kIsWeb 
+          ? UrlSource('assets/audio/menu/menu_song.mp3')
+          : AssetSource('audio/menu/menu_song.mp3');
+      
+      await player.play(source);
+      debugPrint('[AUDIO TEST] ✅ Audio test reproducido exitosamente');
+      await Future.delayed(const Duration(seconds: 3));
+      await player.stop();
+      await player.dispose();
+    } catch (e) {
+      debugPrint('[AUDIO TEST] ❌ Error en test de audio: $e');
+    }
+  }
 
   /// Controla si la música está habilitada
   Future<void> toggleMusic(bool enabled) async {

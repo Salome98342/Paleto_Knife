@@ -52,8 +52,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
       final locationData = context.read<WorldController>().selectedLocation;
       final locationName = locationData.name.toLowerCase();
 
-      if (locationName == 'america') {
-        AudioService.instance.playAmericaMusic();
+      if (locationName == 'caribe') {
+        AudioService.instance.playCarribeMusic();
       } else if (locationName == 'asia') {
         AudioService.instance.playAsiaMusic();
       } else if (locationName == 'europa') {

@@ -228,20 +228,25 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
         AudioService.instance.playBossAlert();
       } catch (_) {}
       
-      // Reproducir música de boss según la ubicación
-      if (!_bossMusicPlaying) {
-        _bossMusicPlaying = true;
-        try {
-          final locationName = locationData.name.toLowerCase();
-          if (locationName == 'america') {
-            AudioService.instance.playAmericaBossMusic();
-          } else if (locationName == 'asia') {
-            AudioService.instance.playAsiaBossMusic();
-          } else if (locationName == 'europa') {
-            AudioService.instance.playEuropaBossMusic();
-          }
-        } catch (_) {}
-      }
+      // Esperar a que termine la alerta, luego reproducir música de boss
+      Future.delayed(const Duration(milliseconds: 2500), () {
+        if (!_bossMusicPlaying) {
+          _bossMusicPlaying = true;
+          try {
+            final locationName = locationData.name.toLowerCase();
+            if (locationName == 'caribe') {
+              AudioService.instance.playCarribeBossMusic();
+            } else if (locationName == 'asia') {
+              AudioService.instance.playAsiaBossMusic();
+            } else if (locationName == 'europa') {
+              AudioService.instance.playEuropaBossMusic();
+            } else {
+              // Fallback para Neutro u otras regiones
+              // Mantiene la música de gameplay
+            }
+          } catch (_) {}
+        }
+      });
 
       Future.delayed(const Duration(seconds: 3), () {
         _showBossAlert = false;

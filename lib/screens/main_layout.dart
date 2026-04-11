@@ -276,7 +276,7 @@ class _MainLayoutState extends State<MainLayout> {
 }
 
 class _HomeTab extends StatelessWidget {
-  const _HomeTab({Key? key}) : super(key: key);
+  const _HomeTab({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -291,14 +291,11 @@ class _HomeTab extends StatelessWidget {
           // 1. Play RPG Button
           GestureDetector(
                 onTap: () {
-                  try {
-                    AudioService.instance.playGameplayMusic();
-                  } catch (_) {}
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const GameplayScreen()),
-                  );
-                },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GameplayScreen()),
+                );
+              },
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
