@@ -153,6 +153,129 @@ class FirebaseAuthService extends ChangeNotifier {
     }
   }
 
+  /// Inicia sesión con email y contraseña
+  Future<bool> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _currentFirebaseUser = userCredential.user;
+
+      if (_currentFirebaseUser == null) {
+        throw Exception('No user returned from Firebase');
+      }
+
+      await _loadUserFromDatabase();
+      print('✓ Login con email exitoso: ${_currentUser!.username}');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('[FirebaseAuthService] Sign-in error: $e');
+      return false;
+    } catch (e) {
+      _errorMessage = 'Error al iniciar sesión: $e';
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('[FirebaseAuthService] Sign-in error: $e');
+      return false;
+    }
+  }
+
+  /// Registra un nuevo usuario con email y contraseña
+  Future<bool> signUpWithEmail({
+    required String email,
+    required String password,
+    required String username,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _currentFirebaseUser = userCredential.user;
+
+      if (_currentFirebaseUser == null) {
+        throw Exception('No user returned from Firebase');
+      }
+
+      // Establecer nombre de usuario en Firebase Auth
+      await _currentFirebaseUser!.updateDisplayName(username);
+      await _currentFirebaseUser!.reload();
+
+      // Crear modelo de usuario
+      _currentUser = UserModel(
+        id: _currentFirebaseUser!.uid,
+        email: email,
+        username: username,
+        avatarUrl: null,
+        createdAt: DateTime.now(),
+        lastLogin: DateTime.now(),
+      );
+
+      // Guardar en Realtime Database
+      await _saveUserToDatabase();
+
+      print('✓ Registro exitoso: $username');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('[FirebaseAuthService] Sign-up error: $e');
+      return false;
+    } catch (e) {
+      _errorMessage = 'Error al registrarse: $e';
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('[FirebaseAuthService] Sign-up error: $e');
+      return false;
+    }
+  }
+
+  /// Obtiene mensaje de error legible del código de error de Firebase
+  String _getErrorMessage(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'Usuario no encontrado';
+      case 'wrong-password':
+        return 'Contraseña incorrecta';
+      case 'invalid-email':
+        return 'Email inválido';
+      case 'user-disabled':
+        return 'Usuario deshabilitado';
+      case 'email-already-in-use':
+        return 'Este email ya está registrado';
+      case 'weak-password':
+        return 'Contraseña muy débil';
+      case 'operation-not-allowed':
+        return 'Operación no permitida';
+      case 'too-many-requests':
+        return 'Demasiados intentos, intenta más tarde';
+      default:
+        return 'Error: $code';
+    }
+  }
+
   /// Carga usuario desde Firebase Realtime Database
   Future<void> _loadUserFromDatabase() async {
     if (_currentFirebaseUser == null) return;
