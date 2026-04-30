@@ -1,0 +1,460 @@
+"""
+CHECKLIST DE IMPLEMENTACIÓN - SISTEMA DE COFRES
+===============================================
+
+Sigue este checklist paso a paso para implementar
+el sistema completo de cofres en tu juego.
+
+Marcado con ✅ = Ya hecho
+Marcado con ⬜ = Pendiente
+"""
+
+# ============================================================================
+# FASE 1: PREPARACIÓN (RÁPIDO - 10 MIN)
+# ============================================================================
+
+FASE 1: PREPARACIÓN INICIAL
+
+✅ [ ] 1.1 Archivos Dart creados
+        ├── ✅ lib/game/components/chest_component.dart
+        ├── ✅ lib/widgets/reward_card.dart
+        ├── ✅ lib/game/chest_integration_guide.dart
+        └── ✅ lib/game/chest_practical_examples.dart
+
+✅ [ ] 1.2 pubspec.yaml actualizado
+        ├── ✅ flame_lottie: ^0.4.0
+        ├── ✅ lottie: ^3.0.0
+        └── ✅ flutter_animate: ^4.5.2 (ya existía)
+
+✅ [ ] 1.3 Documentación creada
+        ├── ✅ CHEST_SYSTEM_DOCUMENTATION.md
+        ├── ✅ LOTTIE_ANIMATIONS_GUIDE.md
+        └── ✅ LOTTIE_JSON_EXAMPLES.txt
+
+⬜ [ ] 1.4 Ejecutar pub get (en terminal)
+        comando: flutter pub get
+
+# ============================================================================
+# FASE 2: ARCHIVOS LOTTIE (CRÍTICO - 30-60 MIN)
+# ============================================================================
+
+FASE 2: CREAR ANIMACIONES LOTTIE
+
+⬜ [ ] 2.1 Crear estructura de carpetas
+        ├── Crear: assets/ (si no existe)
+        ├── Crear: assets/animations/
+        └── Crear: assets/animations/chest/
+
+⬜ [ ] 2.2 Crear archivos Lottie (OPCIÓN A: Descargar)
+        1. Ir a https://lottiefiles.com/
+        2. Buscar: "chest" O "breathing animation"
+        3. Descargar en formato JSON
+        4. Renombrar a: chest_idle.json, chest_shake.json, chest_open.json
+        5. Colocar en: assets/animations/chest/
+        6. En caso de duda: usar LOTTIE_JSON_EXAMPLES.txt como referencia
+
+        ⬜ [ ] 2.2.1 Descargar chest_idle.json
+        ⬜ [ ] 2.2.2 Descargar chest_shake.json
+        ⬜ [ ] 2.2.3 Descargar chest_open.json
+
+⬜ [ ] 2.3 Crear archivos Lottie (OPCIÓN B: Personalizar JSON)
+        1. Copiar templates de LOTTIE_JSON_EXAMPLES.txt
+        2. Pegar en editor de texto (VSCode, Sublime, etc)
+        3. Guardar como: chest_idle.json
+        4. Validar en: https://jsonlint.com/
+        5. Repetir para los 3 archivos
+        6. Colocar en: assets/animations/chest/
+
+        ⬜ [ ] 2.3.1 Crear chest_idle.json desde template
+        ⬜ [ ] 2.3.2 Crear chest_shake.json desde template
+        ⬜ [ ] 2.3.3 Crear chest_open.json desde template
+        ⬜ [ ] 2.3.4 Validar cada JSON
+
+⬜ [ ] 2.4 Verificar archivos creados
+        comando (en terminal):
+        dir assets\animations\chest\
+        
+        Debería poder ver:
+        - chest_idle.json
+        - chest_shake.json
+        - chest_open.json
+
+# ============================================================================
+# FASE 3: ACTIVAR CÓDIGO LOTTIE (RÁPIDO - 5 MIN)
+# ============================================================================
+
+FASE 3: DESCOMENTAR CÓDIGO EN ChestComponent
+
+⬜ [ ] 3.1 Abrir: lib/game/components/chest_component.dart
+
+⬜ [ ] 3.2 Buscar el método: onLoad()
+        Alrededor de la línea 50-60
+
+⬜ [ ] 3.3 Descomentar las líneas de LottieComponent
+        // ANTES:
+        // lottieComponent = LottieComponent(
+        //   width: size.x,
+        //   height: size.y,
+        // );
+        // add(lottieComponent);
+        
+        // DESPUÉS:
+        lottieComponent = LottieComponent(
+          width: size.x,
+          height: size.y,
+        );
+        add(lottieComponent);
+
+⬜ [ ] 3.4 Guardar archivo (Ctrl+S)
+
+⬜ [ ] 3.5 Verificar que no hay errores
+        - VSCode debería estar SIN líneas rojas
+        - Si hay errores: Ctrl+Shift+P → "Reload Window"
+
+# ============================================================================
+# FASE 4: INTEGRACIÓN EN TU GAME (VARIABLE - 15-30 MIN)
+# ============================================================================
+
+FASE 4: AGREGAR EL COFRE A TU JUEGO
+
+⬜ [ ] 4.1 Identificar tu archivo Game principal
+        Ejemplos:
+        - lib/game/paleto_game.dart
+        - lib/game/combat_game.dart
+        - lib/screens/game_screen.dart
+        
+        El archivo que hereda de: FlameGame
+
+⬜ [ ] 4.2 Importar ChestComponent
+        En la parte superior del archivo:
+        
+        import 'components/chest_component.dart';
+        import '../widgets/reward_card.dart';
+
+⬜ [ ] 4.3 Agregar variable al Game
+        Dentro de la clase:
+        
+        class YourGame extends FlameGame with TapDetector {
+          late ChestComponent chestComponent;
+          
+          // ... resto del código
+        }
+
+⬜ [ ] 4.4 Inicializar el cofre en onLoad()
+        
+        @override
+        Future<void> onLoad() async {
+          super.onLoad();
+          
+          // Tus componentes existentes...
+          
+          // AGREGAR ESTO:
+          chestComponent = ChestComponent(
+            position: size / 2,  // Centro de la pantalla
+            size: const Vector2(80, 70),
+            onChestOpened: _handleChestOpened,
+          );
+          add(chestComponent);
+        }
+
+⬜ [ ] 4.5 Agregar detección de toques
+        
+        @override
+        void onTapDown(TapDownInfo info) {
+          super.onTapDown(info);
+          
+          // Tus otros controles...
+          
+          // AGREGAR ESTO:
+          if (chestComponent.hitTest(info.localPosition)) {
+            chestComponent.onTap();
+          }
+        }
+
+⬜ [ ] 4.6 Agregar callback de apertura
+        
+        void _handleChestOpened() {
+          print('✓ Cofre abierto!');
+          
+          // Crear datos de recompensa
+          final reward = RewardData(
+            title: 'Espada del Destino',
+            description: 'Una espada forjada en el fuego de los dioses.',
+            icon: Icons.call_split,
+            accentColor: const Color(0xFFFFD700),
+            rarityLevel: 3,
+          );
+          
+          // Mostrar la carta
+          _showRewardCard(reward);
+        }
+
+⬜ [ ] 4.7 Agregar método para mostrar RewardCard
+        
+        void _showRewardCard(RewardData reward) {
+          // Asumiendo que tienes BuildContext disponible
+          // Si no, usa: navigatorObservers
+          
+          showDialog(
+            context: context, // Obtén esto del widget
+            barrierDismissible: false,
+            builder: (ctx) => Dialog(
+              backgroundColor: Colors.transparent,
+              child: RewardCard(
+                rewardData: reward,
+                onDismiss: () {
+                  Navigator.pop(ctx);
+                  _handleRewardAccepted(reward);
+                },
+              ),
+            ),
+          );
+        }
+
+⬜ [ ] 4.8 Agregar lógica de recompensa
+        
+        void _handleRewardAccepted(RewardData reward) {
+          print('Recompensa aceptada: ${reward.title}');
+          
+          // TODO: Agregar la recompensa al jugador
+          // Ejemplo:
+          // gameController.addReward(reward);
+          // AudioService.playSound('reward_accept.wav');
+        }
+
+⬜ [ ] 4.9 Guardar archivo (Ctrl+S)
+
+# ============================================================================
+# FASE 5: TESTING INICIAL (10-15 MIN)
+# ============================================================================
+
+FASE 5: PROBAR EN EMULADOR/DISPOSITIVO
+
+⬜ [ ] 5.1 Ejecutar en hot reload
+        En terminal:
+        flutter hot reload
+        O presionar: r
+
+⬜ [ ] 5.2 Verificar que no hay crashes
+        - La app debería iniciarse sin errores
+        - Si hay error: revisar terminal para mensajes
+
+⬜ [ ] 5.3 Localizar el cofre en pantalla
+        - Debería ver un cofre en el centro (o donde lo colocaste)
+        - Si no aparece: revisar tamaño y posición
+
+⬜ [ ] 5.4 Tocar el cofre
+        - Hacer tap en el cofre
+        - Debería ver: idle → shake → open
+        - Si no pasa nada: revisar onTap() y hitTest()
+
+⬜ [ ] 5.5 Verificar animación de apertura
+        - Después de shake, debe ir a open
+        - Si no se ve suave: revisar duraciones de LottieComponent
+
+⬜ [ ] 5.6 Verificar que aparece RewardCard
+        - Después de que el cofre se abre, debe aparecer una carta
+        - Si no aparece: revisar callback _handleChestOpened()
+
+⬜ [ ] 5.7 Verifica animaciones de RewardCard
+        - Escala: debe crecer de 0 a 1
+        - Destello: debe parpadear blanco cuando se detiene
+        - Shimmer: debe rotar infinitamente atrás
+
+⬜ [ ] 5.8 Presionar ACEPTAR en la carta
+        - La carta debe desaparecer
+        - Debería ver en consola: "Recompensa aceptada: [nombre]"
+
+# ============================================================================
+# FASE 6: REFINAMIENTOS (20-30 MIN)
+# ============================================================================
+
+FASE 6: PULIR Y AJUSTAR
+
+⬜ [ ] 6.1 Ajustar tamaños
+        En ChestComponent constructor:
+        size: const Vector2(80, 70),
+        
+        Incrementar o decrementar según se vea muy pequeño/grande
+
+⬜ [ ] 6.2 Ajustar posición del cofre
+        En Game.onLoad():
+        position: size / 2,
+        
+        Cambiar a otra posición si lo deseas:
+        position: Vector2(size.x * 0.3, size.y * 0.6), // Abajo a la izquierda
+
+⬜ [ ] 6.3 Ajustar duración de animações
+        En RewardCard constructor:
+        animationDuration: Duration(milliseconds: 800),
+        
+        Aumentar a 1200 si es muy rápido, reducir a 600 si es muy lento
+
+⬜ [ ] 6.4 Personalizar RewardCard
+        En _handleChestOpened():
+        
+        Cambiar:
+        - title: "Tu título aquí"
+        - description: "Tu descripción"
+        - icon: Icons.your_icon
+        - accentColor: Color(0xFFYOURCOLOR)
+        - rarityLevel: 1, 2 o 3
+
+⬜ [ ] 6.5 Agregar sonidos (opcional pero recomendado)
+        En setShakeState():
+        AudioService.playSound('chest_shake.wav');
+        
+        En _handleChestOpened():
+        AudioService.playSound('chest_open.wav');
+        
+        En RewardCard onDismiss:
+        AudioService.playSound('card_accept.wav');
+
+⬜ [ ] 6.6 Agregar efectos de particulas (avanzado)
+        Ver flame_particle documentation
+        O simplemente ignorar por ahora
+
+⬜ [ ] 6.7 Testing en múltiples dispositivos
+        - Probar en: teléfono, tableta, emulador
+        - Verificar que se ve bien en diferentes tamaños
+
+⬜ [ ] 6.8 Testing en múltiples cofres (opcional)
+        Ver: chest_practical_examples.dart
+        Sección: AdvancedChestGameScreen
+
+# ============================================================================
+# FASE 7: INTEGRACIÓN FINAL (15-30 MIN)
+# ============================================================================
+
+FASE 7: CONECTAR CON LÓGICA DEL JUEGO
+
+⬜ [ ] 7.1 Conectar con Economy Controller
+        Ejemplo:
+        
+        void _handleRewardAccepted(RewardData reward) {
+          Provider.of<EconomyController>(context, listen: false)
+            .addCurrency(reward.goldValue ?? 100);
+            
+          // O agregar items al inventario
+        }
+
+⬜ [ ] 7.2 Generar recompensas dinámicamente
+        Ver: lib/game/chest_practical_examples.dart
+        Sección: RewardGenerator
+        
+        Usar:
+        final reward = RewardGenerator.generateRandomReward();
+
+⬜ [ ] 7.3 Crear múltiples recompensas disponibles
+        
+        static final AVAILABLE_REWARDS = [
+          RewardData(...),
+          RewardData(...),
+          RewardData(...),
+        ];
+
+⬜ [ ] 7.4 Seleccionar recompense aleatoria
+        
+        final reward = AVAILABLE_REWARDS[Random().nextInt(AVAILABLE_REWARDS.length)];
+
+⬜ [ ] 7.5 Agregar restricción: solo 1 cofre a la vez
+        
+        Modificar onTap():
+        if (_currentState == ChestState.open) return;
+        
+        Así solo funciona 1 cofre a la vez
+
+⬜ [ ] 7.6 Testing de flujos completos
+        - Abrir cofre → Ver recompensa → Aceptar → Verificar cambios en game
+
+⬜ [ ] 7.7 Revisar que no hay memory leaks
+        - Abrir/cerrar múltiples veces
+        - Verificar en DevTools que memoria es estable
+
+# ============================================================================
+# FASE 8: DOCUMENTACIÓN Y LIMPIEZA
+# ============================================================================
+
+FASE 8: FINALIZACIÓN
+
+⬜ [ ] 8.1 Documentar tu implementación específica
+        Crear archivo: CHEST_IMPLEMENTATION_NOTES.md
+        Con:
+        - Qué cambios hiciste
+        - Dónde pusiste los archivos
+        - Qué funciona y qué no
+
+⬜ [ ] 8.2 Limpiar código
+        - Remover comentarios de debug
+        - Remover print() statements innecesarios
+        - Organizar imports
+
+⬜ [ ] 8.3 Optimizar para dispositivos viejos
+        Si necesario:
+        - Reducir resolución de Lottie
+        - Simplificar animaciones
+        - Usar interpolación más simple
+
+⬜ [ ] 8.4 Crear commit en Git
+        comando:
+        git add .
+        git commit -m "feat: implement chest reward system with lottie animations"
+        git push
+
+⬜ [ ] 8.5 Hacer backup de archivos criticos
+        Copiar a Drive o CloudStorage:
+        - chest_component.dart
+        - reward_card.dart
+        - Los 3 archivos JSON Lottie
+
+# ============================================================================
+# REFERENCIAS RÁPIDAS
+# ============================================================================
+
+ARCHIVOS CLAVE:
+
+Documentación:
+- CHEST_SYSTEM_DOCUMENTATION.md          ← LEE ESTO PRIMERO
+- LOTTIE_ANIMATIONS_GUIDE.md             ← Crear JSON Lottie
+- lib/game/chest_practical_examples.dart ← Copia ejemplos de aquí
+
+Código:
+- lib/game/components/chest_component.dart     ← Componente Flame
+- lib/widgets/reward_card.dart                 ← Widget Flutter
+- lib/game/chest_integration_guide.dart        ← Arquitectura
+
+Assets:
+- assets/animations/chest/chest_idle.json      ← Crear estos 3
+- assets/animations/chest/chest_shake.json
+- assets/animations/chest/chest_open.json
+
+COMANDOS ÚTILES:
+
+flutter pub get           # Descargar dependencias
+flutter hot reload        # Recargar cambios (R)
+flutter pub upgrade       # Actualizar paquetes
+jsonlint.com            # Validar JSON online
+https://lottiefiles.com # Descargar animaciones
+
+CONTACTO:
+
+Si algo no funciona:
+1. Revisa la consola (Ctrl+Backtick in VSCode)
+2. Busca errores de rojo
+3. Lee el mensaje de error completo
+4. Busca la palabra clave en documentación
+5. Compara tu código con chest_practical_examples.dart
+
+# ============================================================================
+# IN SUMMARY
+# ============================================================================
+
+✓ Código Dart: LISTO (no requiere cambios)
+⬜ Archivos JSON Lottie: NECESITAS CREARLOS
+⬜ Integración: NECESITAS HACERLA EN TU GAME
+⬜ Testing: NECESITAS PROBAR
+
+Tiempo estimado total: 1.5 - 2 HORAS
+
+¡Buena suerte! 🎮✨
+"""

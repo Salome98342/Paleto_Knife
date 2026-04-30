@@ -1,14 +1,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permisos de red -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    
+    <!-- Permisos de audio -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    
+    <!-- Permisos adicionales para audio en background -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    
+    <!-- Características de audio requeridas -->
+    <uses-feature
+        android:name="android.hardware.audio.low_latency"
+        android:required="false"/>
+    
+    <!-- Permitir tráfico HTTP (necesario para Web audio en algunos casos) -->
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    
     <application
         android:label="knife_clicker"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4429728476735259~3073135521"/>
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

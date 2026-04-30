@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class EconomySystem {
   int _gold = 0;
   int _premiumCurrency = 0; // e.g. gems for gacha
@@ -52,10 +54,15 @@ class EconomySystem {
     return _items[itemId] ?? 0;
   }
 
-  // Achievement, Boss drop simulation for tokens
+  /// Recompensa tokens al chef específico después de derrotar un boss
+  /// Los tokens se usan para mejoras específicas de chefs
   void rewardTokensFromBoss(String chefId, int amount) {
-    // In our system, chefs hold their own tokens.
-    // This could also act as an intermediary where Boss drops generic "UR tokens" etc.
-    // Or we handle it via the ProgressionSystem directly.
+    if (amount <= 0) return;
+    
+    // Guardar tokens del chef específico usando formato: 'chef_tokens_<chefId>'
+    final tokenKey = 'chef_tokens_$chefId';
+    _items[tokenKey] = (_items[tokenKey] ?? 0) + amount;
+    
+    debugPrint('✨ Boss recompensa: +$amount tokens para chef $chefId');
   }
 }

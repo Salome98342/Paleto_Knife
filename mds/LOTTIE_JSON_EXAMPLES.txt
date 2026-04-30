@@ -1,0 +1,458 @@
+"""
+EJEMPLOS DE ARCHIVOS LOTTIE JSON PARA COFRES
+============================================
+
+Este archivo contiene PLANTILLAS MÍNIMAS válidas de JSON Lottie
+que puedes usar como base o referencia para crear tus propias animaciones.
+
+IMPORTANTE:
+- Estos son ejemplos SIMPLIFICADOS
+- Para animaciones profesionales, usa After Effects o Lottie Editor
+- Puedes validar cualquier JSON en: https://jsonlint.com/
+
+PASOS PARA USAR:
+1. Copiar el JSON de debajo
+2. Guardar como archivo .json
+3. Personalizar colores y valores
+4. Validar con jsonlint.com
+5. Colocar en assets/animations/chest/
+"""
+
+# ============================================================================
+# OPCIÓN 1: JSON LOTTIE SIMPLIFICADO (PARA EMPEZAR)
+# ============================================================================
+
+# Archivo: assets/animations/chest/chest_idle.json
+# Descripción: Animación de respiración suave
+
+{
+  "v": "5.12.2",
+  "fr": 30,
+  "ip": 0,
+  "op": 90,
+  "w": 200,
+  "h": 200,
+  "nm": "Chest Container",
+  "ddd": 0,
+  "assets": [],
+  "layers": [
+    {
+      "ddd": 0,
+      "ind": 1,
+      "ty": 4,
+      "nm": "Chest Shape",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100 },
+        "r": { "a": 0, "k": 0 },
+        "p": {
+          "a": 1,
+          "k": [
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 0, "s": [ 100, 100, 0 ], "e": [ 100, 95, 0 ] },
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 45, "s": [ 100, 95, 0 ], "e": [ 100, 100, 0 ] },
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 90, "s": [ 100, 100, 0 ] }
+          ]
+        },
+        "a": { "a": 0, "k": [ 0, 0, 0 ] },
+        "s": { "a": 0, "k": [ 100, 100, 100 ] }
+      },
+      "ao": 0,
+      "shapes": [
+        {
+          "ty": "gr",
+          "it": [
+            {
+              "ty": "rc",
+              "d": 1,
+              "s": { "a": 0, "k": [ 120, 80 ] },
+              "p": { "a": 0, "k": [ 0, 0 ] },
+              "r": { "a": 0, "k": 8 },
+              "nm": "Chest Rectangle",
+              "mn": "ADBE Vector Shape - Rect"
+            },
+            {
+              "ty": "st",
+              "c": {
+                "a": 0,
+                "k": [ 0.8, 0.6, 0.2, 1 ]
+              },
+              "o": { "a": 0, "k": 100 },
+              "w": { "a": 0, "k": 3 },
+              "lc": 2,
+              "lj": 2,
+              "ml": 4,
+              "nm": "Stroke",
+              "mn": "ADBE Vector Graphic - Stroke"
+            },
+            {
+              "ty": "fl",
+              "c": {
+                "a": 0,
+                "k": [ 0.65, 0.5, 0.1, 1 ]
+              },
+              "o": { "a": 0, "k": 100 },
+              "nm": "Fill",
+              "mn": "ADBE Vector Graphic - Fill"
+            }
+          ],
+          "nm": "Chest Group",
+          "np": 3,
+          "cix": 2,
+          "bm": 0,
+          "ix": 1,
+          "mn": "ADBE Vector Group"
+        }
+      ],
+      "ip": 0,
+      "op": 90,
+      "st": 0,
+      "bm": 0
+    }
+  ],
+  "markers": []
+}
+
+# ============================================================================
+# OPCIÓN 2: JSON LOTTIE CON ROTACIÓN (PARA SHAKE)
+# ============================================================================
+
+# Archivo: assets/animations/chest/chest_shake.json
+# Descripción: Sacudida rápida con rotación
+
+{
+  "v": "5.12.2",
+  "fr": 30,
+  "ip": 0,
+  "op": 15,
+  "w": 200,
+  "h": 200,
+  "nm": "Chest Shake",
+  "ddd": 0,
+  "assets": [],
+  "layers": [
+    {
+      "ddd": 0,
+      "ind": 1,
+      "ty": 4,
+      "nm": "Chest Shake Group",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100 },
+        "r": {
+          "a": 1,
+          "k": [
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 0, "s": [ -2 ], "e": [ 2 ] },
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 5, "s": [ 2 ], "e": [ -2 ] },
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 10, "s": [ -2 ], "e": [ 1 ] },
+            { "t": 15, "s": [ 1 ] }
+          ]
+        },
+        "p": { "a": 0, "k": [ 100, 100, 0 ] },
+        "a": { "a": 0, "k": [ 0, 0, 0 ] },
+        "s": { "a": 0, "k": [ 100, 100, 100 ] }
+      },
+      "ao": 0,
+      "shapes": [
+        {
+          "ty": "gr",
+          "it": [
+            {
+              "ty": "rc",
+              "d": 1,
+              "s": { "a": 0, "k": [ 120, 80 ] },
+              "p": { "a": 0, "k": [ 0, 0 ] },
+              "r": { "a": 0, "k": 8 },
+              "nm": "Chest Rectangle"
+            },
+            {
+              "ty": "st",
+              "c": { "a": 0, "k": [ 0.8, 0.6, 0.2, 1 ] },
+              "o": { "a": 0, "k": 100 },
+              "w": { "a": 0, "k": 3 },
+              "lc": 2,
+              "lj": 2,
+              "ml": 4,
+              "nm": "Stroke"
+            },
+            {
+              "ty": "fl",
+              "c": { "a": 0, "k": [ 0.65, 0.5, 0.1, 1 ] },
+              "o": { "a": 0, "k": 100 },
+              "nm": "Fill"
+            }
+          ],
+          "nm": "Chest Group",
+          "np": 3,
+          "cix": 2,
+          "bm": 0,
+          "ix": 1,
+          "mn": "ADBE Vector Group"
+        }
+      ],
+      "ip": 0,
+      "op": 15,
+      "st": 0,
+      "bm": 0
+    }
+  ],
+  "markers": []
+}
+
+# ============================================================================
+# OPCIÓN 3: JSON LOTTIE CON ESCALA (PARA OPEN)
+# ============================================================================
+
+# Archivo: assets/animations/chest/chest_open.json
+# Descripción: Apertura con efecto de escala y brillo
+
+{
+  "v": "5.12.2",
+  "fr": 30,
+  "ip": 0,
+  "op": 24,
+  "w": 200,
+  "h": 200,
+  "nm": "Chest Open",
+  "ddd": 0,
+  "assets": [],
+  "layers": [
+    {
+      "ddd": 0,
+      "ind": 1,
+      "ty": 4,
+      "nm": "Chest Open",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100 },
+        "r": { "a": 0, "k": 0 },
+        "p": { "a": 0, "k": [ 100, 100, 0 ] },
+        "a": { "a": 0, "k": [ 0, 0, 0 ] },
+        "s": {
+          "a": 1,
+          "k": [
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 0, "s": [ 100, 100, 100 ], "e": [ 105, 105, 100 ] },
+            { "t": 24, "s": [ 110, 110, 100 ] }
+          ]
+        }
+      },
+      "ao": 0,
+      "shapes": [
+        {
+          "ty": "gr",
+          "it": [
+            {
+              "ty": "rc",
+              "d": 1,
+              "s": { "a": 0, "k": [ 120, 80 ] },
+              "p": { "a": 0, "k": [ 0, 0 ] },
+              "r": { "a": 0, "k": 8 },
+              "nm": "Chest",
+              "mn": "ADBE Vector Shape - Rect"
+            },
+            {
+              "ty": "st",
+              "c": { "a": 0, "k": [ 1, 0.8, 0.2, 1 ] },
+              "o": {
+                "a": 1,
+                "k": [
+                  { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 0, "s": [ 100 ], "e": [ 50 ] },
+                  { "t": 24, "s": [ 50 ] }
+                ]
+              },
+              "w": { "a": 0, "k": 3 },
+              "lc": 2,
+              "lj": 2,
+              "ml": 4,
+              "nm": "Stroke",
+              "mn": "ADBE Vector Graphic - Stroke"
+            },
+            {
+              "ty": "fl",
+              "c": { "a": 0, "k": [ 0.8, 0.6, 0.1, 1 ] },
+              "o": { "a": 0, "k": 100 },
+              "nm": "Fill",
+              "mn": "ADBE Vector Graphic - Fill"
+            }
+          ],
+          "nm": "Chest Group",
+          "np": 3,
+          "cix": 2,
+          "bm": 0,
+          "ix": 1,
+          "mn": "ADBE Vector Group"
+        }
+      ],
+      "ip": 0,
+      "op": 24,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 2,
+      "ty": 4,
+      "nm": "Light Effect",
+      "sr": 1,
+      "ks": {
+        "o": {
+          "a": 1,
+          "k": [
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 0, "s": [ 0 ], "e": [ 100 ] },
+            { "i": { "x": 0.667, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 12, "s": [ 100 ], "e": [ 0 ] },
+            { "t": 24, "s": [ 0 ] }
+          ]
+        },
+        "r": { "a": 0, "k": 0 },
+        "p": { "a": 0, "k": [ 100, 100, 0 ] },
+        "a": { "a": 0, "k": [ 0, 0, 0 ] },
+        "s": { "a": 0, "k": [ 100, 100, 100 ] }
+      },
+      "ao": 0,
+      "shapes": [
+        {
+          "ty": "el",
+          "d": 1,
+          "s": { "a": 0, "k": [ 100, 100 ] },
+          "p": { "a": 0, "k": [ 0, 0 ] },
+          "nm": "Light Circle",
+          "mn": "ADBE Vector Shape - Ellipse"
+        },
+        {
+          "ty": "fl",
+          "c": { "a": 0, "k": [ 1, 1, 0.8, 1 ] },
+          "o": { "a": 0, "k": 100 },
+          "nm": "Light Fill"
+        }
+      ],
+      "ip": 0,
+      "op": 24,
+      "st": 0,
+      "bm": 1
+    }
+  ],
+  "markers": []
+}
+
+# ============================================================================
+# GUÍA PARA PERSONALIZAR ESTOS JSON
+# ============================================================================
+
+"""
+CAMBIAR COLORES:
+
+Busca secciones como:
+"c": { "a": 0, "k": [ 0.8, 0.6, 0.2, 1 ] }
+
+El formato es [R, G, B, A] donde cada valor es 0.0-1.0
+
+Ejemplos:
+- ORO (#D4A574):      [0.83, 0.65, 0.45, 1.0]
+- NARANJA (#FF6B00):  [1.0, 0.42, 0.0, 1.0]
+- ROJO (#CC3333):     [0.8, 0.2, 0.2, 1.0]
+- BLANCO (#FFFFFF):   [1.0, 1.0, 1.0, 1.0]
+
+CAMBIAR DURACIÓN:
+
+Cambia "op" (operation point = último frame):
+- 2 segundos @ 30 fps = 60 frames
+- 0.5 segundos @ 30 fps = 15 frames
+- 0.8 segundos @ 30 fps = 24 frames
+
+CAMBIAR TAMAÑO:
+
+Busca:
+"s": { "a": 0, "k": [ 120, 80 ] }
+
+Primer número = ancho
+Segundo número = alto
+
+CAMBIAR POSICIÓN:
+
+Busca:
+"p": { "a": 0, "k": [ 0, 0 ] }
+
+Primer número = X (left-right)
+Segundo número = Y (up-down)
+"""
+
+# ============================================================================
+# IMPORTANCIA: CÓMO COLOCAR ESTOS ARCHIVOS
+# ============================================================================
+
+"""
+ESTRUCTURA DE CARPETAS:
+
+Paleto Knife/
+├── assets/
+│   ├── animations/
+│   │   └── chest/
+│   │       ├── chest_idle.json
+│   │       ├── chest_shake.json
+│   │       └── chest_open.json
+│   ├── audio/
+│   ├── images/
+│   └── ...
+├── lib/
+├── pubspec.yaml
+└── ...
+
+IMPORTANTE:
+1. Crear carpeta assets/ si no existe
+2. Crear estructura chest/animations/chest/
+3. Los nombres EXACTOS de archivos importan
+4. Validar JSON antes de usar
+5. Colocar en pubspec.yaml si es necesario (normalmente no)
+"""
+
+# ============================================================================
+# VALIDACIÓN DE JSON
+# ============================================================================
+
+"""
+PASOS PARA VALIDAR:
+
+1. Copiar contenido JSON
+2. Ir a https://jsonlint.com/
+3. Pegar contenido
+4. Si aparece "VALID JSON", está bien
+5. Si aparece error, revisar:
+   - Comillas faltantes
+   - Comas faltantes al final
+   - Llaves desapareadas
+   - Valores numéricos inválidos (deben ser 0.0-1.0)
+"""
+
+# ============================================================================
+# HERRAMIENTAS RECOMENDADAS (PRÓXIMO PASO)
+# ============================================================================
+
+"""
+Para crear animaciones PROFESIONALES:
+
+1. DESPUÉS EFFECTS (Adobe)
+   ✓ Más poderoso
+   ✓ Usar Body Movin plugin
+   ✗ Pago ($20/mes)
+
+2. LOTTIE FILES (Gratuito)
+   ✓ Editor online
+   ✓ Miles de animaciones existentes
+   ✓ Puedes descargar y modificar
+   ✗ Menos control que AE
+
+3. RIVE (Gratuito)
+   ✓ Diseñado para animaciones interactivas
+   ✓ Exporte a JSON Lottie
+   ✗ Curva de aprendizaje mayor
+
+4. PENCIL2D o ASEPRITE
+   ✓ Para pixel art específico
+   ✗ No exportan Lottie directamente
+   → Usar screenshot + manual frame-by-frame
+
+RECOMENDACIÓN PARA TI:
+- Comienza con Lottie Files (gratuito)
+- Desarga animaciones existentes
+- Personaliza los JSON con los valores arriba
+- Cuando mejores, aprende After Effects
+"""

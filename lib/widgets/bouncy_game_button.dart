@@ -51,8 +51,8 @@ class _BouncyGameButtonState extends State<BouncyGameButton>
   void _playAudioFeedback() {
     try {
       AudioService.instance.playClickSound();
-    } catch (_) {
-      // Ignorar errores de audio
+    } catch (e) {
+      debugPrint('[ERROR] Audio playback - click sound: $e');
     }
   }
 

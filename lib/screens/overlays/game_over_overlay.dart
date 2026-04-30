@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../game_logic/game_state.dart';
 import '../../game_logic/revive_system.dart';
+import '../../ui/theme/paleto_colors.dart';
+import '../../widgets/retro/retro_button.dart';
 
 /// Overlay de Game Over
 ///
@@ -90,7 +92,7 @@ class _GameOverOverlayState extends State<GameOverOverlay>
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF1A1A2E).withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.zero,
                   border: Border.all(
                     color: const Color(0xFFFF4444),
                     width: 2,
@@ -140,7 +142,7 @@ class _GameOverOverlayState extends State<GameOverOverlay>
                             color: const Color(0xFFFF4444),
                             width: 1,
                           ),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.zero,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -169,39 +171,17 @@ class _GameOverOverlayState extends State<GameOverOverlay>
                       if (gameState.canRevive) ...[
                         SizedBox(
                           width: double.infinity,
-                          child: ElevatedButton(
+                          child: RetroButton(
+                            label: 'Revivir',
                             onPressed: () {
                               _animationController.reverse().then((_) {
                                 widget.reviveSystem.attemptRevive();
                               });
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00D4FF),
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              elevation: 8,
-                              shadowColor: const Color(0xFF00D4FF),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.play_circle, size: 18),
-                                SizedBox(width: 8),
-                                Text(
-                                  '🎬 Revivir',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            baseColor: const Color(0xFF00D4FF),
+                            lightBorder: const Color(0xFF69E8FF),
+                            darkBorder: const Color(0xFF005A70),
+                            icon: const Icon(Icons.play_circle, size: 18, color: Colors.black),
                           ),
                         ),
 
@@ -223,32 +203,17 @@ class _GameOverOverlayState extends State<GameOverOverlay>
                       // ❌ BOTÓN NO GRACIAS
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: RetroButton(
+                          label: 'No, gracias',
                           onPressed: () {
                             _animationController.reverse().then((_) {
                               Navigator.of(context).pop();
                               widget.reviveSystem.declineRevive();
                             });
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF444444),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            elevation: 3,
-                          ),
-                          child: const Text(
-                            'No, gracias',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          baseColor: PaletoColors.btnNeutral,
+                          lightBorder: PaletoColors.btnNeutralLt,
+                          darkBorder: PaletoColors.btnNeutralDk,
                         ),
                       ),
                     ],

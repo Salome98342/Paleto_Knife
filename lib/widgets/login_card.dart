@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../services/auth_service.dart';
+import '../services/firebase_auth_service.dart';
+import '../screens/welcome_screen.dart';
 import '../screens/main_layout.dart' as main_layout;
 
-/// Tarjeta de login reutilizable
-/// Contiene:
-/// - Logo del juego
-/// - Nombre del juego
-/// - Botón de Google Play Games
-/// - Botón de continuar como invitado
+/// Tarjeta de login con Firebase Authentication + Google Sign-In
 class LoginCard extends StatefulWidget {
   final VoidCallback? onLoginSuccess;
 
@@ -22,42 +18,45 @@ class LoginCard extends StatefulWidget {
 }
 
 class _LoginCardState extends State<LoginCard> {
-  bool _isLoading = false;
+  late FirebaseAuthService _authService;
 
-  /// Intentar login con Google Play Games
-  Future<void> _handleLoginGoogle() async {
-    setState(() => _isLoading = true);
+  @override
+  void initState() {
+    super.initState();
+    _authService = FirebaseAuthService.instance;
+  }
 
-    try {
-      final auth = AuthService();
-      final success = await auth.signIn();
+  /// Manejar sign-in con Google
+  Future<void> _handleGoogleSignIn() async {
+    final success = await _authService.signInWithGoogle();
 
-      if (mounted) {
-        setState(() => _isLoading = false);
+    if (mounted) {
+      if (success && _authService.user != null) {
+        _showSuccessSnackbar('¡Bienvenido ${_authService.user!.username}!');
 
-        if (success) {
-          // Navegar a pantalla del juego
+        // Pequeño delay antes de navegar
+        await Future.delayed(const Duration(milliseconds: 300));
+
+        if (mounted) {
+          // Navegar a pantalla de bienvenida
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const main_layout.MainLayout()),
+            MaterialPageRoute(
+              builder: (_) => const WelcomeScreen(),
+            ),
           );
 
           widget.onLoginSuccess?.call();
-        } else {
-          _showErrorSnackbar('Login fallido. Intenta de nuevo.');
         }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        _showErrorSnackbar('Error durante login: $e');
+      } else {
+        _showErrorSnackbar(
+            _authService.errorMessage ?? 'Error al iniciar sesión con Google');
       }
     }
   }
 
   /// Continuar como invitado
   Future<void> _handleGuestLogin() async {
-    // Simplemente navegar al juego sin autenticar
     if (mounted) {
       Navigator.pushReplacement(
         context,
@@ -66,7 +65,7 @@ class _LoginCardState extends State<LoginCard> {
     }
   }
 
-  /// Mostrar error en snackbar
+  /// Mostrar error
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -77,12 +76,22 @@ class _LoginCardState extends State<LoginCard> {
     );
   }
 
+  /// Mostrar éxito
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFF44CC44),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const accent = Color(0xFFFFD700);
     const accentAlt = Color(0xFFFF6B00);
     const cardBg = Color(0xFF16213E);
-    const borderColor = Color(0xFF444466);
 
     return Card(
       color: cardBg,
@@ -115,20 +124,48 @@ class _LoginCardState extends State<LoginCard> {
               // Logo del juego
               _buildGameLogo(),
               const SizedBox(height: 28),
+
               // Título
-              _buildTitle(),
+              Column(
+                children: [
+                  Text(
+                    'PALETO KNIFE',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.pressStart2p(
+                      fontSize: 16,
+                      color: accent,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Clicker & Combat RPG',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.pressStart2p(
+                      fontSize: 10,
+                      color: accentAlt,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 32),
-              // Botón Google Play Games
-              _buildGooglePlayButton(accentAlt),
-              const SizedBox(height: 14),
+
+              // Descripción
+              Text(
+                'Inicia sesión con Google para guardar tu progreso en la nube',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.pressStart2p(
+                  fontSize: 8,
+                  color: Colors.white70,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Botón Google Sign-In
+              _buildGoogleSignInButton(accentAlt),
+              const SizedBox(height: 16),
+
               // Botón Continuar como invitado
               _buildGuestButton(),
-              const SizedBox(height: 20),
-              // Divider
-              _buildDivider(),
-              const SizedBox(height: 20),
-              // Texto informativo
-              _buildInfoText(),
             ],
           ),
         ),
@@ -136,10 +173,10 @@ class _LoginCardState extends State<LoginCard> {
     );
   }
 
-  /// Widget logo del juego
+  /// Widget logo
   Widget _buildGameLogo() {
     return Image.asset(
-      'assets/images/PaletoLogo.png',
+      'lib/assets/PaletoLogo.png',
       width: 100,
       height: 100,
       fit: BoxFit.contain,
@@ -165,149 +202,85 @@ class _LoginCardState extends State<LoginCard> {
     );
   }
 
-  /// Widget título
-  Widget _buildTitle() {
-    return Column(
-      children: [
-        Text(
-          'PALETO KNIFE',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.pressStart2p(
-            fontSize: 16,
-            color: const Color(0xFFFFD700),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Clicker & Combat RPG',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.pressStart2p(
-            fontSize: 10,
-            color: const Color(0xFFFF6B00),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Botón Google Play Games
-  Widget _buildGooglePlayButton(Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: color.withAlpha(100),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: ElevatedButton.icon(
-          onPressed: _isLoading ? null : _handleLoginGoogle,
-          icon: Icon(_isLoading ? Icons.hourglass_bottom : Icons.games),
-          label: Text(
-            _isLoading ? 'Autenticando...' : 'Iniciar con Google Play',
-            style: GoogleFonts.pressStart2p(fontSize: 10),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: color,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: color.withAlpha(128),
-            disabledForegroundColor: Colors.white70,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+  /// Botón Google Sign-In
+  Widget _buildGoogleSignInButton(Color accentAlt) {
+    return ListenableBuilder(
+      listenable: _authService,
+      builder: (context, _) {
+        return SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: _authService.isLoading ? null : _handleGoogleSignIn,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: accentAlt,
+              foregroundColor: Colors.black87,
+              disabledBackgroundColor: accentAlt.withAlpha(100),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              elevation: 8,
             ),
-            elevation: 8,
-            shadowColor: color.withAlpha(150),
+            child: _authService.isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Colors.black87),
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'lib/assets/google_logo.png',
+                        width: 24,
+                        height: 24,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.person, size: 24);
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'SIGN IN WITH GOOGLE',
+                        style: GoogleFonts.pressStart2p(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  /// Botón continuar como invitado
+  /// Botón Continuar como invitado
   Widget _buildGuestButton() {
     return SizedBox(
       width: double.infinity,
-      height: 48,
+      height: 50,
       child: OutlinedButton(
-        onPressed: _isLoading ? null : _handleGuestLogin,
+        onPressed: _handleGuestLogin,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(
             color: Color(0xFFFFD700),
             width: 2,
           ),
-          foregroundColor: const Color(0xFFFFD700),
-          disabledForegroundColor: const Color(0xFFFFD700).withAlpha(128),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 12),
         ),
         child: Text(
-          'Continuar como Invitado',
-          style: GoogleFonts.pressStart2p(fontSize: 9),
+          'PLAY AS GUEST',
+          style: GoogleFonts.pressStart2p(
+            fontSize: 10,
+            color: const Color(0xFFFFD700),
+          ),
         ),
       ),
-    );
-  }
-
-  /// Divisor visual
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            color: const Color(0xFF444466).withAlpha(100),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            'O',
-            style: GoogleFonts.pressStart2p(
-              fontSize: 9,
-              color: const Color(0xFF8888AA),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 1,
-            color: const Color(0xFF444466).withAlpha(100),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Texto informativo
-  Widget _buildInfoText() {
-    return Column(
-      children: [
-        Text(
-          '🔒 Tu progreso está seguro',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.pressStart2p(
-            fontSize: 8,
-            color: const Color(0xFF8888AA),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Puedes jugar offline y sincronizar después',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.pressStart2p(
-            fontSize: 7,
-            color: const Color(0xFF666688),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -6,6 +6,7 @@ import '../widgets/pixel_art_icons.dart';
 import '../widgets/enemy_card_widget.dart';
 import '../widgets/element_type_table_parchment.dart';
 import '../controllers/world_controller.dart';
+import '../services/audio_service.dart';
 
 class WorldView extends StatelessWidget {
   const WorldView({super.key});
@@ -40,7 +41,10 @@ class WorldView extends StatelessWidget {
                 final l = world.locations[index];
                 bool isSelected = loc == l;
                 return GestureDetector(
-                  onTap: () => world.selectLocation(l),
+                  onTap: () {
+                    AudioService.instance.playClickSound();
+                    world.selectLocation(l);
+                  },
                   child: Stack(
                     children: [
                       Container(
@@ -250,6 +254,7 @@ class WorldView extends StatelessWidget {
                       ),
                       ElevatedButton(
                         onPressed: () {
+                          AudioService.instance.playClickSound();
                           showDialog(
                             context: context,
                             builder: (context) => const ElementTypeTableParchment(),

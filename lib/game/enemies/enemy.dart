@@ -5,7 +5,14 @@ import '../paleto_game.dart';
 import '../../game_logic/enemy_system/enemy_types.dart';
 import '../../game_logic/enemy_system/attack_pattern.dart';
 import '../../game_logic/enemy_system/enemy_behavior.dart';
+import '../../game_logic/enemy_system/enemy_state_machine.dart';
+import '../../game_logic/boss_system/boss_visuals.dart';
+import '../../game_logic/boss_system/boss_vfx.dart';
+import '../../game_logic/boss_system/touhou_boss_factory.dart';
+import '../../game_logic/boss_system/touhou_boss_controller.dart';
+import '../../game_logic/boss_system/bullet_emitter.dart';
 import '../../models/element_type.dart';
+import '../../services/audio_service.dart';
 
 class EnemyComponent extends PositionComponent
     with HasGameReference<PaletoGame> {
@@ -19,6 +26,20 @@ class EnemyComponent extends PositionComponent
   // Bullet hell variables
   double _shootTimer = 0.0;
   double _currentRotation = 0.0;
+
+  // Máquina de Estados (nuevo)
+  EnemyStateMachine? _stateMachine;
+  AbilityCooldownManager? _abilityManager;
+  double _totalElapsedTime = 0.0;
+
+  // Sistema Visual (nuevo)
+  BossVisualManager? _visualManager;
+  BossVFXManager? _vfxManager;
+  int _previousPhase = 1;
+
+  // Sistema Touhou Boss (NUEVO)
+  TouhouBossController? _touhouController;
+  bool _isTouhouBoss = false;
 
   // Datos del enemigo
   late EnemyTypeDefinition enemyDefinition;
@@ -51,17 +72,54 @@ class EnemyComponent extends PositionComponent
     Vector2 startPos,
     EnemyTypeDefinition definition, {
     bool isBoss = false,
+    String? bossType,  // NUEVO: 'elegant_asian', 'caribbean', etc.
   }) {
     position.setFrom(startPos);
     enemyDefinition = definition;
     this.isBoss = isBoss;
     _displayName = definition.name;
 
+    // NUEVO: Detectar automáticamente si es un boss tipo Touhou
+    // Por bossType explícito O por ID del enemigo
+    String? detectedBossType = bossType;
+    if (isBoss && detectedBossType == null && definition.id.startsWith('touhou_')) {
+      // Extraer el tipo de boss del ID: 'touhou_elegant_asian' -> 'elegant_asian'
+      detectedBossType = definition.id.replaceFirst('touhou_', '');
+    }
+
+    if (isBoss && detectedBossType != null) {
+      _isTouhouBoss = true;
+      _initializeTouhouBoss(detectedBossType, startPos);
+      return;
+    }
+
     // Configurar HP
     if (isBoss) {
       size = Vector2(80, 80);
       hp = definition.baseHealth * (2.0 + (game.currentWave * 0.5));
       _displayName = "👑 ${definition.name}";
+      // Inicializar máquina de estados si es boss
+      _stateMachine = EnemyStateMachine();
+      _abilityManager = AbilityCooldownManager();
+      
+      // Inicializar sistemas visuales para boss
+      _visualManager = BossVisualManager(definition.id);
+      _vfxManager = BossVFXManager();
+      
+      // Crear emisores de partículas basados en configuración visual
+      final spriteConfig = _visualManager!.spriteConfig;
+      for (var phase in spriteConfig.phaseVisuals) {
+        for (var particleConfig in phase.particleEffects) {
+          _vfxManager!.createEmitter(
+            particleConfig.effectName,
+            color: particleConfig.particleColor,
+            particleSize: particleConfig.particleSize,
+            particleCount: particleConfig.particleCount,
+            emissionRate: particleConfig.emissionRate,
+            lifetime: particleConfig.particleLifetime,
+          );
+        }
+      }
     } else {
       _configureSizeByRole();
       hp = definition.baseHealth + (game.currentWave * 5.0);
@@ -90,6 +148,98 @@ class EnemyComponent extends PositionComponent
     isActive = true;
     _shootTimer = 0;
     _behaviorTimer = 0;
+  }
+
+  /// NUEVO: Inicializar un boss tipo Touhou
+  void _initializeTouhouBoss(String bossType, Vector2 startPos) {
+    size = Vector2(80, 80);
+    _isTouhouBoss = true;
+
+    // Seleccionar definición del boss basada en tipo
+    late TouhouBossDefinition definition;
+    if (bossType == 'elegant_asian') {
+      definition = TouhouBossFactory.createElegantAsianBoss();
+      _displayName = "✿ Espíritu Elegante";
+    } else if (bossType == 'caribbean') {
+      definition = TouhouBossFactory.createCaribbeanBoss();
+      _displayName = "☀ Cazador de Tormentas";
+    } else {
+      throw Exception('Boss type desconocido: $bossType');
+    }
+
+    // Crear controlador Touhou
+    _touhouController = TouhouBossController(
+      bossDefinition: definition,
+      position: startPos,
+    );
+
+    // Configurar HP desde el boss definition
+    hp = definition.baseMaxHp;
+    maxHp = hp;
+
+    // Conectar callbacks
+    _touhouController!.onSpawnBullets = _onTouhouBulletsSpawn;
+    _touhouController!.onPhaseChange = _onTouhouPhaseChange;
+    _touhouController!.onSpellCardStart = _onTouhouSpellCardStart;
+    _touhouController!.onSpellCardComplete = _onTouhouSpellCardComplete;
+    _touhouController!.onBossDefeated = _onTouhouBossDefeated;
+
+    isActive = true;
+    _shootTimer = 0;
+    _behaviorTimer = 0;
+  }
+
+  /// NUEVO: Callback para generar balas del boss Touhou
+  void _onTouhouBulletsSpawn(List<BulletData> bullets) {
+    for (final bulletData in bullets) {
+      final direction = Vector2(
+        cos(bulletData.angle),
+        sin(bulletData.angle),
+      );
+      game.spawnBullet(
+        bulletData.position,
+        direction * bulletData.speed,
+        isPlayer: false,
+      );
+    }
+  }
+
+  /// Callback para cambio de fase - Actualiza sonidos
+  void _onTouhouPhaseChange(int phaseNumber) {
+    debugPrint('🔄 Boss Fase $phaseNumber iniciada');
+    
+    try {
+      // Reproducir sonido de transición de fase usando AudioService
+      AudioService.instance.playBossDeath();
+    } catch (e) {
+      debugPrint('⚠️ Error reproduciendo sonido de fase: $e');
+    }
+  }
+
+  /// Callback para inicio de Spell Card - Log del nombre de spell card
+  void _onTouhouSpellCardStart(String cardName) {
+    debugPrint('✨ Spell Card: $cardName');
+    
+    try {
+      // Reproducir sonido de spell card  
+      AudioService.instance.playBossAlert();
+    } catch (e) {
+      debugPrint('⚠️ Error reproduciendo sonido de spell card: $e');
+    }
+    
+    debugPrint('📺 Mostrando Spell Card: $cardName');
+  }
+
+  /// NUEVO: Callback para término de Spell Card
+  void _onTouhouSpellCardComplete() {
+    print('✅ Spell Card completada');
+  }
+
+  /// NUEVO: Callback para derrota del boss
+  void _onTouhouBossDefeated() {
+    print('💀 Boss derrotado!');
+    hp = 0;
+    // El onDeath() se llamará automáticamente en el render
   }
 
   void _configureSizeByRole() {
@@ -140,6 +290,15 @@ class EnemyComponent extends PositionComponent
   }
 
   bool takeDamage(double amount) {
+    // NUEVO: Manejar daño para boss Touhou
+    if (_isTouhouBoss && _touhouController != null) {
+      if (!_touhouController!.isInvulnerable) {
+        _touhouController!.takeDamage(amount);
+      }
+      return hp <= 0;
+    }
+
+    // Daño normal para enemigos regulares
     hp -= amount;
     if (hp <= 0) {
       return true;
@@ -152,6 +311,64 @@ class EnemyComponent extends PositionComponent
     if (!isActive) return;
     super.update(dt);
 
+    // NUEVO: Actualizar TouhouBossController si es boss Touhou
+    if (_isTouhouBoss && _touhouController != null) {
+      final playerPos = game.player.position;
+      _touhouController!.update(dt, playerPos);
+      
+      // Actualizar posición y HP desde el controller
+      position = _touhouController!.currentPosition;
+      hp = _touhouController!.currentHp;
+      
+      // Si está derrotado, terminar
+      if (_touhouController!.state == TouhouBossState.defeated) {
+        hp = 0;
+        isActive = false;
+      }
+      
+      return; // No ejecutar lógica de enemigo normal
+    }
+
+    // Actualizar tiempo total (para enemigos normales)
+    _totalElapsedTime += dt;
+
+    // Actualizar cooldowns de habilidades
+    _abilityManager?.update(dt);
+
+    // Actualizar visual y VFX si es boss
+    if (_visualManager != null) {
+      _visualManager!.update(dt);
+    }
+    if (_vfxManager != null) {
+      _vfxManager!.update(dt);
+    }
+
+    // Actualizar máquina de estados si es boss
+    if (_stateMachine != null) {
+      final stateData = EnemyStateData(
+        healthRatio: hp / maxHp,
+        distanceToPlayer: (game.player.position - position).length,
+        timeSinceLastShot: _shootTimer,
+        stateElapsedTime: _stateMachine!.stateElapsedTime,
+        currentSpeed: velocity.length,
+        role: enemyDefinition.role,
+        isAlert: game.locationData.isAlert,
+      );
+      _stateMachine!.update(dt, stateData);
+    }
+
+    // Detectar cambio de fase y actualizar visuales
+    if (isBoss && _visualManager != null) {
+      final healthRatio = hp / maxHp;
+      int newPhase = _calculatePhase(healthRatio);
+      if (newPhase != _previousPhase) {
+        _previousPhase = newPhase;
+        _visualManager!.transitionToPhase(newPhase);
+        // Trigger efecto visual de transición
+        _triggerPhaseTransitionEffect();
+      }
+    }
+
     // Actualizar comportamiento de movimiento
     _updateBehavior(dt);
     position.add(velocity * dt);
@@ -160,26 +377,53 @@ class EnemyComponent extends PositionComponent
     // Lógica de disparo
     _shootTimer += dt;
     if (_shootTimer >= enemyDefinition.attackPattern.cooldown) {
-      _shootTimer = 0;
+      _shootTimer = 0.0;
       _executeAttackPattern();
     }
+  }
+
+  /// Calcula la fase actual basada en HP
+  int _calculatePhase(double healthRatio) {
+    if (healthRatio > 0.75) return 1;
+    if (healthRatio > 0.5) return 2;
+    if (healthRatio > 0.2) return 3;
+    return 4;
+  }
+
+  /// Trigger efecto visual al cambiar de fase
+  void _triggerPhaseTransitionEffect() {
+    if (_vfxManager == null) return;
+    
+    // Explosión de caos para transición
+    _vfxManager!.startChaosExplosion(
+      position: position,
+      radiusMax: 120.0,
+    );
+    _vfxManager!.emitExplosion(
+      emitterName: 'phase_transition',
+      center: position,
+      speed: 200.0,
+    );
   }
 
   void _updateBehavior(double dt) {
     _behaviorTimer += dt;
 
+    // Obtener multiplicador de velocidad de la máquina de estados (solo para bosses)
+    double speedMult = _stateMachine?.getSpeedMultiplier() ?? 1.0;
+
     switch (enemyDefinition.behavior.type) {
       case BehaviorType.chase:
-        _updateChase();
+        _updateChase(speedMult);
         break;
       case BehaviorType.keepDistance:
-        _updateKeepDistance();
+        _updateKeepDistance(speedMult);
         break;
       case BehaviorType.wander:
         _updateWander(dt);
         break;
       case BehaviorType.circlePlayer:
-        _updateCirclePlayer();
+        _updateCirclePlayer(speedMult);
         break;
       case BehaviorType.stationary:
         velocity = Vector2.zero();
@@ -187,21 +431,21 @@ class EnemyComponent extends PositionComponent
     }
   }
 
-  void _updateChase() {
+  void _updateChase(double speedMultiplier) {
     final playerPos = game.player.position;
     final direction = (playerPos - position).normalized();
-    velocity = direction * enemyDefinition.behavior.speed;
+    velocity = direction * enemyDefinition.behavior.speed * speedMultiplier;
   }
 
-  void _updateKeepDistance() {
+  void _updateKeepDistance(double speedMultiplier) {
     final playerPos = game.player.position;
     final distance = (playerPos - position).length;
     final direction = (playerPos - position).normalized();
 
     if (distance < enemyDefinition.behavior.preferredDistance) {
-      velocity = -direction * enemyDefinition.behavior.speed;
+      velocity = -direction * enemyDefinition.behavior.speed * speedMultiplier;
     } else if (distance > enemyDefinition.behavior.preferredDistance * 1.5) {
-      velocity = direction * enemyDefinition.behavior.speed;
+      velocity = direction * enemyDefinition.behavior.speed * speedMultiplier;
     } else {
       velocity *= 0.8;
     }
@@ -212,12 +456,13 @@ class EnemyComponent extends PositionComponent
       _behaviorTimer = 0;
       final random = Random();
       final angle = random.nextDouble() * 2 * pi;
-      _behaviorVelocity = Vector2(cos(angle), sin(angle)) * enemyDefinition.behavior.speed;
+      _behaviorVelocity =
+          Vector2(cos(angle), sin(angle)) * enemyDefinition.behavior.speed;
     }
     velocity = _behaviorVelocity;
   }
 
-  void _updateCirclePlayer() {
+  void _updateCirclePlayer(double speedMultiplier) {
     final playerPos = game.player.position;
     final direction = (playerPos - position).normalized();
     final distance = (playerPos - position).length;
@@ -225,11 +470,12 @@ class EnemyComponent extends PositionComponent
 
     // Mantener distancia mientras orbita
     Vector2 movement = direction * (distance - enemyDefinition.behavior.preferredDistance) * 0.01;
-    movement += perp * enemyDefinition.behavior.speed * 0.5;
+    movement += perp * enemyDefinition.behavior.speed * 0.5 * speedMultiplier;
 
     velocity = movement;
   }
 
+  /// Ejecuta un patrón danmaku avanzado
   void _executeAttackPattern() {
     if (isBoss) {
       _executeBossAttackPattern();
@@ -523,6 +769,11 @@ class EnemyComponent extends PositionComponent
     // Dibujar forma distintiva
     _drawShape(canvas);
 
+    // Renderizar efectos visuales del boss si existe
+    if (isBoss && _visualManager != null && _vfxManager != null) {
+      _renderBossVisuals(canvas);
+    }
+
     // Dibujar nombre
     _textPaint.render(
       canvas,
@@ -551,6 +802,129 @@ class EnemyComponent extends PositionComponent
 
       canvas.drawRect(barRect, Paint()..color = Colors.black);
       canvas.drawRect(hpRect, Paint()..color = Colors.red);
+    }
+  }
+
+  /// Renderiza los efectos visuales del boss
+  void _renderBossVisuals(Canvas canvas) {
+    // Obtener color de fase actual
+    final phaseColor = _visualManager!.getPhaseColor();
+    
+    // Aura de fase alrededor del boss
+    final auraPaint = Paint()
+      ..color = phaseColor.withValues(alpha: 0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    
+    canvas.drawCircle(
+      Offset.zero,
+      size.x / 2 + 15,
+      auraPaint,
+    );
+
+    // Brillo de fase
+    final glowPaint = Paint()
+      ..color = phaseColor.withValues(alpha: 0.6)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
+    
+    canvas.drawCircle(
+      Offset.zero,
+      size.x / 2 + 8,
+      glowPaint,
+    );
+
+    // Renderizar partículas activas
+    final particles = _vfxManager!.getAllParticles();
+    for (var particle in particles) {
+      canvas.drawCircle(
+        particle.position.toOffset(),
+        particle.size,
+        Paint()
+          ..color = particle.color.withValues(alpha: particle.alpha)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1),
+      );
+    }
+
+    // Renderizar efectos radiales
+    for (var radialEffect in _vfxManager!.radialEffects) {
+      final paint = Paint()
+        ..color = radialEffect.color.withValues(alpha: radialEffect.alpha)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      
+      canvas.drawCircle(
+        Offset.zero,
+        radialEffect.currentRadius,
+        paint,
+      );
+    }
+
+    // Renderizar efectos espirales
+    for (var spiralEffect in _vfxManager!.spiralEffects) {
+      final paint = Paint()
+        ..color = spiralEffect.color.withValues(alpha: spiralEffect.alpha)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      
+      // Dibujar espiral como serie de puntos
+      const pointCount = 12;
+      for (int i = 0; i < pointCount; i++) {
+        final angle = (i / pointCount) * 2 * pi + spiralEffect.currentRotation;
+        final radius = spiralEffect.currentRadius * (i / pointCount);
+        final x = cos(angle) * radius;
+        final y = sin(angle) * radius;
+        
+        if (i > 0) {
+          final prevAngle = ((i - 1) / pointCount) * 2 * pi + spiralEffect.currentRotation;
+          final prevRadius = spiralEffect.currentRadius * ((i - 1) / pointCount);
+          final prevX = cos(prevAngle) * prevRadius;
+          final prevY = sin(prevAngle) * prevRadius;
+          
+          canvas.drawLine(
+            Offset(prevX, prevY),
+            Offset(x, y),
+            paint,
+          );
+        }
+      }
+    }
+
+    // Renderizar rayos láser
+    for (var laserEffect in _vfxManager!.laserEffects) {
+      final paint = Paint()
+        ..color = laserEffect.color.withValues(alpha: laserEffect.alpha)
+        ..strokeWidth = laserEffect.currentThickness
+        ..strokeCap = StrokeCap.round;
+      
+      canvas.drawLine(
+        laserEffect.start.toOffset(),
+        laserEffect.end.toOffset(),
+        paint,
+      );
+      
+      // Resplandor del rayo
+      final glowPaint = Paint()
+        ..color = laserEffect.color.withValues(alpha: laserEffect.alpha * 0.5)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      
+      canvas.drawLine(
+        laserEffect.start.toOffset(),
+        laserEffect.end.toOffset(),
+        glowPaint,
+      );
+    }
+
+    // Renderizar explosiones de caos
+    for (var chaosEffect in _vfxManager!.chaosEffects) {
+      final paint = Paint()
+        ..color = Colors.white.withValues(alpha: chaosEffect.alpha)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5;
+      
+      // Dibujar ondas de choque concéntricas
+      for (int i = 0; i < chaosEffect.shockWaveCount; i++) {
+        final radius = chaosEffect.getShockWaveRadiusAt(i);
+        canvas.drawCircle(Offset.zero, radius, paint);
+      }
     }
   }
 }

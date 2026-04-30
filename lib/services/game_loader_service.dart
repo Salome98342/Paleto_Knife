@@ -22,9 +22,9 @@ class GameLoaderService {
   Future<void> _preloadImages() async {
     try {
       final imageAssets = [
-        'assets/images/paleto_art.png',
-        'assets/images/jimmy_soft.png',
-        'assets/images/logo.png',
+        'lib/assets/images/paleto_art.png',
+        'lib/assets/images/jimmy_soft.png',
+        'lib/assets/images/logo.png',
       ];
 
       for (final asset in imageAssets) {

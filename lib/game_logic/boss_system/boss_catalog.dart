@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'boss.dart';
 import 'boss_phase.dart';
+import 'asia_boss_catalog.dart';
 import '../enemy_system/attack_pattern.dart';
 import '../enemy_system/enemy_behavior.dart';
 
@@ -27,108 +28,21 @@ class BossCatalog {
     clear();
 
     // ============================================================
-    // 🌏 ASIA BOSS: Gran Dumpling Ancestral
+    // 🌏 5 BOSSES DE ASIA - NUEVO SISTEMA DANMAKU
     // ============================================================
-    register(_createGranDumplingAncestral());
+    for (final boss in AsiaBossCatalog.getAllBosses()) {
+      register(boss);
+    }
 
     // ============================================================
-    // 🌊 CARIBE BOSS: Rey Jerk Volcánico
+    // 🌊 CARIBE BOSS: Rey Jerk Volcánico (LEGADO)
     // ============================================================
     register(_createReyJerkVolcanico());
 
     // ============================================================
-    // 🌿 EUROPA BOSS: Leviatán de Caldo
+    // 🌿 EUROPA BOSS: Leviatán de Caldo (LEGADO)
     // ============================================================
     register(_createLeviathan());
-  }
-
-  /// Gran Dumpling Ancestral - Boss de Asia (Elemento: Tierra)
-  /// Counters: 🔥 Fuego, 🌋 Lava, 🌱 Planta
-  static Boss _createGranDumplingAncestral() {
-    return Boss(
-      id: 'gran_dumpling_ancestral',
-      name: 'Gran Dumpling Ancestral',
-      position: Offset.zero,
-      maxHp: 500.0,
-      phases: [
-        // FASE 1: Invocación (100% - 70% HP)
-        BossPhase(
-          id: 'dumpling_phase_1',
-          phaseNumber: 1,
-          hpThreshold: 0.7,
-          description: 'Invocación - Se posiciona y comienza a invocar espíritus',
-          attackSpeedMultiplier: 1.0,
-          behavior: Behavior(
-            type: BehaviorType.keepDistance,
-            speed: 100.0,
-            preferredDistance: 150.0,
-          ),
-          attackPatterns: [
-            AttackPattern(
-              type: AttackPatternType.straight,
-              cooldown: 1.5,
-              bulletSpeed: 200.0,
-              bulletDamage: 15.0,
-              bulletCount: 2,
-            ),
-          ],
-        ),
-
-        // FASE 2: Armadura (70% - 30% HP)
-        BossPhase(
-          id: 'dumpling_phase_2',
-          phaseNumber: 2,
-          hpThreshold: 0.3,
-          description: 'Armadura - Se endurece y ataca más frecuentemente',
-          attackSpeedMultiplier: 1.5,
-          behavior: Behavior(
-            type: BehaviorType.keepDistance,
-            speed: 120.0,
-            preferredDistance: 120.0,
-          ),
-          attackPatterns: [
-            AttackPattern(
-              type: AttackPatternType.spread,
-              cooldown: 1.0,
-              bulletSpeed: 250.0,
-              bulletDamage: 18.0,
-              bulletCount: 4,
-              spreadAngle: 60.0,
-            ),
-          ],
-        ),
-
-        // FASE 3: Ondas de choque (30% - 0% HP)
-        BossPhase(
-          id: 'dumpling_phase_3',
-          phaseNumber: 3,
-          hpThreshold: 0.0,
-          description: 'Despertar Total - Genera ondas de choque devastadoras',
-          attackSpeedMultiplier: 2.0,
-          behavior: Behavior(
-            type: BehaviorType.circlePlayer,
-            speed: 150.0,
-            preferredDistance: 100.0,
-          ),
-          attackPatterns: [
-            AttackPattern(
-              type: AttackPatternType.radial,
-              cooldown: 0.7,
-              bulletSpeed: 300.0,
-              bulletDamage: 20.0,
-              bulletCount: 8,
-            ),
-            AttackPattern(
-              type: AttackPatternType.aimed,
-              cooldown: 0.5,
-              bulletSpeed: 280.0,
-              bulletDamage: 16.0,
-              bulletCount: 1,
-            ),
-          ],
-        ),
-      ],
-    );
   }
 
   /// Rey Jerk Volcánico - Boss del Caribe (Elemento: Fuego)

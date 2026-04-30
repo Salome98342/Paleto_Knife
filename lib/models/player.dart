@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 class Player {
   static const double spriteWidth = 85.0;
   static const double spriteHeight = 100.0;
-  static const double hitboxWidth = 35.0;
-  static const double hitboxHeight = 55.0;
+  static const double hitboxWidth = spriteWidth * 0.38;
+  static const double hitboxHeight = spriteHeight * 0.50;
 
   Offset position; // Posicion en pantalla
   double health; // Vida actual
@@ -196,7 +196,7 @@ class Player {
   /// Obtiene el rectangulo de colision del jugador
   Rect getHitbox() {
     return Rect.fromCenter(
-      center: position,
+      center: Offset(position.dx, position.dy + (spriteHeight * 0.06)),
       width: hitboxWidth,
       height: hitboxHeight,
     );

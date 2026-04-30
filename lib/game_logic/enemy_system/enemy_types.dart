@@ -797,5 +797,71 @@ class EnemyTypesCatalog {
       counters: [],
       visualDescription: 'Forma mejorada y resplandeciente',
     ));
+
+    // ============================================================
+    // 🎎 TOUHOU BOSSES (REGIÓN ASIA)
+    // ============================================================
+
+    // ✿ Boss Touhou - Elegant Asian (3 fases, balas Danmaku)
+    register(EnemyTypeDefinition(
+      id: 'touhou_elegant_asian',
+      name: '✿ Elegant Asian Touhou',
+      description: 'Jefe Touhou con 3 fases y patrón Danmaku',
+      lore: 'Una bella entidad oriental que controla el flujo de balas en patrones hipnóticos. Su "Spell Card" cambia con cada fase de batalla.',
+      region: Region.asia,
+      element: ElementType.earth,
+      role: 'boss',
+      baseHealth: 800.0, // Será multiplicado por el TouhouBossFactory
+      behavior: Behavior(
+        type: BehaviorType.stationary,
+        speed: 0,
+        preferredDistance: 400.0,
+      ),
+      attackPattern: AttackPattern(
+        type: AttackPatternType.radial,
+        cooldown: 0.4,
+        bulletSpeed: 250.0,
+        bulletDamage: 8.0,
+        bulletCount: 24,
+        spreadAngle: 0,
+      ),
+      debugColor: 0xFFE91E63,
+      counters: ['🔥'],
+      visualDescription: 'Silueta delicada pero amenazante, con un aura de pétalos rojos',
+    ));
+
+    // ☀ Boss Touhou - Caribbean (3 fases, balas destructivas)
+    register(EnemyTypeDefinition(
+      id: 'touhou_caribbean',
+      name: '☀ Caribbean Touhou',
+      description: 'Jefe Touhou con 3 fases y ataque solar',
+      lore: 'Una deidad tropical ardiente que lanza balas de fuego en patrones devastadores. Su poder crece con cada fase, transformando el campo de batalla.',
+      region: Region.caribbean,
+      element: ElementType.fire,
+      role: 'boss',
+      baseHealth: 850.0, // Será multiplicado por el TouhouBossFactory
+      behavior: Behavior(
+        type: BehaviorType.stationary,
+        speed: 0,
+        preferredDistance: 400.0,
+      ),
+      attackPattern: AttackPattern(
+        type: AttackPatternType.radial,
+        cooldown: 0.35,
+        bulletSpeed: 280.0,
+        bulletDamage: 9.0,
+        bulletCount: 32,
+        spreadAngle: 0,
+      ),
+      debugColor: 0xFFFFC107,
+      counters: ['💧', '💨'],
+      visualDescription: 'Forma incandescente y radiante, emanando llamas cálidas',
+    ));
+
+    // NOTA: Europa (Region.europe) actualmente NO tiene un Touhou boss definido
+    // en TouhouBossFactory. Los bosses Touhou disponibles son:
+    // - elegant_asian (Asia)
+    // - caribbean (Caribe)
+    // Para agregar un boss de Europa, primero implementar en TouhouBossFactory.
   }
 }

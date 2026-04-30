@@ -4,7 +4,6 @@
 import 'enemy_system/enemy_types.dart';
 import 'enemy_system/enemy_modifiers.dart';
 import 'boss_system/boss_catalog.dart';
-import 'wave_system/wave_catalog.dart';
 
 /// Initialize all combat system catalogs
 /// Must be called before using any combat features
@@ -22,14 +21,13 @@ void initializeCombatSystem() {
     // Initialize boss definitions
     BossCatalog.initializeDefaults();
 
-    // Initialize wave progressions
-    WaveCatalog.initializeDefaults();
+    // Note: wave_system was removed as it duplicated PaletoGame's internal wave system
+    // The game uses PaletoGame's manual wave management (currentWave, enemiesKilledInWave, etc)
 
     print('✅ Combat System Initialized Successfully');
     print('   - Enemy Modifiers: Ready');
     print('   - Enemy Types: ${EnemyTypesCatalog.getAll().length} enemies');
     print('   - Bosses: ${BossCatalog.getAll().length} bosses');
-    print('   - Regions: ${WaveCatalog.getAvailableRegions().length} regions with waves');
   } catch (e) {
     print('❌ Combat System Initialization Failed: $e');
     rethrow;
@@ -41,9 +39,9 @@ void initializeCombatSystem() {
 bool isCombatSystemInitialized() {
   try {
     return EnemyTypesCatalog.getAll().isNotEmpty &&
-        BossCatalog.getAll().isNotEmpty &&
-        WaveCatalog.getAvailableRegions().isNotEmpty;
-  } catch (_) {
+        BossCatalog.getAll().isNotEmpty;
+  } catch (e) {
+    print('[ERROR] Catalog initialization failed: $e');
     return false;
   }
 }
@@ -58,7 +56,6 @@ Map<String, dynamic> getCombatSystemStats() {
       'europe': EnemyTypesCatalog.getByRegion(Region.europe).length,
     },
     'totalBosses': BossCatalog.getAll().length,
-    'totalRegions': WaveCatalog.getAvailableRegions().length,
     'modifiers': ['giant', 'armor', 'multiple'],
   };
 }

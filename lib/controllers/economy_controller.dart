@@ -5,7 +5,6 @@ import 'dart:math' as math;
 class EconomyController extends ChangeNotifier {
   int _coins = 0;
   int _gems = 0; // Anadido
-  int _playerLevel = 1;
   int _currentWave = 1;
   int _damageStat = 1;
   int _fireRateStat = 1;
@@ -68,7 +67,6 @@ class EconomyController extends ChangeNotifier {
 
   int get coins => _coins;
   int get gems => _gems; // Anadido
-  int get playerLevel => _playerLevel;
   int get currentWave => _currentWave;
   int get damageStat => _damageStat;
   int get fireRateStat => _fireRateStat;

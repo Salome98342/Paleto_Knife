@@ -6,22 +6,37 @@ import '../controllers/economy_controller.dart';
 import '../controllers/world_controller.dart';
 import 'retro_style.dart';
 
-class WaveClearOverlay extends StatelessWidget {
+class WaveClearOverlay extends StatefulWidget {
   final PaletoGame game;
 
   const WaveClearOverlay({super.key, required this.game});
 
   @override
+  State<WaveClearOverlay> createState() => _WaveClearOverlayState();
+}
+
+class _WaveClearOverlayState extends State<WaveClearOverlay> {
+  bool _liberationApplied = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _liberationApplied) {
+        return;
+      }
+      final world = context.read<WorldController>();
+      final recoveryPercentage = widget.game.getWaveRecoveryPercentage();
+      world.addLiberation(world.selectedLocation.name, recoveryPercentage);
+      _liberationApplied = true;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final eco = context.read<EconomyController>();
-    final world = context.read<WorldController>();
-    final recoveryPercentage = game.getWaveRecoveryPercentage();
-    final treasures = game.waveRewards;
-
-    // Actualizar progreso de liberación cuando se muestra este overlay
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      world.addLiberation(world.selectedLocation.name, recoveryPercentage);
-    });
+    final recoveryPercentage = widget.game.getWaveRecoveryPercentage();
+    final treasures = widget.game.waveRewards;
 
     return Container(
       color: Colors.black87,
@@ -36,7 +51,7 @@ class WaveClearOverlay extends StatelessWidget {
               children: [
                 // Título
                 Text(
-                  'OLEADA ${game.currentWave - 1} SUPERADA!',
+                  'OLEADA ${widget.game.currentWave - 1} SUPERADA!',
                   style: RetroStyle.font(
                     color: Colors.yellowAccent,
                     size: 20,
@@ -155,9 +170,9 @@ class WaveClearOverlay extends StatelessWidget {
                     eco.saveProgress();
                     // Actualizar progreso de recuperación en el mapa
                     final world = context.read<WorldController>();
-                    world.updateRecoveryProgress(game.locationData.name, recoveryPercentage);
-                    game.overlays.remove('WaveClear');
-                    game.resumeEngine();
+                    world.updateRecoveryProgress(widget.game.locationData.name, recoveryPercentage);
+                    widget.game.overlays.remove('WaveClear');
+                    widget.game.resumeEngine();
                   },
                   child: Container(
                     width: double.infinity,
@@ -185,8 +200,8 @@ class WaveClearOverlay extends StatelessWidget {
                     // Guardar, remover overlay y salir
                     eco.saveProgress();
                     eco.resetRun();
-                    game.overlays.remove('WaveClear');
-                    game.resumeEngine();
+                    widget.game.overlays.remove('WaveClear');
+                    widget.game.resumeEngine();
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: Container(

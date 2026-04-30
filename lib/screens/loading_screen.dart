@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 import '../services/game_loader_service.dart';
 import 'login_screen.dart';
+import 'welcome_screen.dart';
 import 'main_layout.dart' as main_layout;
 
 /// Pantalla de carga
@@ -89,13 +90,13 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   /// Navegar a la siguiente pantalla
-  /// Si logged=true → GameScreen
+  /// Si logged=true → WelcomeScreen → MainLayout
   /// Si logged=false → LoginScreen
   void _navigateToNextScreen(bool logged) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => logged ? const main_layout.MainLayout() : const LoginScreen(),
+        builder: (_) => logged ? const WelcomeScreen() : const LoginScreen(),
       ),
     );
   }
@@ -143,7 +144,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         color: const Color(0xFF1A1A2E),
       ),
       child: Image.asset(
-        'assets/paleto_art.png',
+        'lib/assets/paleto_art.png',
         fit: BoxFit.cover, // Cubre todo sin dejar espacios
         alignment: Alignment.center,
         errorBuilder: (context, error, stackTrace) {

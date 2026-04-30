@@ -1,7 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
+import 'dart:typed_data';
 
 enum _BgmTrack { none, menu, gameplay, shop, settings }
 
@@ -46,6 +48,8 @@ class AudioService extends ChangeNotifier {
   // Flags y control de estado mejorados
   bool _isWeb = false;
   bool _isDisposed = false;
+  final Map<String, String> _resolvedAssetPathCache = {};
+  final Map<String, Uint8List> _audioBytesCache = {};
   Timer? _initRetryTimer;
   int _initRetries = 0;
   static const int _maxInitRetries = 3;
@@ -107,6 +111,7 @@ class AudioService extends ChangeNotifier {
       // Configurar AudioContext para Android e iOS
       if (!_isWeb) {
         try {
+          debugPrint('[AudioService] 🎚️ Configurando AudioContext detallado...');
           await _bgmPlayer.setAudioContext(
             AudioContext(
               android: AudioContextAndroid(
@@ -114,15 +119,46 @@ class AudioService extends ChangeNotifier {
                 stayAwake: true,
                 contentType: AndroidContentType.music,
                 usageType: AndroidUsageType.media,
+                audioFocus: AndroidAudioFocus.gain,
               ),
               iOS: AudioContextIOS(
                 category: AVAudioSessionCategory.playback,
+                options: {
+                  AVAudioSessionOptions.duckOthers,
+                  AVAudioSessionOptions.defaultToSpeaker,
+                },
               ),
             ),
           );
-          debugPrint('[AudioService] ✓ AudioContext configurado para Android/iOS');
+          debugPrint('[AudioService] ✓ AudioContext configurado correctamente para Android/iOS');
+          debugPrint('[AudioService] ✓ Modo silencioso ignorado - Audio forzado');
         } catch (e) {
-          debugPrint('[AudioService] ⚠️ Error configurando AudioContext: $e');
+          debugPrint('[AudioService] ⚠️ Error configurando AudioContext con flags: $e');
+          debugPrint('[AudioService] 💡 Intentando configuración alternativa sin flags...');
+          // Fallback: intentar sin audioAttributesFlags
+          try {
+            await _bgmPlayer.setAudioContext(
+              AudioContext(
+                android: AudioContextAndroid(
+                  isSpeakerphoneOn: true,
+                  stayAwake: true,
+                  contentType: AndroidContentType.music,
+                  usageType: AndroidUsageType.media,
+                  audioFocus: AndroidAudioFocus.gain,
+                ),
+              ),
+            );
+            debugPrint('[AudioService] ✓ Fallback: AudioContext sin flags configurado');
+          } catch (e2) {
+            debugPrint('[AudioService] ⚠️ Fallback AudioContext falló: $e2');
+            // Fallback final: solo volumen
+            try {
+              await _bgmPlayer.setPlaybackRate(1.0);
+              debugPrint('[AudioService] ✓ Fallback final: configuración mínima completada');
+            } catch (e3) {
+              debugPrint('[AudioService] ❌ Todos los fallbacks fallaron: $e3');
+            }
+          }
         }
       }
       
@@ -130,12 +166,53 @@ class AudioService extends ChangeNotifier {
 
       // Configurar SFX players
       debugPrint('[AudioService] 🔊 Configurando ${_sfxPlayers.length} SFX players...');
-      for (var player in _sfxPlayers) {
+      for (int i = 0; i < _sfxPlayers.length; i++) {
+        final player = _sfxPlayers[i];
         await _initAudioPlayer(
           player,
           ReleaseMode.release,
           _sfxVolume,
         );
+        
+        // Configurar AudioContext para cada SFX player también
+        if (!_isWeb) {
+          try {
+            await player.setAudioContext(
+              AudioContext(
+                android: AudioContextAndroid(
+                  isSpeakerphoneOn: true,
+                  stayAwake: false,
+                  contentType: AndroidContentType.sonification,
+                  usageType: AndroidUsageType.notification,
+                  audioFocus: AndroidAudioFocus.none,
+                ),
+                iOS: AudioContextIOS(
+                  category: AVAudioSessionCategory.playback,
+                ),
+              ),
+            );
+            debugPrint('[AudioService] ✓ AudioContext configurado para SFX player $i (silencio ignorado)');
+          } catch (e) {
+            debugPrint('[AudioService] ⚠️ Error configurando AudioContext SFX $i: $e');
+            // Fallback sin flags
+            try {
+              await player.setAudioContext(
+                AudioContext(
+                  android: AudioContextAndroid(
+                    isSpeakerphoneOn: true,
+                    stayAwake: false,
+                    contentType: AndroidContentType.sonification,
+                    usageType: AndroidUsageType.notification,
+                    audioFocus: AndroidAudioFocus.none,
+                  ),
+                ),
+              );
+              debugPrint('[AudioService] ✓ Fallback: AudioContext SFX $i sin flags');
+            } catch (e2) {
+              debugPrint('[AudioService] ⚠️ Fallback SFX $i falló: $e2');
+            }
+          }
+        }
       }
       debugPrint('[AudioService] ✓ SFX players configurados');
 
@@ -177,24 +254,62 @@ class AudioService extends ChangeNotifier {
   }
 
   String _normalizeAssetPath(String path) {
-    // Remover 'assets/' del inicio si existe
-    return path.replaceFirst('assets/', '');
+    var normalized = path;
+    if (normalized.startsWith('lib/assets/')) {
+      normalized = normalized.substring('lib/assets/'.length);
+    }
+    if (normalized.startsWith('assets/')) {
+      normalized = normalized.substring('assets/'.length);
+    }
+    return normalized;
+  }
+
+  Future<String> _resolveAssetBundleKey(String path) async {
+    final normalizedPath = _normalizeAssetPath(path);
+
+    final cached = _resolvedAssetPathCache[normalizedPath];
+    if (cached != null) {
+      return cached;
+    }
+
+    final key = 'lib/assets/$normalizedPath';
+    try {
+      await rootBundle.load(key);
+    } catch (_) {
+      // Devolvemos igualmente la clave esperada para mantener una sola convención.
+    }
+
+    _resolvedAssetPathCache[normalizedPath] = key;
+    return key;
   }
 
   /// Crea un Source con estrategia correcta para Web vs Nativo
-  Source _getAudioSource(String path) {
-    final normalizedPath = _normalizeAssetPath(path);
-    
+  Future<Source> _getAudioSource(String path) async {
+    final assetKey = await _resolveAssetBundleKey(path);
+
     if (_isWeb) {
       // En Web, usar UrlSource con la URL absoluta del asset
       // Los assets en Flutter Web están en /assets/
-      final assetUrl = 'assets/$normalizedPath';
+      final assetUrl = 'assets/$assetKey';
       debugPrint('[AudioService] Web UrlSource: $assetUrl');
       return UrlSource(assetUrl);
     }
-    
-    // En Android/iOS, usar AssetSource normalmente
-    return AssetSource(normalizedPath);
+
+    // En Android/iOS, reproducir bytes evita inconsistencias con claves de AssetSource.
+    try {
+      final cached = _audioBytesCache[assetKey];
+      if (cached != null) {
+        return BytesSource(cached);
+      }
+
+      final byteData = await rootBundle.load(assetKey);
+      final bytes = byteData.buffer.asUint8List();
+      _audioBytesCache[assetKey] = bytes;
+      return BytesSource(bytes);
+    } catch (e) {
+      debugPrint('[AudioService] ❌ Failed loading audio bytes for $assetKey: $e');
+      rethrow;
+    }
   }
 
   Future<void> _playBgm(String path, _BgmTrack track) async {
@@ -247,12 +362,66 @@ class AudioService extends ChangeNotifier {
       debugPrint('[🎵 AUDIO] Playing: $normalizedPath');
       
       try {
-        final audioSource = _getAudioSource(path);
-        await _bgmPlayer.play(audioSource);
-        _isMusicPlaying = true;
-        debugPrint('[🎵 AUDIO] ✅ Playing: $normalizedPath');
+        final audioSource = await _getAudioSource(path);
+        debugPrint('[🎵 AUDIO] Source type: ${audioSource.runtimeType} (Web: $_isWeb)');
+        
+        // Intentar reproducir con manejo de errores específico
+        try {
+          await _bgmPlayer.play(audioSource);
+          _isMusicPlaying = true;
+          debugPrint('[🎵 AUDIO] ✅ Playing exitosamente: $normalizedPath');
+        } catch (playError) {
+          debugPrint('[🎵 AUDIO] ❌ Error inicial en play: $playError');
+          
+          // Fallback: intentar setAudioContext nuevamente y reintentar
+          if (!_isWeb) {
+            debugPrint('[🎵 AUDIO] 🔧 Intentando configurar AudioContext nuevamente...');
+            try {
+              await _bgmPlayer.setAudioContext(
+                AudioContext(
+                  android: AudioContextAndroid(
+                    isSpeakerphoneOn: true,
+                    stayAwake: true,
+                    contentType: AndroidContentType.music,
+                    usageType: AndroidUsageType.media,
+                  ),
+                ),
+              );
+              await Future.delayed(const Duration(milliseconds: 200));
+              await _bgmPlayer.play(audioSource);
+              _isMusicPlaying = true;
+              debugPrint('[🎵 AUDIO] ✅ Fallback: Playing exitosamente: $normalizedPath');
+            } catch (fallbackError) {
+              debugPrint('[🎵 AUDIO] ❌ Fallback con flags falló: $fallbackError');
+              // Intentar sin flags como último recursojsonObject
+              try {
+                await _bgmPlayer.setAudioContext(
+                  AudioContext(
+                    android: AudioContextAndroid(
+                      isSpeakerphoneOn: true,
+                      stayAwake: true,
+                      contentType: AndroidContentType.music,
+                      usageType: AndroidUsageType.media,
+                    ),
+                  ),
+                );
+                await Future.delayed(const Duration(milliseconds: 200));
+                await _bgmPlayer.play(audioSource);
+                _isMusicPlaying = true;
+                debugPrint('[🎵 AUDIO] ✅ Fallback final: Playing exitosamente: $normalizedPath');
+              } catch (finalError) {
+                debugPrint('[🎵 AUDIO] ❌ Fallback final también falló: $finalError');
+                _isMusicPlaying = false;
+                rethrow;
+              }
+            }
+          } else {
+            _isMusicPlaying = false;
+            rethrow;
+          }
+        }
       } catch (e) {
-        debugPrint('[🎵 AUDIO] ❌ Play error: $e');
+        debugPrint('[🎵 AUDIO] ❌ Play error final: $e');
         _isMusicPlaying = false;
       }
       
@@ -380,7 +549,7 @@ class AudioService extends ChangeNotifier {
       await Future.delayed(const Duration(milliseconds: 50));
 
       // Reproducir con timeout
-      final audioSource = _getAudioSource(path);
+      final audioSource = await _getAudioSource(path);
       await player.play(audioSource).timeout(
         const Duration(seconds: 2),
         onTimeout: () {
@@ -426,9 +595,7 @@ class AudioService extends ChangeNotifier {
       debugPrint('[AUDIO TEST] Reproduciedo: audio/menu/menu_song.mp3');
       
       // Web usa UrlSource, nativo usa AssetSource
-      final source = kIsWeb 
-          ? UrlSource('assets/audio/menu/menu_song.mp3')
-          : AssetSource('audio/menu/menu_song.mp3');
+        final source = await _getAudioSource('audio/menu/menu_song.mp3');
       
       await player.play(source);
       debugPrint('[AUDIO TEST] ✅ Audio test reproducido exitosamente');
@@ -534,25 +701,182 @@ class AudioService extends ChangeNotifier {
     if (_isDisposed || _isWeb || !_initialized) return;
     
     try {
+      // Solo pausar si realmente está en reproducción
       if (_bgmPlayer.state == PlayerState.playing) {
+        debugPrint('[AudioService] ⏸️ Pausando BGM (pauseApp)');
         await _bgmPlayer.pause();
+        _isMusicPlaying = false;
+        notifyListeners();
       }
     } on Exception catch (e) {
-      debugPrint('[AudioService] Error pausando app: $e');
+      debugPrint('[AudioService] ⚠️ Error pausando app: $e');
     }
   }
 
   /// Reanuda la música cuando la app vuelve
+  /// Más robusto: intenta reanudar o reiniciar si es necesario
   Future<void> resumeApp() async {
     if (_isDisposed || _isWeb || !_initialized) return;
     
     try {
-      if (_currentTrack != _BgmTrack.none &&
-          _bgmPlayer.state == PlayerState.paused) {
-        await _bgmPlayer.resume();
+      // Solo reanudar si hay una canción que reproducir
+      if (_currentTrack != _BgmTrack.none) {
+        final playerState = _bgmPlayer.state;
+        
+        if (playerState == PlayerState.paused) {
+          // Si está pausada, solo reanudar
+          debugPrint('[AudioService] ▶️ Reanudando BGM (resumeApp)');
+          await _bgmPlayer.resume();
+          _isMusicPlaying = true;
+          notifyListeners();
+        } else if (playerState == PlayerState.stopped || playerState == PlayerState.completed) {
+          // Si se detuvo completamente, reiniciar desde el principio
+          debugPrint('[AudioService] 🔄 BGM se detuvo, reiniciando (resumeApp)');
+          if (_currentBgmPath != null) {
+            await _playBgm(_currentBgmPath!, _currentTrack);
+          } else {
+            // Fallback: reproducir última música de region si existe
+            await playLastGameplayMusic();
+          }
+        }
+        // Si ya está reproduciendo, no hacer nada
       }
     } on Exception catch (e) {
-      debugPrint('[AudioService] Error reanudando app: $e');
+      debugPrint('[AudioService] ⚠️ Error reanudando app: $e');
     }
   }
+
+  /// Getter para volumen maestro (promedio de música y SFX)
+  double get masterVolume => (_bgmVolume + _sfxVolume) / 2;
+
+  /// Establece el volumen maestro (afecta música y SFX por igual)
+  Future<void> setMasterVolume(double volume) async {
+    if (_isDisposed) return;
+    if (volume < 0 || volume > 1) return;
+
+    await setMusicVolume(volume);
+    await setSfxVolume(volume);
+  }
+
+  /// Método de diagnóstico: Reinicia el contexto de audio para Android
+  Future<void> resetAudioContext() async {
+    if (_isDisposed || _isWeb || !_initialized) {
+      debugPrint('[AudioService] ⚠️ No se puede resetear contexto (disposed=$_isDisposed, web=$_isWeb, init=$_initialized)');
+      return;
+    }
+
+    try {
+      debugPrint('[AudioService] 🔄 Reseteando AudioContext para BGM player...');
+      await _bgmPlayer.setAudioContext(
+        AudioContext(
+          android: AudioContextAndroid(
+            isSpeakerphoneOn: true,
+            stayAwake: true,
+            contentType: AndroidContentType.music,
+            usageType: AndroidUsageType.media,
+            audioFocus: AndroidAudioFocus.gain,
+          ),
+          iOS: AudioContextIOS(
+            category: AVAudioSessionCategory.playback,
+            options: {
+              AVAudioSessionOptions.duckOthers,
+            },
+          ),
+        ),
+      );
+      debugPrint('[AudioService] ✓ AudioContext reseteado exitosamente');
+      
+      // Reintentar reproducir si estaba en reproducción
+      if (_isMusicPlaying && _currentBgmPath != null) {
+        debugPrint('[AudioService] 🎵 Reintentando reproducir: $_currentBgmPath');
+        await Future.delayed(const Duration(milliseconds: 100));
+        final audioSource = await _getAudioSource(_currentBgmPath!);
+        await _bgmPlayer.play(audioSource);
+        debugPrint('[AudioService] ✅ Reanudado después del reset');
+      }
+    } catch (e) {
+      debugPrint('[AudioService] ❌ Error reseteando AudioContext: $e');
+    }
+  }
+
+  /// Diagnóstico completo de audio
+  Future<void> diagnosticsAudio() async {
+    debugPrint('[AUDIO LOG] ========== DIAGNÓSTICO DE AUDIO ==========');
+    debugPrint('[AUDIO LOG] - Disposed: $_isDisposed');
+    debugPrint('[AUDIO LOG] - Web: $_isWeb');
+    debugPrint('[AUDIO LOG] - Initialized: $_initialized');
+    debugPrint('[AUDIO LOG] - Music Enabled: $_musicEnabled');
+    debugPrint('[AUDIO LOG] - SFX Enabled: $_sfxEnabled');
+    debugPrint('[AUDIO LOG] - BGM Volume: $_bgmVolume');
+    debugPrint('[AUDIO LOG] - SFX Volume: $_sfxVolume');
+    debugPrint('[AUDIO LOG] - Current Track: $_currentTrack');
+    debugPrint('[AUDIO LOG] - Current BGM Path: $_currentBgmPath');
+    debugPrint('[AUDIO LOG] - Music Playing: $_isMusicPlaying');
+    debugPrint('[AUDIO LOG] - BGM Player State: ${_bgmPlayer.state}');
+    debugPrint('[AUDIO LOG] - SFX Players Count: ${_sfxPlayers.length}');
+    for (int i = 0; i < _sfxPlayers.length; i++) {
+      debugPrint('[AUDIO LOG] - SFX Player $i State: ${_sfxPlayers[i].state}');
+    }
+    debugPrint('[AUDIO LOG] ============================================');
+  }
+
+  /// Fuerza la reinicialización completa del AudioService
+  /// Útil cuando el audio deja de funcionar después de algunos minutos
+  /// O cuando el usuario cambia configuración de sonido del sistema
+  Future<void> forceReinitialize() async {
+    debugPrint('[AudioService] 🔧 FORCE REINITIALIZE - Reiniciando sistema de audio...');
+    
+    try {
+      // Detener todo
+      _initialized = false;
+      _isMusicPlaying = false;
+      
+      // Limpiar players
+      try {
+        await _bgmPlayer.stop();
+        await _bgmPlayer.release();
+      } catch (e) {
+        debugPrint('[AudioService] ⚠️ Error deteniendo BGM: $e');
+      }
+      
+      for (var player in _sfxPlayers) {
+        try {
+          await player.stop();
+        } catch (e) {
+          debugPrint('[AudioService] ⚠️ Error deteniendo SFX: $e');
+        }
+      }
+      
+      // Esperar un poco
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // Reinicializar
+      await _ensureInitialized();
+      
+      debugPrint('[AudioService] ✅ FORCE REINITIALIZE completado exitosamente');
+    } catch (e) {
+      debugPrint('[AudioService] ❌ Error en FORCE REINITIALIZE: $e');
+    }
+  }
+
+  /// Diagnóstico específico para Android
+  /// Verifica si el audio está realmente siendo enviado al dispositivo
+  Future<Map<String, dynamic>> getAndroidAudioStatus() async {
+    final status = <String, dynamic>{
+      'initialized': _initialized,
+      'isWeb': _isWeb,
+      'musicEnabled': _musicEnabled,
+      'sfxEnabled': _sfxEnabled,
+      'bgmVolume': _bgmVolume,
+      'sfxVolume': _sfxVolume,
+      'isMusicPlaying': _isMusicPlaying,
+      'bgmPlayerState': _bgmPlayer.state.toString(),
+      'currentTrack': _currentTrack.toString(),
+      'currentBgmPath': _currentBgmPath,
+    };
+    
+    debugPrint('[AudioService] 📊 Status Android: $status');
+    return status;
+  }
 }
+

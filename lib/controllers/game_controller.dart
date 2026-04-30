@@ -1,19 +1,32 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../models/game_state.dart';
+import '../models/player_progress_data.dart';
 import '../models/technique.dart';
 import '../models/sous_chef.dart';
 import '../services/storage_service.dart';
 
 /// Controlador principal del juego que maneja toda la logica de progresion
 /// Utiliza ChangeNotifier para notificar cambios a la UI
+/// 
+/// Inyección de Dependencias:
+/// - StorageService es inyectado en el constructor
+/// - Si no se proporciona, se crea una instancia por defecto
 class GameController extends ChangeNotifier {
-  final StorageService _storageService = StorageService();
+  final StorageService _storageService;
 
-  GameState _gameState = GameState();
+  PlayerProgressData _gameState = PlayerProgressData();
   Timer? _saveTimer;
 
   bool _isInitialized = false;
+
+  /// Constructor con inyección de dependencias
+  /// 
+  /// Parámetro:
+  /// - [storageService]: Servicio de almacenamiento. Si no se proporciona,
+  ///   se crea una instancia por defecto de StorageService()
+  GameController({
+    StorageService? storageService,
+  }) : _storageService = storageService ?? StorageService();
 
   // Getters para acceder al estado del juego
   double get gold => _gameState.gold;
@@ -35,7 +48,7 @@ class GameController extends ChangeNotifier {
   List<SousChef> get sousChefs => _gameState.sousChefs;
 
   bool get isInitialized => _isInitialized;
-  GameState get gameState => _gameState;
+  PlayerProgressData get gameState => _gameState;
 
   /// Inicializa el juego, cargando datos guardados o creando un nuevo juego
   Future<void> initialize() async {
@@ -60,8 +73,8 @@ class GameController extends ChangeNotifier {
   }
 
   /// Crea el estado inicial del juego con las tecnicas predefinidas
-  GameState _createInitialGameState() {
-    return GameState(
+  PlayerProgressData _createInitialGameState() {
+    return PlayerProgressData(
       // Stats iniciales del Chef
       baseDamage: 10.0,
       attackSpeed: 1.0,
@@ -125,6 +138,12 @@ class GameController extends ChangeNotifier {
   /// Anade fragmentos de cuchillo (llamado cuando derrota jefes)
   void addKnifeFragments(int amount) {
     _gameState.knifeFragments += amount;
+    notifyListeners();
+  }
+
+  /// Anade enemigos derrotados al contador total
+  void addEnemiesDefeated(int amount) {
+    _gameState.enemiesDefeated += amount;
     notifyListeners();
   }
 
@@ -379,6 +398,9 @@ class GameController extends ChangeNotifier {
     await _storageService.saveGameState(_gameState);
     debugPrint('Juego guardado');
   }
+
+  /// Alias para saveGame() - usado por SessionSyncService
+  Future<void> saveGameState() => saveGame();
 
   /// Reinicia el juego (borra todo el progreso)
   Future<void> resetGame() async {

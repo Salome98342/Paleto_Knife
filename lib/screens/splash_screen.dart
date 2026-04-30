@@ -108,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
   /// Widget del logo
   Widget _buildLogo() {
     return Image.asset(
-      'assets/jimmy_logo.png',
+      'lib/assets/jimmy_logo.png',
       width: 200,
       height: 200,
       fit: BoxFit.contain,

@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../controllers/economy_controller.dart';
 import '../widgets/retro_style.dart';
+import '../services/audio_service.dart';
 
 class QuestsView extends StatefulWidget {
   const QuestsView({super.key});
@@ -38,6 +39,7 @@ class _QuestsViewState extends State<QuestsView> {
                   size: 8,
                   color: Colors.grey,
                 ),
+                onTap: (_) => AudioService.instance.playClickSound(),
                 tabs: const [
                   Tab(text: "RETOS DIARIOS"),
                   Tab(text: "SEMANALES"),

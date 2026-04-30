@@ -1,0 +1,893 @@
+================================================================================
+                    PALETO KNIFE - CATÁLOGO DE ENEMIGOS Y JEFES
+================================================================================
+
+ÍNDICE DE CONTENIDOS:
+1. Tipos de Comportamiento
+2. Tipos de Patrones de Ataque
+3. ENEMIGOS POR REGIÓN
+   - Asia (Tierra)
+   - Caribe (Fuego)
+   - Europa (Agua)
+4. JEFES
+5. ENEMIGOS GENÉRICOS/FALLBACK
+
+================================================================================
+                      1. TIPOS DE COMPORTAMIENTO DISPONIBLES
+================================================================================
+
+Los enemigos pueden tener los siguientes comportamientos de movimiento:
+
+1. CHASE (Persecución)
+   - Sigue directamente al jugador
+   - Distancia mínima preferida: Ninguna
+
+2. KEEP_DISTANCE (Mantén Distancia)
+   - Mantiene una distancia específica del jugador
+   - Se aleja si el jugador se acerca demasiado
+   - Preferencia de distancia: Variable (100-250px)
+
+3. WANDER (Deambular)
+   - Movimiento errático y aleatorio
+   - A veces se acerca, a veces se aleja
+   - Impredecible e irregular
+
+4. CIRCLE_PLAYER (Orbita)
+   - Orbita alrededor del jugador en círculos
+   - Mantiene una distancia preferida
+   - Movimiento táctico y preciso
+
+5. STATIONARY (Estático)
+   - No se mueve, permanece en posición
+   - Poco usado (solo fallback)
+
+================================================================================
+                     2. TIPOS DE PATRONES DE ATAQUE
+================================================================================
+
+1. STRAIGHT (Directo)
+   - Un único proyectil o pequeño grupo hacia abajo/frente
+   - Patrón simple y directo
+   - Cooldown variable
+
+2. SPREAD (Abanico)
+   - Abanico de proyectiles en cone
+   - Ángulo de apertura variable (typically 45-90 grados)
+   - Ideal para mantener distancia
+
+3. RADIAL (Radial - Círculo)
+   - Círculo completo de proyectiles en todas direcciones
+   - Muy peligroso por su cobertura
+   - Cooldown más largo por compensación
+
+4. AIMED (Dirigido)
+   - Apunta directamente al jugador
+   - Muy preciso
+   - Requiere esquivar activa
+   - Típicamente cooldown más corto
+
+================================================================================
+                      3. ENEMIGOS POR REGIÓN
+================================================================================
+
+🌏 REGIÓN ASIA - ELEMENTO TIERRA
+================================================================================
+Archivo: lib/game_logic/enemy_system/enemy_types.dart
+Factory: lib/game_logic/enemy_system/enemy_factory.dart
+
+┌─ DUMPLING COLOSO (TANK)
+│  ID en Código: 'dumpling_coloso'
+│  Archivo Definición: enemy_types.dart (línea ~142)
+│  Nombre: Dumpling Coloso
+│  Descripción: Masa ancestral endurecida por siglos
+│  Lore: Un dumpling que se convirtió en una colación gigante y mineral tras siglos en la tierra
+│  Elemento: Tierra (Earth)
+│  Rol: TANK (Resistente)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 150.0 HP
+│  - Velocidad: 80.0 px/s
+│  - Comportamiento: KEEP_DISTANCE (mantiene ~150px de distancia)
+│  
+│  ATAQUE:
+│  - Tipo: STRAIGHT (proyectil directo)
+│  - Cooldown: 2.0 segundos
+│  - Velocidad Proyectil: 150.0 px/s
+│  - Daño Proyectil: 12.0
+│  - Cantidad: 2 proyectiles por ataque
+│  
+│  VISUAL: Gigante, agrietado, con vapor interno
+│  CONTRA EFECTIVO: 🔥 Fuego, 🌋 Lava, 🌱 Planta
+└─
+
+┌─ GYOZA ERRANTE (GRUNT)
+│  ID en Código: 'gyoza_errante'
+│  Archivo: enemy_types.dart (línea ~163)
+│  Nombre: Gyoza Errante
+│  Descripción: Comida olvidada que cobró vida
+│  Lore: Un gyoza abandonado en las calles de un templo antiguo
+│  Elemento: Tierra
+│  Rol: GRUNT (Enemigo Básico)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 25.0 HP
+│  - Velocidad: 180.0 px/s (rápido)
+│  - Comportamiento: CHASE (persigue al jugador)
+│  
+│  ATAQUE:
+│  - Tipo: AIMED (dirigido al jugador)
+│  - Cooldown: 0.7 segundos (frecuente)
+│  - Velocidad Proyectil: 250.0 px/s
+│  - Daño: 4.0
+│  - Cantidad: 1 proyectil
+│  
+│  VISUAL: Pequeño, saltarín, con expresión de sorpresa
+│  CONTRA EFECTIVO: 🔥 Fuego
+└─
+
+┌─ BOLA DE HARINA MALDITA (SWARM)
+│  ID en Código: 'bola_harina_maldita'
+│  Archivo: enemy_types.dart (línea ~180)
+│  Nombre: Bola de Harina Maldita
+│  Descripción: Fragmentos de masa corrupta
+│  Lore: Formaciones de masa que se mueven de forma sincronizada
+│  Elemento: Tierra
+│  Rol: SWARM (Enjambre)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 8.0 HP (muy frágil)
+│  - Velocidad: 120.0 px/s
+│  - Aceleración: 40.0
+│  - Comportamiento: WANDER (deambula aleatoriamente)
+│  
+│  ATAQUE:
+│  - Tipo: RADIAL (círculo completo)
+│  - Cooldown: 1.2 segundos
+│  - Velocidad Proyectil: 200.0 px/s
+│  - Daño: 2.0 (bajo)
+│  - Cantidad: 4 proyectiles
+│  
+│  VISUAL: Múltiples esferas pequeñas girando
+│  CONTRA EFECTIVO: 💨 Viento
+└─
+
+┌─ TÓTEM DE VAPOR (SHOOTER)
+│  ID en Código: 'totem_vapor'
+│  Archivo: enemy_types.dart (línea ~200)
+│  Nombre: Tótem de Vapor
+│  Descripción: Utensilios poseídos
+│  Lore: Un bambú y herramientas de cocina poseídas por espíritus
+│  Elemento: Tierra
+│  Rol: SHOOTER (Disparador)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 40.0 HP
+│  - Velocidad: 100.0 px/s
+│  - Comportamiento: KEEP_DISTANCE (~250px)
+│  
+│  ATAQUE:
+│  - Tipo: SPREAD (abanico)
+│  - Cooldown: 1.5 segundos
+│  - Velocidad Proyectil: 280.0 px/s
+│  - Daño: 6.0
+│  - Cantidad: 5 proyectiles
+│  - Ángulo Apertura: 45.0 grados
+│  
+│  VISUAL: Columna de bambú con vapor saliendo
+│  CONTRA EFECTIVO: 🔥 Fuego
+└─
+
+┌─ RAÍZ HEREJE (ELITE)
+│  ID en Código: 'raiz_hereje'
+│  Archivo: enemy_types.dart (línea ~220)
+│  Nombre: Raíz Hereje
+│  Descripción: Raíces que cazan
+│  Lore: Raíces antiguas que adquirieron inteligencia maligna
+│  Elemento: Tierra
+│  Rol: ELITE (Élite)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 120.0 HP
+│  - Velocidad: 140.0 px/s
+│  - Comportamiento: CIRCLE_PLAYER (órbita a ~120px)
+│  
+│  ATAQUE:
+│  - Tipo: AIMED (dirigido)
+│  - Cooldown: 0.6 segundos (muy frecuente)
+│  - Velocidad Proyectil: 320.0 px/s (rápido)
+│  - Daño: 9.0 (alto)
+│  - Cantidad: 2 proyectiles
+│  
+│  VISUAL: Raíces retorcidas y biomórficas
+│  CONTRA EFECTIVO: 🔥 Fuego, 🌋 Lava
+└─
+
+
+🌊 REGIÓN CARIBE - ELEMENTO FUEGO
+================================================================================
+Archivo: lib/game_logic/enemy_system/enemy_types.dart
+
+┌─ JERK INFERNAL (BRUISER)
+│  ID en Código: 'jerk_infernal'
+│  Archivo: enemy_types.dart (línea ~241)
+│  Nombre: Jerk Infernal
+│  Descripción: Bestia volcánica
+│  Lore: Un pollo cocinado a fuego obsceno que cobró vida
+│  Elemento: Fuego
+│  Rol: BRUISER (Acometedor)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 90.0 HP
+│  - Velocidad: 170.0 px/s
+│  - Comportamiento: CHASE (persigue agresivamente)
+│  
+│  ATAQUE:
+│  - Tipo: STRAIGHT (directo)
+│  - Cooldown: 0.9 segundos
+│  - Velocidad Proyectil: 280.0 px/s
+│  - Daño: 8.0
+│  - Cantidad: 1 proyectil
+│  
+│  VISUAL: Pollo en llamas, humeante, agresivo
+│  CONTRA EFECTIVO: 💧 Agua
+└─
+
+┌─ BRASA VIVA (SWARM)
+│  ID en Código: 'brasa_viva'
+│  Archivo: enemy_types.dart (línea ~260)
+│  Nombre: Brasa Viva
+│  Descripción: Chispas vivientes
+│  Lore: Chispas de fuego que adquirieron consciencia
+│  Elemento: Fuego
+│  Rol: SWARM (Enjambre)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 12.0 HP
+│  - Velocidad: 150.0 px/s
+│  - Aceleración: 60.0
+│  - Comportamiento: WANDER (movimiento errático)
+│  
+│  ATAQUE:
+│  - Tipo: RADIAL (círculo)
+│  - Cooldown: 1.0 segundos
+│  - Velocidad Proyectil: 220.0 px/s
+│  - Daño: 3.0
+│  - Cantidad: 6 proyectiles
+│  
+│  VISUAL: Pequeñas esferas de fuego flotando
+│  CONTRA EFECTIVO: 💨 Viento, 💧 Agua
+└─
+
+┌─ PARRILLERO MALDITO (SHOOTER)
+│  ID en Código: 'parrillero_maldito'
+│  Archivo: enemy_types.dart (línea ~280)
+│  Nombre: Parrillero Maldito
+│  Descripción: Cocinero poseído
+│  Lore: Un cocinero de carne poseído por fuegos infernales
+│  Elemento: Fuego
+│  Rol: SHOOTER (Disparador)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 60.0 HP
+│  - Velocidad: 110.0 px/s
+│  - Comportamiento: KEEP_DISTANCE (~200px)
+│  
+│  ATAQUE:
+│  - Tipo: SPREAD (abanico)
+│  - Cooldown: 1.3 segundos
+│  - Velocidad Proyectil: 300.0 px/s
+│  - Daño: 7.0
+│  - Cantidad: 4 proyectiles
+│  - Ángulo Apertura: 50.0 grados
+│  
+│  VISUAL: Figura negra con brasas en el cuerpo
+│  CONTRA EFECTIVO: 💧 Agua
+└─
+
+┌─ BESTIA AHUMADA (TANK)
+│  ID en Código: 'bestia_ahumada'
+│  Archivo: enemy_types.dart (línea ~300)
+│  Nombre: Bestia Ahumada
+│  Descripción: Carne endurecida
+│  Lore: Carne asada que se endureció y cobró vida
+│  Elemento: Fuego
+│  Rol: TANK (Resistente)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 140.0 HP
+│  - Velocidad: 90.0 px/s
+│  - Comportamiento: KEEP_DISTANCE (~180px)
+│  
+│  ATAQUE:
+│  - Tipo: STRAIGHT (directo)
+│  - Cooldown: 1.8 segundos
+│  - Velocidad Proyectil: 200.0 px/s
+│  - Daño: 11.0
+│  - Cantidad: 2 proyectiles
+│  
+│  VISUAL: Masa oscura y ondulante de carne
+│  CONTRA EFECTIVO: 💧 Agua, 🌱 Planta
+└─
+
+┌─ ESPÍRITU PICANTE (ELITE)
+│  ID en Código: 'espiritu_picante'
+│  Archivo: enemy_types.dart (línea ~320)
+│  Nombre: Espíritu Picante
+│  Descripción: Esencia ardiente
+│  Lore: La personificación del calor y el picante
+│  Elemento: Fuego
+│  Rol: ELITE (Élite)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 110.0 HP
+│  - Velocidad: 160.0 px/s
+│  - Comportamiento: CIRCLE_PLAYER (órbita a ~140px)
+│  
+│  ATAQUE:
+│  - Tipo: RADIAL (círculo)
+│  - Cooldown: 0.8 segundos (muy frecuente)
+│  - Velocidad Proyectil: 300.0 px/s
+│  - Daño: 8.0
+│  - Cantidad: 8 proyectiles (peligroso)
+│  
+│  VISUAL: Silueta de fuego puro, incandescente
+│  CONTRA EFECTIVO: 💧 Agua, 💨 Viento
+└─
+
+
+🌿 REGIÓN EUROPA - ELEMENTO AGUA
+================================================================================
+Archivo: lib/game_logic/enemy_system/enemy_types.dart
+
+┌─ SOPA ABISAL (SWARM)
+│  ID en Código: 'sopa_abisal'
+│  Archivo: enemy_types.dart (línea ~341)
+│  Nombre: Sopa Abisal
+│  Descripción: Océano corrupto
+│  Lore: Gota de océano profundo que dejó de ser singular
+│  Elemento: Agua
+│  Rol: SWARM (Enjambre)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 15.0 HP
+│  - Velocidad: 140.0 px/s
+│  - Aceleración: 50.0
+│  - Comportamiento: WANDER (movimiento errático)
+│  
+│  ATAQUE:
+│  - Tipo: STRAIGHT (directo)
+│  - Cooldown: 1.1 segundos
+│  - Velocidad Proyectil: 240.0 px/s
+│  - Daño: 3.5
+│  - Cantidad: 1 proyectil
+│  
+│  VISUAL: Gotas azules brillantes moviéndose juntas
+│  CONTRA EFECTIVO: 🌱 Planta, 💨 Viento
+└─
+
+┌─ LANCERO DE CALDO (SHOOTER)
+│  ID en Código: 'lancero_caldo'
+│  Archivo: enemy_types.dart (línea ~361)
+│  Nombre: Lancero de Caldo
+│  Descripción: Guerrero de agua
+│  Lore: Un caldo que aprendió a arrojar proyectiles como lanzas
+│  Elemento: Agua
+│  Rol: SHOOTER (Disparador)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 45.0 HP
+│  - Velocidad: 120.0 px/s
+│  - Comportamiento: KEEP_DISTANCE (~220px)
+│  
+│  ATAQUE:
+│  - Tipo: AIMED (dirigido)
+│  - Cooldown: 1.4 segundos
+│  - Velocidad Proyectil: 290.0 px/s
+│  - Daño: 6.5
+│  - Cantidad: 2 proyectiles
+│  
+│  VISUAL: Columna de agua con forma humanoid
+│  CONTRA EFECTIVO: 🌳 Árbol/Planta
+└─
+
+┌─ MASA FLUVIAL (GRUNT)
+│  ID en Código: 'masa_fluvial'
+│  Archivo: enemy_types.dart (línea ~381)
+│  Nombre: Masa Fluvial
+│  Descripción: Agua corriente corrupta
+│  Lore: Agua de río que desarrolló su propia voluntad
+│  Elemento: Agua
+│  Rol: GRUNT (Enemigo Básico)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 30.0 HP
+│  - Velocidad: 160.0 px/s
+│  - Comportamiento: CHASE (persigue al jugador)
+│  
+│  ATAQUE:
+│  - Tipo: STRAIGHT (directo)
+│  - Cooldown: 0.8 segundos
+│  - Velocidad Proyectil: 260.0 px/s
+│  - Daño: 5.0
+│  - Cantidad: 1 proyectil
+│  
+│  VISUAL: Onda de agua fluyendo
+│  CONTRA EFECTIVO: 🌳 Árbol/Planta
+└─
+
+┌─ GÓLEM DE SALMUERA (TANK)
+│  ID en Código: 'golem_salmuera'
+│  Archivo: enemy_types.dart (línea ~401)
+│  Nombre: Gólem de Salmuera
+│  Descripción: Agua cristalizada
+│  Lore: Agua salada que se solidificó en forma de guardian
+│  Elemento: Agua
+│  Rol: TANK (Resistente)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 160.0 HP (muy resistente)
+│  - Velocidad: 70.0 px/s (lento)
+│  - Comportamiento: KEEP_DISTANCE (~200px)
+│  
+│  ATAQUE:
+│  - Tipo: RADIAL (círculo)
+│  - Cooldown: 2.2 segundos (lento)
+│  - Velocidad Proyectil: 180.0 px/s
+│  - Daño: 10.0
+│  - Cantidad: 3 proyectiles
+│  
+│  VISUAL: Cubo translúcido de agua congelada
+│  CONTRA EFECTIVO: 🌱 Planta, 🌋 Lava
+└─
+
+┌─ DRUIDA CORRUPTO (ELITE)
+│  ID en Código: 'druida_corrupto'
+│  Archivo: enemy_types.dart (línea ~422)
+│  Nombre: Druida Corrupto
+│  Descripción: Guardián del agua oscura
+│  Lore: Un protector del río que fue corrompido por fuerzas obscuras
+│  Elemento: Agua
+│  Rol: ELITE (Élite)
+│  
+│  ESTADÍSTICAS:
+│  - Vida Base: 130.0 HP
+│  - Velocidad: 150.0 px/s
+│  - Comportamiento: CIRCLE_PLAYER (órbita a ~160px)
+│  
+│  ATAQUE:
+│  - Tipo: SPREAD (abanico)
+│  - Cooldown: 1.0 segundos
+│  - Velocidad Proyectil: 310.0 px/s
+│  - Daño: 8.5
+│  - Cantidad: 5 proyectiles
+│  - Ángulo Apertura: 60.0 grados
+│  
+│  VISUAL: Figura de ramas y agua moviéndose en sincronía
+│  CONTRA EFECTIVO: 🔥 Fuego
+└─
+
+
+================================================================================
+                              4. JEFES (BOSSES)
+================================================================================
+Archivo Principal: lib/game_logic/boss_system/boss_catalog.dart
+Related: lib/game_logic/boss_system/boss_phase.dart
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ JEFE 1: GRAN DUMPLING ANCESTRAL (BOSS DE ASIA - TIERRA)
+├─────────────────────────────────────────────────────────────────────────────┤
+│
+│  ID en Código: 'gran_dumpling_ancestral'
+│  Archivo Definición: boss_catalog.dart (método _createGranDumplingAncestral)
+│  Nombre: Gran Dumpling Ancestral
+│  Elemento: Tierra
+│  Vida Total: 500.0 HP
+│
+│  COUNTERS EFECTIVOS: 🔥 Fuego, 🌋 Lava, 🌱 Planta
+│
+│  ┌─ FASE 1: INVOCACIÓN (100% - 70% HP)
+│  │  Descripción: Se posiciona y comienza a invocar espíritus
+│  │  Multiplicador Ataque: 1.0x
+│  │  Velocidad Movimiento: 100.0 px/s
+│  │  Comportamiento: KEEP_DISTANCE (mantiene ~150px)
+│  │  
+│  │  Patrón Ataque:
+│  │  - Tipo: STRAIGHT (proyectil directo)
+│  │  - Cooldown: 1.5 segundos
+│  │  - Velocidad Proyectil: 200.0 px/s
+│  │  - Daño por Proyectil: 15.0
+│  │  - Cantidad: 2 proyectiles
+│  │
+│  │  RIESGO: Bajo
+│  └─
+
+│  ┌─ FASE 2: ARMADURA (70% - 30% HP)
+│  │  Descripción: Se endurece y ataca más frecuentemente
+│  │  Multiplicador Ataque: 1.5x (ataque más fuerte/rápido)
+│  │  Velocidad Movimiento: 120.0 px/s
+│  │  Comportamiento: KEEP_DISTANCE (mantiene ~120px)
+│  │  
+│  │  Patrón Ataque:
+│  │  - Tipo: SPREAD (abanico)
+│  │  - Cooldown: 1.0 segundos
+│  │  - Velocidad Proyectil: 250.0 px/s
+│  │  - Daño por Proyectil: 18.0
+│  │  - Cantidad: 4 proyectiles
+│  │  - Ángulo Apertura: 60.0 grados
+│  │
+│  │  RIESGO: Medio
+│  └─
+
+│  ┌─ FASE 3: DESPERTAR TOTAL (30% - 0% HP)
+│  │  Descripción: Genera ondas de choque devastadoras
+│  │  Multiplicador Ataque: 2.0x (doble daño/frecuencia)
+│  │  Velocidad Movimiento: 150.0 px/s
+│  │  Comportamiento: CIRCLE_PLAYER (órbita a ~100px)
+│  │  
+│  │  Patrón Ataque Principal:
+│  │  - Tipo: RADIAL (círculo completo)
+│  │  - Cooldown: 0.7 segundos
+│  │  - Velocidad Proyectil: 300.0 px/s
+│  │  - Daño por Proyectil: 20.0
+│  │  - Cantidad: 8 proyectiles
+│  │
+│  │  Patrón Ataque Secundario:
+│  │  - Tipo: AIMED (dirigido al jugador)
+│  │  - Cooldown: 0.5 segundos
+│  │  - Velocidad Proyectil: 280.0 px/s
+│  │  - Daño por Proyectil: 16.0
+│  │  - Cantidad: 1 proyectil
+│  │
+│  │  RIESGO: Muy Alto - Múltiples patrones simultáneos
+│  └─
+│
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ JEFE 2: REY JERK VOLCÁNICO (BOSS DEL CARIBE - FUEGO)
+├─────────────────────────────────────────────────────────────────────────────┤
+│
+│  ID en Código: 'rey_jerk_volcanico'
+│  Archivo Definición: boss_catalog.dart (método _createReyJerkVolcanico)
+│  Nombre: Rey Jerk Volcánico
+│  Elemento: Fuego
+│  Vida Total: 480.0 HP
+│
+│  COUNTERS EFECTIVOS: 💧 Agua, 💨 Viento
+│
+│  ┌─ FASE 1: FURIA (100% - 60% HP)
+│  │  Descripción: Se acerca y ataca directamente
+│  │  Multiplicador Ataque: 1.0x
+│  │  Velocidad Movimiento: 160.0 px/s
+│  │  Comportamiento: CHASE (persigue agresivamente)
+│  │  
+│  │  Patrón Ataque:
+│  │  - Tipo: STRAIGHT (proyectil directo)
+│  │  - Cooldown: 0.8 segundos
+│  │  - Velocidad Proyectil: 320.0 px/s (muy rápido)
+│  │  - Daño por Proyectil: 17.0
+│  │  - Cantidad: 1 proyectil
+│  │
+│  │  RIESGO: Medio-Alto (persecución constante)
+│  └─
+
+│  ┌─ FASE 2: INFERNO (60% - 30% HP)
+│  │  Descripción: Lanza torrentes de fuego
+│  │  Multiplicador Ataque: 1.4x
+│  │  Velocidad Movimiento: 140.0 px/s
+│  │  Comportamiento: KEEP_DISTANCE (mantiene ~180px)
+│  │  
+│  │  Patrón Ataque:
+│  │  - Tipo: SPREAD (abanico ancho)
+│  │  - Cooldown: 1.1 segundos
+│  │  - Velocidad Proyectil: 280.0 px/s
+│  │  - Daño por Proyectil: 19.0
+│  │  - Cantidad: 6 proyectiles
+│  │  - Ángulo Apertura: 70.0 grados (muy ancho)
+│  │
+│  │  RIESGO: Alto (cobertura amplia)
+│  └─
+
+│  ┌─ FASE 3: COMBUSTIÓN TOTAL (30% - 0% HP)
+│  │  Descripción: Explosiones simultáneas
+│  │  Multiplicador Ataque: 1.8x
+│  │  Velocidad Movimiento: 170.0 px/s
+│  │  Comportamiento: CIRCLE_PLAYER (órbita a ~140px)
+│  │  
+│  │  Patrón Ataque Principal:
+│  │  - Tipo: RADIAL (círculo completo)
+│  │  - Cooldown: 0.6 segundos (muy frecuente)
+│  │  - Velocidad Proyectil: 260.0 px/s
+│  │  - Daño por Proyectil: 22.0 (alto daño)
+│  │  - Cantidad: 10 proyectiles
+│  │
+│  │  Patrón Ataque Secundario:
+│  │  - Tipo: AIMED (dirigido al jugador)
+│  │  - Cooldown: 0.8 segundos
+│  │  - Velocidad Proyectil: 300.0 px/s
+│  │  - Daño por Proyectil: 18.0
+│  │  - Cantidad: 2 proyectiles
+│  │
+│  │  RIESGO: Muy Alto - Ataques simultáneos constantes
+│  └─
+│
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ JEFE 3: LEVIATÁN DE CALDO (BOSS DE EUROPA - AGUA)
+├─────────────────────────────────────────────────────────────────────────────┤
+│
+│  ID en Código: 'leviathan_caldo'
+│  Archivo Definición: boss_catalog.dart (método _createLeviathan)
+│  Nombre: Leviatán de Caldo
+│  Elemento: Agua
+│  Vida Total: 520.0 HP (más resistente de los 3 jefes)
+│
+│  COUNTERS EFECTIVOS: 🌱 Planta, 🌋 Lava
+│
+│  ┌─ FASE 1: MAREAS (100% - 65% HP)
+│  │  Descripción: Lanza ondas de agua controladas
+│  │  Multiplicador Ataque: 0.9x (ataque más lento al inicio)
+│  │  Velocidad Movimiento: 110.0 px/s
+│  │  Comportamiento: KEEP_DISTANCE (mantiene ~170px)
+│  │  
+│  │  Patrón Ataque:
+│  │  - Tipo: STRAIGHT (proyectiles directos)
+│  │  - Cooldown: 2.0 segundos (lento)
+│  │  - Velocidad Proyectil: 220.0 px/s
+│  │  - Daño por Proyectil: 16.0
+│  │  - Cantidad: 3 proyectiles
+│  │
+│  │  RIESGO: Bajo-Medio (ataque lento, mucho tiempo para esquivar)
+│  └─
+
+│  ┌─ FASE 2: FRAGMENTACIÓN (65% - 30% HP)
+│  │  Descripción: Se divide en múltiples partes que atacan
+│  │  Multiplicador Ataque: 1.3x
+│  │  Velocidad Movimiento: 130.0 px/s
+│  │  Aceleración: 60.0
+│  │  Comportamiento: WANDER (movimiento errático)
+│  │  
+│  │  Patrón Ataque:
+│  │  - Tipo: SPREAD (abanico)
+│  │  - Cooldown: 1.2 segundos
+│  │  - Velocidad Proyectil: 270.0 px/s
+│  │  - Daño por Proyectil: 17.0
+│  │  - Cantidad: 5 proyectiles
+│  │  - Ángulo Apertura: 50.0 grados
+│  │
+│  │  RIESGO: Alto (patrón impredecible + múltiples proyectiles)
+│  └─
+
+│  ┌─ FASE 3: DILUVIO (30% - 0% HP)
+│  │  Descripción: Lluvia de proyectiles en todas direcciones
+│  │  Multiplicador Ataque: 1.7x
+│  │  Velocidad Movimiento: 150.0 px/s
+│  │  Comportamiento: CIRCLE_PLAYER (órbita a ~130px)
+│  │  
+│  │  Patrón Ataque Principal:
+│  │  - Tipo: RADIAL (círculo completo)
+│  │  - Cooldown: 0.7 segundos
+│  │  - Velocidad Proyectil: 290.0 px/s
+│  │  - Daño por Proyectil: 20.0
+│  │  - Cantidad: 12 proyectiles (peligrosísimo)
+│  │
+│  │  Patrón Ataque Secundario:
+│  │  - Tipo: SPREAD (abanico)
+│  │  - Cooldown: 1.0 segundos
+│  │  - Velocidad Proyectil: 250.0 px/s
+│  │  - Daño por Proyectil: 15.0
+│  │  - Cantidad: 6 proyectiles
+│  │  - Ángulo Apertura: 80.0 grados
+│  │
+│  │  RIESGO: Crítico - Lluvia constante de proyectiles
+│  └─
+│
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                      5. ENEMIGOS GENÉRICOS / FALLBACK
+================================================================================
+Archivo: lib/game_logic/enemy_system/enemy_types.dart
+Nota: Estos se usan como fallback/genéricos durante desarrollo
+
+┌─ GRUNT (Genérico)
+│  ID en Código: 'grunt'
+│  Rol: GRUNT (Enemigo Básico)
+│  Descripción: Enemigo básico agresivo
+│  Lore: Enemigo común sin historia especial
+│  
+│  - Vida Base: 20.0 HP
+│  - Velocidad: 150.0 px/s
+│  - Comportamiento: CHASE
+│  - Ataque: STRAIGHT, cooldown 0.8s, 5.0 daño, 1 proyectil
+│  - Elemento: Neutral
+└─
+
+┌─ SHOOTER (Genérico)
+│  ID en Código: 'shooter'
+│  Rol: SHOOTER (Disparador)
+│  Descripción: Mantiene distancia y dispara con precisión
+│  Lore: Enemigo genérico tipo disparador
+│  
+│  - Vida Base: 15.0 HP
+│  - Velocidad: 100.0 px/s
+│  - Comportamiento: KEEP_DISTANCE (~250px)
+│  - Ataque: AIMED, cooldown 1.2s, 8.0 daño, 1 proyectil
+│  - Elemento: Neutral
+└─
+
+┌─ SWARM (Genérico)
+│  ID en Código: 'swarm'
+│  Rol: SWARM (Enjambre)
+│  Descripción: Pequeños enemigos rápidos que aparecen en grupos
+│  Lore: Enemigo genérico tipo enjambre
+│  
+│  - Vida Base: 5.0 HP
+│  - Velocidad: 200.0 px/s
+│  - Aceleración: 80.0
+│  - Comportamiento: WANDER
+│  - Ataque: STRAIGHT, cooldown 2.0s, 2.0 daño, 1 proyectil
+│  - Elemento: Neutral
+└─
+
+┌─ TANK (Genérico)
+│  ID en Código: 'tank'
+│  Rol: TANK (Resistente)
+│  Descripción: Tanque lento pero resistente
+│  Lore: Enemigo genérico tipo tanque
+│  
+│  - Vida Base: 60.0 HP
+│  - Velocidad: 80.0 px/s
+│  - Comportamiento: CHASE
+│  - Ataque: SPREAD, cooldown 1.5s, 6.0 daño, 3 proyectiles, 90° abertura
+│  - Elemento: Neutral
+└─
+
+┌─ SNIPER (Genérico)
+│  ID en Código: 'sniper'
+│  Rol: SHOOTER/Francotirador
+│  Descripción: Dispara con precisión desde lejos
+│  Lore: Enemigo genérico tipo francotirador
+│  
+│  - Vida Base: 25.0 HP
+│  - Velocidad: 50.0 px/s
+│  - Comportamiento: CIRCLE_PLAYER (~300px)
+│  - Ataque: AIMED, cooldown 2.0s, 12.0 daño, 1 proyectil
+│  - Elemento: Neutral
+└─
+
+┌─ ELITE (Genérico)
+│  ID en Código: 'elite'
+│  Rol: ELITE (Élite)
+│  Descripción: Grunt mejorado con patrón de ataque complejo
+│  Lore: Enemigo genérico élite
+│  
+│  - Vida Base: 40.0 HP
+│  - Velocidad: 180.0 px/s
+│  - Comportamiento: CHASE
+│  - Ataque: SPREAD, cooldown 0.6s, 7.0 daño, 5 proyectiles, 120° abertura
+│  - Elemento: Neutral
+└─
+
+
+┌─ BOSS ALTERNATIVO 1: EMPEROR DUMPLING (En enemy_types.dart)
+│  ID en Código: 'emperador_dumpling'
+│  Nombre: Emperador Dumpling
+│  Descripción: El soberano ancestral de la tierra
+│  Lore: Legenda cuenta que el primer dumpling que cobró vida ascendió a emperador tras siglos de dominio
+│  Elemento: Tierra
+│  
+│  - Vida Base: 500.0 HP
+│  - Velocidad: 100.0 px/s
+│  - Comportamiento: KEEP_DISTANCE (~200px)
+│  - Ataque: RADIAL, cooldown 1.2s, 15.0 daño, 12 proyectiles
+│  - Rol: BOSS
+└─
+
+┌─ BOSS ALTERNATIVO 2: SOBERANA DEL FUEGO (En enemy_types.dart)
+│  ID en Código: 'soberana_fuego'
+│  Nombre: Soberana del Fuego
+│  Descripción: Reina infernal de los volcanes caribeños
+│  Lore: Emerge del corazón del volcán con furia primigenia acumulada
+│  Elemento: Fuego
+│  
+│  - Vida Base: 480.0 HP
+│  - Velocidad: 130.0 px/s
+│  - Comportamiento: CIRCLE_PLAYER (~180px)
+│  - Ataque: SPREAD, cooldown 1.0s, 16.0 daño, 8 proyectiles, 90° abertura
+│  - Rol: BOSS
+└─
+
+┌─ BOSS ALTERNATIVO 3: GUARDIÁN DE HIELO (En enemy_types.dart)
+│  ID en Código: 'guardian_hielo'
+│  Nombre: Guardián de Hielo
+│  Descripción: Centinela eterno de los picos nevados
+│  Lore: Manifestación del frío absoluto que protege los secretos de la montaña
+│  Elemento: Agua
+│  
+│  - Vida Base: 520.0 HP
+│  - Velocidad: 120.0 px/s
+│  - Comportamiento: CHASE
+│  - Ataque: AIMED, cooldown 0.8s, 14.0 daño, 3 proyectiles
+│  - Rol: BOSS
+└─
+
+
+================================================================================
+                            RESUMEN GENERAL
+================================================================================
+
+TOTAL DE ENEMIGOS ÚNICOS (con historia): 18
+TOTAL DE ENEMIGOS GENÉRICOS (fallback): 6
+TOTAL DE JEFES IMPLEMENTADOS: 3
+TOTAL DE JEFES ALTERNATIVOS: 3
+
+DISTRIBUCIÓN POR REGIÓN:
+- 🌏 ASIA (Tierra): 5 enemigos únicos + 1 jefe alterativo
+- 🌊 CARIBE (Fuego): 5 enemigos únicos + 1 jefe alternativo
+- 🌿 EUROPA (Agua): 6 enemigos únicos + 1 jefe alternativo
+- Neutral (Genéricos): 6 enemigos sin región
+- Jefes Principales: 3 bosses con fases múltiples
+
+DISTRIBUCIÓN POR ROL:
+- GRUNT: 3 (gyoza_errante, masa_fluvial, + 1 genérico)
+- SWARM: 3 (bola_harina_maldita, brasa_viva, sopa_abisal)
+- SHOOTER: 3 (totem_vapor, parrillero_maldito, lancero_caldo)
+- TANK: 3 (dumpling_coloso, bestia_ahumada, golem_salmuera)
+- BRUISER: 1 (jerk_infernal)
+- ELITE: 3 (raiz_hereje, espiritu_picante, druida_corrupto)
+- BOSS: 3 + 3 alternativos
+
+TIPOS DE PATRONES DE ATAQUE:
+- STRAIGHT: 7 enemigos
+- SPREAD: 7 enemigos
+- RADIAL: 5 enemigos
+- AIMED: 5 enemigos
+
+
+================================================================================
+                           NOTAS TÉCNICAS
+================================================================================
+
+FACTORY PATTERN:
+- Los enemigos se crean mediante EnemyFactory en enemy_factory.dart
+- Reciben ID único formato: 'enemy_{typeId}_{counter}'
+- Se escalan automáticamente por nivel (+ 15% HP por nivel, +10% daño)
+- Se aplica multiplicador de dificultad a todos los stats
+
+ESCALADO:
+- HP Escalado = baseHealth × (1.0 + (nivel-1) × 0.15) × difficultyMultiplier
+- Daño Escalado = bulletDamage × (1.0 + (nivel-1) × 0.1) × difficultyMultiplier
+
+MODELOS DE DATOS:
+- Definiciones: EnemyTypeDefinition en enemy_types.dart
+- Catálogo: EnemyTypesCatalog (registro central)
+- Instancias: Enemy en models/enemy.dart
+- Bosses: Boss en boss.dart, BossPhase en boss_phase.dart
+
+COMPONENTES GRÁFICOS:
+- ComponentEnemy en game/components/component_enemy.dart
+- ComponentBoss en game/components/component_boss.dart
+
+ARCHIVOS CLAVE:
+1. lib/game_logic/enemy_system/enemy_types.dart - Definiciones
+2. lib/game_logic/enemy_system/enemy_factory.dart - Factory de creación
+3. lib/game_logic/enemy_system/attack_pattern.dart - Patrones de ataque
+4. lib/game_logic/enemy_system/enemy_behavior.dart - Comportamientos
+5. lib/game_logic/boss_system/boss_catalog.dart - Catálogo de bosses
+6. lib/game_logic/boss_system/boss.dart - Clase Boss
+7. lib/game_logic/boss_system/boss_phase.dart - Sistema de fases
+8. lib/game/enemies/enemy.dart - Clase Enemy base
+9. lib/game/components/component_enemy.dart - Componente visual
+10. lib/game/components/component_boss.dart - Componente visual boss
+
+================================================================================
+                        FIN DEL DOCUMENTO
+================================================================================
+Generado: Abril 12, 2026
+Versión: 1.0
+Proyecto: Paleto Knife

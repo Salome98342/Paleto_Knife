@@ -8,6 +8,7 @@ import '../services/ad_service.dart';
 import '../services/audio_service.dart';
 import '../controllers/chef_controller.dart';
 import 'gacha_reveal_overlay.dart';
+import 'chest_reward_screen.dart';
 
 class GachaStoreView extends StatelessWidget {
   const GachaStoreView({super.key});
@@ -97,7 +98,7 @@ class GachaStoreView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: RetroStyle.accent.withValues(alpha: 0.2),
                   border: Border.all(color: RetroStyle.accent),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: Row(
                   children: [
@@ -160,7 +161,7 @@ class GachaStoreView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: RetroStyle.accent.withValues(alpha: 0.2),
                   border: Border.all(color: RetroStyle.accent),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.zero,
                 ),
                 child: Row(
                   children: [
@@ -309,7 +310,7 @@ class GachaStoreView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: RetroStyle.accent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0),
+                borderRadius: BorderRadius.zero,
               ),
             ),
             onPressed: () {
@@ -388,7 +389,7 @@ class GachaStoreView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: isRealMoney ? Colors.green : RetroStyle.accent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0),
+                borderRadius: BorderRadius.zero,
               ),
             ),
             onPressed: () {
@@ -491,7 +492,7 @@ class GachaStoreView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: RetroStyle.accent,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0),
+                borderRadius: BorderRadius.zero,
               ),
             ),
             onPressed: () {
@@ -541,38 +542,75 @@ class GachaStoreView extends StatelessWidget {
     required int cost10x,
     required bool isChef,
   }) {
+    final rarityLabel = name.contains('Epico')
+        ? 'EPICO'
+        : name.contains('Raro')
+            ? 'RARO'
+            : 'COMUN';
+    final savings = (cost1x * 10) - cost10x;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.zero,
         gradient: LinearGradient(
           colors: [
-            color.withValues(alpha: 0.8),
-            color.withValues(alpha: 0.3),
-            Colors.black.withValues(alpha: 0.9),
+            color.withValues(alpha: 0.75),
+            color.withValues(alpha: 0.28),
+            const Color(0xFF0D0D0D),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.4),
-            blurRadius: 10,
+            color: color.withValues(alpha: 0.45),
+            blurRadius: 14,
             spreadRadius: 2,
           ),
         ],
-        border: Border.all(color: color, width: 2),
+        border: Border.all(color: color.withValues(alpha: 0.95), width: 2.4),
       ),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: color.withValues(alpha: 0.9), width: 1.2),
+                ),
+                child: Text(
+                  rarityLabel,
+                  style: RetroStyle.font(size: 8, color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.zero,
+                  border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.9), width: 1.1),
+                ),
+                child: Text(
+                  'Ahorro x10: $savings',
+                  style: RetroStyle.font(size: 7, color: Colors.greenAccent),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black45,
+                  borderRadius: BorderRadius.zero,
+                  color: Colors.black.withValues(alpha: 0.45),
                   border: Border.all(color: color, width: 2),
                   boxShadow: [
                     BoxShadow(
@@ -606,6 +644,11 @@ class GachaStoreView extends StatelessWidget {
                           ? "Desbloquea chefs y sus habilidades"
                           : "Forja equipamiento para tu equipo",
                       style: RetroStyle.font(size: 8, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Toca una tirada para abrir cofre animado',
+                      style: RetroStyle.font(size: 7, color: Colors.white54),
                     ),
                   ],
                 ),
@@ -651,6 +694,7 @@ class GachaStoreView extends StatelessWidget {
     String rarityInfo,
     bool isChef,
   ) {
+    final isTenPull = amount.contains('10');
     return GestureDetector(
       onTap: () {
         final eco = context.read<EconomyController>();
@@ -671,34 +715,54 @@ class GachaStoreView extends StatelessWidget {
             eco,
           );
 
-          showDialog(
-            context: context,
-            barrierColor: Colors.black87,
-            barrierDismissible: false,
-            builder: (_) => GachaRevealOverlay(
-              rarityColor: color,
-              rarityName: rarityInfo,
-              results: results,
-            ),
-          );
+          // Mostrar cofre interactivo con los resultados
+          if (results.isNotEmpty) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (ctx) => ChestRewardScreen(
+                  gachaResults: results,
+                  isGachaReward: true,
+                  onRewardAccepted: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            );
+          }
         } else {
           RetroStyle.showInsufficient(context, "GEMAS INSUFICIENTES");
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          gradient: const LinearGradient(
-            colors: [Colors.black87, Colors.black],
+          borderRadius: BorderRadius.zero,
+          gradient: LinearGradient(
+            colors: [
+              color.withValues(alpha: 0.35),
+              Colors.black,
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          border: Border.all(color: color.withValues(alpha: 0.5), width: 1.5),
+          border: Border.all(color: color.withValues(alpha: 0.9), width: 1.6),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.25),
+              blurRadius: 8,
+              spreadRadius: 1,
+            ),
+          ],
         ),
         child: Column(
           children: [
-            Text(amount, style: RetroStyle.font(size: 9, color: Colors.white)),
+            Text(
+              amount,
+              style: RetroStyle.font(
+                size: 9,
+                color: isTenPull ? Colors.yellowAccent : Colors.white,
+              ),
+            ),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -710,6 +774,11 @@ class GachaStoreView extends StatelessWidget {
                 ),
               ],
             ),
+            if (isTenPull)
+              Text(
+                'PULL MASIVO',
+                style: RetroStyle.font(size: 7, color: Colors.greenAccent),
+              ),
           ],
         ),
       ),

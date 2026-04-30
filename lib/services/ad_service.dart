@@ -10,16 +10,16 @@ class AdService {
   AdService._internal();
 
   // =========================
-  // IDS (CAMBIAR EN PRODUCCIÓN)
+  // IDS (GOOGLE TEST - PARA DESARROLLO)
   // =========================
 
-  static const String bannerId = 'ca-app-pub-4429728476735259/7283517276';
-  static const String interstitialId = 'ca-app-pub-4429728476735259/2965324316';
+  static const String bannerId = 'ca-app-pub-3940256099942544/6300978111';
+  static const String interstitialId = 'ca-app-pub-3940256099942544/1033173712';
 
-  static const String rewardedGemasId = 'ca-app-pub-4429728476735259/2299313168';
-  static const String rewardedMonedasId = 'ca-app-pub-4429728476735259/5695429435';
-  static const String rewardedRevivirId = 'ca-app-pub-4429728476735259/4382347765';
-  static const String rewardedGachaId = 'ca-app-pub-4429728476735259/6761302358';
+  static const String rewardedGemasId = 'ca-app-pub-3940256099942544/5224354917';
+  static const String rewardedMonedasId = 'ca-app-pub-3940256099942544/5224354917';
+  static const String rewardedRevivirId = 'ca-app-pub-3940256099942544/5224354917';
+  static const String rewardedGachaId = 'ca-app-pub-3940256099942544/5224354917';
 
   // =========================
   // INSTANCIAS

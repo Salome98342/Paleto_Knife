@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/game_state.dart';
+import '../models/player_progress_data.dart';
 
 /// Servicio para manejar la persistencia de datos del juego
 /// Utiliza SharedPreferences para guardar el progreso localmente
@@ -8,7 +8,7 @@ class StorageService {
   static const String _gameStateKey = 'knife_clicker_game_state';
 
   /// Guarda el estado del juego en el almacenamiento local
-  Future<bool> saveGameState(GameState gameState) async {
+  Future<bool> saveGameState(PlayerProgressData gameState) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = jsonEncode(gameState.toJson());
@@ -20,7 +20,7 @@ class StorageService {
   }
 
   /// Carga el estado del juego desde el almacenamiento local
-  Future<GameState?> loadGameState() async {
+  Future<PlayerProgressData?> loadGameState() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_gameStateKey);
@@ -30,7 +30,7 @@ class StorageService {
       }
 
       final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
-      return GameState.fromJson(jsonMap);
+      return PlayerProgressData.fromJson(jsonMap);
     } catch (e) {
       print('Error cargando el estado del juego: $e');
       return null;

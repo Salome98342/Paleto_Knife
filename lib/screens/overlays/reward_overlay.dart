@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../game_logic/game_state.dart';
 import '../../game_logic/reward_system.dart';
+import '../../ui/theme/paleto_colors.dart';
+import '../../widgets/retro/retro_button.dart';
 
 /// Overlay de Recompensas Post-Partida
 ///
@@ -88,7 +90,7 @@ class _RewardOverlayState extends State<RewardOverlay>
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF1A1A2E).withOpacity(0.97),
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.zero,
                   border: Border.all(
                     color: const Color(0xFFFFD700),
                     width: 2,
@@ -163,37 +165,18 @@ class _RewardOverlayState extends State<RewardOverlay>
                               ? Tween<double>(begin: 1.0, end: 1.15)
                                   .animate(_animationController)
                               : AlwaysStoppedAnimation(1.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _animateDoubleReward();
-                              widget.rewardSystem.attemptDoubleReward();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF6B00),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              elevation: 8,
-                              shadowColor: const Color(0xFFFF6B00),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.tv, size: 16),
-                                SizedBox(width: 6),
-                                Text(
-                                  'x2 Recompensa',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: RetroButton(
+                              label: 'x2 Recompensa',
+                              onPressed: () {
+                                _animateDoubleReward();
+                                widget.rewardSystem.attemptDoubleReward();
+                              },
+                              baseColor: const Color(0xFFFF6B00),
+                              lightBorder: const Color(0xFFFF9A52),
+                              darkBorder: const Color(0xFF7A2D00),
+                              icon: const Icon(Icons.tv, size: 16, color: Colors.white),
                             ),
                           ),
                         ),
@@ -209,7 +192,7 @@ class _RewardOverlayState extends State<RewardOverlay>
                               color: const Color(0xFF00FF00),
                               width: 2,
                             ),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.zero,
                           ),
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -238,32 +221,16 @@ class _RewardOverlayState extends State<RewardOverlay>
                       // 👉 BOTÓN CONTINUAR
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: RetroButton(
+                          label: 'Continuar',
                           onPressed: () {
                             _animationController.reverse().then((_) {
                               widget.onClose();
                             });
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00AA00),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            elevation: 6,
-                            shadowColor: const Color(0xFF00AA00),
-                          ),
-                          child: const Text(
-                            'Continuar',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          baseColor: PaletoColors.btnSecondary,
+                          lightBorder: PaletoColors.btnSecondaryLt,
+                          darkBorder: PaletoColors.btnSecondaryDk,
                         ),
                       ),
                     ],
@@ -290,7 +257,7 @@ class _RewardOverlayState extends State<RewardOverlay>
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A4E),
         border: Border.all(color: color, width: 2),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.zero,
       ),
       child: Row(
         children: [
@@ -347,7 +314,7 @@ class _RewardOverlayState extends State<RewardOverlay>
           color: Colors.grey,
           width: 1,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.zero,
       ),
       child: Column(
         children: [

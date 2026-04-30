@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'screens/splash_screen.dart';
 import 'controllers/game_controller.dart';
@@ -10,6 +12,7 @@ import 'controllers/world_controller.dart';
 import 'controllers/chef_controller.dart';
 import 'services/audio_service.dart';
 import 'services/ad_service.dart';
+import 'services/firebase_auth_service.dart';
 import 'game_logic/combat_system_initializer.dart';
 import 'widgets/app_lifecycle_observer.dart';
 
@@ -30,6 +33,19 @@ class PixelColors {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    // Inicializar Firebase
+    print('🔥 Inicializando Firebase...');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('✓ Firebase inicializado correctamente');
+  } catch (e) {
+    print('❌ Error inicializando Firebase: $e');
+    // Continuar de todas formas
+  }
+  
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -41,13 +57,38 @@ void main() async {
     ),
   );
 
-  // Inicializacion de servicios críticos
-  await AudioService.init();
-  await AdService().init();
+  try {
+    print('🎵 Inicializando AudioService...');
+    await AudioService.init();
+    print('✓ AudioService inicializado');
+  } catch (e) {
+    print('❌ Error en AudioService: $e');
+  }
+
+  try {
+    print('📱 Inicializando AdService...');
+    await AdService().init();
+    print('✓ AdService inicializado');
+  } catch (e) {
+    print('❌ Error en AdService: $e');
+  }
+
+  try {
+    print('👤 Inicializando FirebaseAuthService...');
+    await FirebaseAuthService.instance.initialize();
+    print('✓ FirebaseAuthService inicializado');
+  } catch (e) {
+    print('❌ Error en FirebaseAuthService: $e');
+  }
   
-  // Initialize combat system
-  initializeCombatSystem();
-  assert(isCombatSystemInitialized(), 'Combat system failed to initialize');
+  try {
+    print('⚔️ Inicializando Combat System...');
+    initializeCombatSystem();
+    assert(isCombatSystemInitialized(), 'Combat system failed to initialize');
+    print('✓ Combat System inicializado');
+  } catch (e) {
+    print('❌ Error en Combat System: $e');
+  }
 
   runApp(
     AppLifecycleObserver(

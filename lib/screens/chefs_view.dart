@@ -168,7 +168,9 @@ class _ChefsViewState extends State<ChefsView>
         }
         try {
           AudioService.instance.playMenuMusic();
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[ERROR] Audio playback - menu music: $e');
+        }
         _showChefDetails(context, entity, isChef);
       },
       child: Stack(
@@ -191,7 +193,14 @@ class _ChefsViewState extends State<ChefsView>
                     margin: const EdgeInsets.all(8),
                     color: Colors.grey.shade900,
                     child: Center(
-                      child: Icon(entity.icon, size: 50, color: Colors.white),
+                      child: entity.imagePath != null
+                          ? Image.asset(
+                            'lib/assets/images/${entity.imagePath}',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(entity.icon, size: 50, color: Colors.white),
+                            )
+                          : Icon(entity.icon, size: 50, color: Colors.white),
                     ),
                   ),
                 ),
@@ -409,7 +418,9 @@ class _ChefsViewState extends State<ChefsView>
                                 if (canUpgrade) {
                                   try {
                                     AudioService.instance.playCoinCollect();
-                                  } catch (_) {}
+                                  } catch (e) {
+                                    debugPrint('[ERROR] Audio playback - coin collect: $e');
+                                  }
                                   cController.tryUpgrade(
                                     currentEntity,
                                     ecoController: eco,

@@ -15,6 +15,7 @@ class GachaEntity {
   final String name;
   final GachaRarity rarity;
   final IconData icon;
+  final String? imagePath; // Ruta de imagen personalizada (ej: 'chef_linea/linea.png')
   final String lore;
   final bool isChef;
 
@@ -35,6 +36,7 @@ class GachaEntity {
     required this.name,
     required this.rarity,
     required this.icon,
+    this.imagePath,
     required this.lore,
     required this.isChef,
     required this.favoredLocation,
@@ -292,6 +294,7 @@ class ChefController extends ChangeNotifier {
           name: c.name,
           rarity: mappedRarity,
           icon: Icons.person, // Keep standard icon for now to not break UI
+          imagePath: c.id == 'r_fire_1' ? 'cocinero_linea/linea.png' : null,
           isChef: true,
           lore: '\${c.ability} | \${c.passive}',
           favoredLocation:
@@ -325,7 +328,9 @@ class ChefController extends ChangeNotifier {
           _progressionSystem.forceUnlock(
             chef.copyWith(level: e.level, tokens: e.tokens),
           );
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[ERROR] Chef unlock/sync failed: $e');
+        }
       }
     }
     _activeChefIndex = prefs.getInt('active_chef_index') ?? 0;
@@ -373,7 +378,9 @@ class ChefController extends ChangeNotifier {
         e.tokens = backendChef.tokens;
         try {
           ecoController.recordChefLevelUp();
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('[ERROR] Economy record chef levelup failed: $e');
+        }
         _saveData(e);
         notifyListeners();
         return true;

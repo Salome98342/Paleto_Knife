@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../controllers/economy_controller.dart';
 import '../controllers/game_controller.dart';
 import '../controllers/chef_controller.dart';
+import '../services/auth_service.dart';
 import '../main.dart';
 
 /// Pantalla de Perfil - Stats, Reinicio, Configuracion
@@ -170,6 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: PixelColors.accent,
                         ),
                         const SizedBox(height: 8),
+                        // Nombre del Chef
                         Text(
                           chefController.activeChef.name.toUpperCase(),
                           style: GoogleFonts.pressStart2p(
@@ -177,6 +179,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: PixelColors.accent,
                           ),
                         ),
+                        // Usuario y Email del Jugador
+                        _buildUserInfo(),
                         Text(
                           'NIVEL ${widget.gameController.currentLevel}',
                           style: GoogleFonts.pressStart2p(
@@ -471,6 +475,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Widget que muestra la información del usuario autenticado
+  Widget _buildUserInfo() {
+    final auth = AuthService();
+    final user = auth.getUser();
+
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      children: [
+        const SizedBox(height: 4),
+        Text(
+          '@${user.username}',
+          style: GoogleFonts.pressStart2p(
+            fontSize: 7,
+            color: PixelColors.accentAlt,
+          ),
+        ),
+        Text(
+          user.email,
+          style: GoogleFonts.pressStart2p(
+            fontSize: 6,
+            color: PixelColors.textDim,
+          ),
+        ),
+      ],
     );
   }
 }

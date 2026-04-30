@@ -11,15 +11,20 @@ import '../widgets/pause_menu_overlay.dart';
 import '../controllers/economy_controller.dart';
 import '../controllers/world_controller.dart';
 import '../controllers/chef_controller.dart';
+import '../controllers/game_controller.dart';
 import '../services/audio_service.dart';
 import '../services/ad_service.dart';
 import '../game_logic/game_state.dart';
+import '../game_logic/session_sync_service.dart';
 import '../game_logic/revive_system.dart';
 import '../game_logic/reward_system.dart';
 import '../widgets/game_over_overlay.dart' as old_gameover;
 import 'overlays/game_over_overlay.dart' as new_gameover;
 import 'overlays/reward_overlay.dart';
 import '../widgets/thank_you_ad_overlay.dart';
+import 'chest_reward_screen.dart';
+import 'overlays/gacha_overlay.dart';
+import 'overlays/stage_select_overlay.dart';
 
 class GameplayScreen extends StatefulWidget {
   const GameplayScreen({super.key});
@@ -61,7 +66,9 @@ class _GameplayScreenState extends State<GameplayScreen> {
       } else {
         AudioService.instance.playGameplayMusic();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ERROR] Audio playback - region music: $e');
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<EconomyController>().setMaxHp(
@@ -100,11 +107,14 @@ class _GameplayScreenState extends State<GameplayScreen> {
       _startPlayTimeTracking();
     });
 
+    final activeChef = context.read<ChefController>().activeChef;
     _game = PaletoGame(
       locationData: context.read<WorldController>().selectedLocation,
-      playerIcon: context.read<ChefController>().activeChef.icon,
+      playerIcon: activeChef.icon,
+      chefId: activeChef.id,
       onPlayerTakeDamage: (double amount) {
         if (mounted) {
+          AudioService.instance.playHitSound();
           _gameState.takeDamage(amount.toInt());
           context.read<EconomyController>().takeDamage(amount);
 
@@ -149,7 +159,9 @@ class _GameplayScreenState extends State<GameplayScreen> {
           }
           try {
             AudioService.instance.playCoinCollect();
-          } catch (_) {}
+          } catch (e) {
+            debugPrint('[ERROR] Audio playback - coin collect: $e');
+          }
         }
       },
       getPlayerDamage: () {
@@ -188,7 +200,31 @@ class _GameplayScreenState extends State<GameplayScreen> {
     _game.overlays.remove('NewGameOver');
     _gameState.showRewardScreen();
     _game.pauseEngine();
-    _game.overlays.add('NewRewardOverlay');
+    _showChestReward();
+  }
+
+  /// Mostrar pantalla de recompensa con cofre interactivo
+  void _showChestReward() {
+    final coins = _gameState.coinsEarned;
+    final gems = _gameState.gemsEarned;
+    final enemiesDefeated = _gameState.enemiesDefeated;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => ChestRewardScreen(
+          coinsReward: coins,
+          gemsReward: gems,
+          itemsReward: 0,
+          onRewardAccepted: () {
+            _game.resumeEngine();
+            if (mounted) {
+              context.read<EconomyController>().saveProgress();
+            }
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -196,8 +232,61 @@ class _GameplayScreenState extends State<GameplayScreen> {
     _updatePlayTimeTimer.cancel();
     try {
       AudioService.instance.playMenuMusic();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ERROR] Audio playback - menu music on dispose: $e');
+    }
     super.dispose();
+  }
+
+  List<StageData> _buildStageData(PaletoGame game, BuildContext context) {
+    final worldController = context.read<WorldController>();
+    final locations = worldController.locations;
+    final selected = worldController.selectedLocation;
+    final stages = <StageData>[];
+
+    double previousLiberation = 100;
+
+    for (var index = 0; index < locations.length; index++) {
+      final location = locations[index];
+      final liberation = worldController.getLiberation(location.name);
+      final isUnlocked = index == 0 || previousLiberation >= 100;
+      final isSelected = selected.name == location.name;
+
+      final state = !isUnlocked
+          ? StageCardState.locked
+          : liberation >= 100
+              ? StageCardState.completed
+              : StageCardState.available;
+
+      final difficulty = location.bosses.length >= 3
+          ? 3
+          : location.bosses.isNotEmpty
+              ? 2
+              : 1;
+
+      stages.add(
+        StageData(
+          id: '${index + 1}'.padLeft(2, '0'),
+          name: location.name,
+          description: isSelected
+              ? '${location.description} (ACTUAL)'
+              : location.description,
+          difficulty: difficulty,
+          state: state,
+          progressPercent: liberation,
+          isCurrent: isSelected,
+          onSelected: !isUnlocked
+              ? null
+              : () {
+                  worldController.selectLocation(location);
+                },
+        ),
+      );
+
+      previousLiberation = liberation;
+    }
+
+    return stages;
   }
 
   @override
@@ -210,6 +299,11 @@ class _GameplayScreenState extends State<GameplayScreen> {
           game: _game,
           overlayBuilderMap: {
             'HUD': (context, game) => HudOverlay(game: game),
+            'GachaScreen': (context, game) => GachaOverlay(game: game),
+            'StageSelect': (context, game) => StageSelectOverlay(
+              game: game,
+              stages: _buildStageData(game, context),
+            ),
             'UpgradeShop': (context, game) => UpgradeShopOverlay(game: game),
             'WaveClear': (context, game) => WaveClearOverlay(game: game),
             'GameOver': (context, game) => old_gameover.GameOverOverlay(game: game),
@@ -226,7 +320,13 @@ class _GameplayScreenState extends State<GameplayScreen> {
             ),
             'NewRewardOverlay': (context, game) => RewardOverlay(
               rewardSystem: _rewardSystem,
-              onClose: () {
+              onClose: () async {
+                // Sincronizar el estado de sesión con el progreso persistente
+                await SessionSyncService.syncSessionToProgress(
+                  sessionState: _gameState,
+                  gameController: context.read<GameController>(),
+                );
+
                 _game.overlays.remove('NewRewardOverlay');
                 _game.resumeEngine();
                 _gameState.resetGame();

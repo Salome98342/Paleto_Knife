@@ -13,10 +13,15 @@ import 'enemies/enemy.dart';
 
 import '../controllers/world_controller.dart';
 import '../services/audio_service.dart';
+import '../game_logic/enemy_system/enemy_types.dart';
+import '../game_logic/enemy_system/attack_pattern.dart';
+import '../game_logic/enemy_system/enemy_behavior.dart';
+import '../models/element_type.dart';
 
 class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallbacks {
   final LocationData locationData;
   final IconData? playerIcon;
+  final String? chefId; // ID del chef activo
   final Function(int wave, bool isBoss)? onEnemyKilled;
   final Function(double)? onPlayerTakeDamage;
   final double Function()? getPlayerDamage;
@@ -25,6 +30,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
   PaletoGame({
     required this.locationData,
     this.playerIcon,
+    this.chefId,
     this.onEnemyKilled,
     this.getPlayerDamage,
     this.onPlayerTakeDamage,
@@ -105,6 +111,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
     player = PlayerComponent(
       position: Vector2(size.x / 2, size.y * 0.8),
       icon: playerIcon,
+      chefId: chefId,
     );
     await add(player);
 
@@ -226,7 +233,9 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
       // Reproducir alerta de boss
       try {
         AudioService.instance.playBossAlert();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[ERROR] Audio playback - boss alert: $e');
+      }
       
       // Esperar a que termine la alerta, luego reproducir música de boss
       Future.delayed(const Duration(milliseconds: 2500), () {
@@ -244,7 +253,9 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
               // Fallback para Neutro u otras regiones
               // Mantiene la música de gameplay
             }
-          } catch (_) {}
+          } catch (e) {
+            debugPrint('[ERROR] Audio playback - boss music: $e');
+          }
         }
       });
 
@@ -253,16 +264,22 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
         try {
           final enemy = enemyPool.firstWhere((e) => !e.isActive);
           final randomX = (math.Random().nextDouble() * (size.x - 80)) + 40;
-          final randomAmalgam = locationData
-              .amalgams[math.Random().nextInt(locationData.amalgams.length)];
-
-          if (randomAmalgam.enemyDefinition != null) {
-            enemy.spawn(
-              Vector2(randomX, 50),
-              randomAmalgam.enemyDefinition!,
-              isBoss: true,
-            );
-            enemiesSpawnedInWave++;
+          
+          // CORRECCIÓN: Usar bosses de locationData, no amalgams
+          final bossesToChooseFrom = locationData.bosses.isNotEmpty 
+              ? locationData.bosses 
+              : locationData.amalgams;
+          
+          if (bossesToChooseFrom.isNotEmpty) {
+            final randomBoss = bossesToChooseFrom[math.Random().nextInt(bossesToChooseFrom.length)];
+            if (randomBoss.enemyDefinition != null) {
+              enemy.spawn(
+                Vector2(randomX, 50),
+                randomBoss.enemyDefinition!,
+                isBoss: true,
+              );
+              enemiesSpawnedInWave++;
+            }
           }
         } catch (e) {}
       });
@@ -294,6 +311,56 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
     }
   }
 
+  /// NUEVO: Método para testear un boss Touhou
+  /// Ejemplo: spawnTouhouBoss('elegant_asian');
+  void spawnTouhouBoss(String bossType) {
+    try {
+      final enemy = enemyPool.firstWhere((e) => !e.isActive);
+      final spawnPos = Vector2(size.x / 2, 80);
+      
+      // Crear una definición dummy (se ignora cuando bossType != null en spawn)
+      final dummyDefinition = EnemyTypeDefinition(
+        id: 'touhou_boss_$bossType',
+        name: 'Touhou Boss',
+        description: 'Un boss estimulante en estilo Touhou',
+        lore: 'Una batalla épica de múltiples fases',
+        region: Region.asia,
+        element: ElementType.neutral,
+        role: 'boss',
+        baseHealth: 100.0,
+        behavior: Behavior(
+          type: BehaviorType.stationary,
+          speed: 0,
+          preferredDistance: 0,
+          acceleration: 0,
+        ),
+        attackPattern: AttackPattern(
+          type: AttackPatternType.radial,
+          bulletSpeed: 200.0,
+          cooldown: 0.5,
+          bulletDamage: 5.0,
+          bulletCount: 12,
+          spreadAngle: 0,
+        ),
+        debugColor: 0xFF00FF00,
+        counters: ['🔥', '💧'],
+        visualDescription: 'Elegant Asian Touhou Boss',
+      );
+      
+      // Spawn con tipo de boss Touhou
+      enemy.spawn(
+        spawnPos,
+        dummyDefinition,
+        isBoss: true,
+        bossType: bossType,
+      );
+      
+      print('🎮 Touhou Boss spawned: $bossType');
+    } catch (e) {
+      print('❌ Error spawning Touhou boss: $e');
+    }
+  }
+
   void _checkCollisions() {
     final activeBullets = _bulletPool.where((b) => b.isActive).toList();
     final activeEnemies = enemyPool.where((e) => e.isActive).toList();
@@ -313,7 +380,9 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
             // Reproducir sonido de hit
             try {
               AudioService.instance.playHitSound();
-            } catch (_) {}
+            } catch (e) {
+              debugPrint('[ERROR] Audio playback - hit sound: $e');
+            }
             
             final damage = getPlayerDamage != null ? getPlayerDamage!() : 10.0;
             final isDead = enemy.takeDamage(damage);
@@ -326,7 +395,9 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
                 } else {
                   AudioService.instance.playEnemyDeath();
                 }
-              } catch (_) {}
+              } catch (e) {
+                debugPrint('[ERROR] Audio playback - enemy death sound: $e');
+              }
               
               // Efecto visual de muerte
               shakeScreen(
@@ -373,7 +444,9 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
                     } else if (locationName == 'europa') {
                       AudioService.instance.playEuropaMusic();
                     }
-                  } catch (_) {}
+                  } catch (e) {
+                    debugPrint('[ERROR] Audio playback - wave end region music: $e');
+                  }
                 });
                 Future.delayed(const Duration(seconds: 3), () {
                   pauseEngine();

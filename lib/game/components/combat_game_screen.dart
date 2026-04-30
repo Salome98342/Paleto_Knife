@@ -4,6 +4,7 @@ import '../../game_logic/combat_cycle.dart';
 import 'component_enemy.dart';
 import 'component_boss.dart';
 import 'ui_displays.dart';
+import 'alert_warning_border.dart';
 
 /// Estado de la pantalla de juego
 enum GameScreenState {
@@ -115,6 +116,10 @@ class CombatGameScreen extends PositionComponent {
     combatCycle.bossManager.bossStarted.listen((boss) {
       print('👑 ¡${boss.name} ha llegado!');
       gameState = GameScreenState.bossFighting;
+
+      // Mostrar bordes de alerta animados
+      add(AlertWarningBorder(isTopBorder: true));
+      add(AlertWarningBorder(isTopBorder: false));
 
       // Crear componente visual del boss
       componentBoss = ComponentBoss(boss, combatCycle.bossManager);

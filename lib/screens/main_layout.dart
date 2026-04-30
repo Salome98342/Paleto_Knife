@@ -12,7 +12,7 @@ import 'gacha_store_view.dart';
 import 'gameplay_screen.dart'; // Import for RPG
 import 'world_view.dart'; // Import for World Map
 import 'profile_screen.dart';
-import 'settings_dialog.dart';
+import '../widgets/settings_dialog.dart';
 import '../controllers/game_controller.dart';
 import '../services/audio_service.dart'; // Import for audios if needed
 
@@ -92,6 +92,7 @@ class _MainLayoutState extends State<MainLayout> {
           builder: (context, chefController, child) {
             return GestureDetector(
               onTap: () {
+                AudioService.instance.playClickSound();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -148,10 +149,8 @@ class _MainLayoutState extends State<MainLayout> {
 
         GestureDetector(
           onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => const SettingsDialog(),
-            );
+            AudioService.instance.playClickSound();
+            SettingsDialog.show(context);
           },
           child: Container(
             width: 40,
@@ -206,6 +205,7 @@ class _MainLayoutState extends State<MainLayout> {
     final isSelected = _currentIndex == index;
     return GestureDetector(
           onTap: () {
+            AudioService.instance.playClickSound();
             setState(() => _currentIndex = index);
             // Manejar música según tab seleccionado
             if (index == 0) {
@@ -242,6 +242,7 @@ class _MainLayoutState extends State<MainLayout> {
   Widget _buildPlayButton() {
     return GestureDetector(
           onTap: () {
+            AudioService.instance.playClickSound();
             setState(() => _currentIndex = 2);
           },
           child: Transform.translate(
@@ -291,6 +292,7 @@ class _HomeTab extends StatelessWidget {
           // 1. Play RPG Button
           GestureDetector(
                 onTap: () {
+                  AudioService.instance.playClickSound();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const GameplayScreen()),
@@ -342,6 +344,7 @@ class _HomeTab extends StatelessWidget {
           // 2. Play Classic (Coming Soon)
           GestureDetector(
             onTap: () {
+              AudioService.instance.playClickSound();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(

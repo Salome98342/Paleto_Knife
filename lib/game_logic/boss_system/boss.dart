@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'boss_phase.dart';
+import '../enemy_system/enemy_state_machine.dart';
 
 /// Configuración de un boss
 class Boss {
@@ -14,6 +15,12 @@ class Boss {
 
   /// HP máximo
   final double maxHp;
+
+  /// Patrones danmaku avanzados (opcional)
+  final List<dynamic>? danmakuPatterns;
+
+  /// Habilidades especiales (opcional)
+  final List<EnemyAbility>? abilities;
 
   /// Posición actual
   Offset position;
@@ -36,6 +43,8 @@ class Boss {
     required this.phases,
     required this.maxHp,
     required this.position,
+    this.danmakuPatterns,
+    this.abilities,
   })  : currentHp = maxHp,
         isAlive = true {
     _currentPhase = phases[0];

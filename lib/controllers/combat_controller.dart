@@ -14,15 +14,18 @@ import '../services/audio_service.dart';
 
 /// Controlador principal del sistema de combate
 /// Integra jugador, enemigos, proyectiles y mundos
+/// 
+/// Inyección de Dependencias:
+/// - Requiere GameController y ChefController para funcionar correctamente
+/// - Lanza Error si no se proporcionan durante initialize()
 class CombatController extends ChangeNotifier {
   late ProjectileSystem _projectileSystem;
   late PlayerController _playerController;
   late EnemyController _enemyController;
   late WorldManager _worldManager;
 
-  GameController? _gameController;
-  ChefController?
-  _chefController; // Referencia al GameController para procesar drops y recompensas
+  late GameController _gameController;
+  late ChefController _chefController;
 
   Timer? _gameLoopTimer;
 
@@ -41,13 +44,20 @@ class CombatController extends ChangeNotifier {
   int get currentLevel => _worldManager.currentLevel;
   int get currentWorldNumber => _worldManager.currentWorldNumber;
   WorldManager get worldManager => _worldManager;
-  double get currentGold => _gameController?.gold ?? 0;
+  double get currentGold => _gameController.gold;
 
   /// Inicializa el sistema de combate
+  /// 
+  /// Parámetros Requeridos:
+  /// - [screenSize]: Tamaño de la pantalla para posicionar sprites
+  /// - [gameController]: Controller del juego (NO NULLABLE, REQUERIDO)
+  /// - [chefController]: Controller del jefe (NO NULLABLE, REQUERIDO)
+  /// 
+  /// Lanza [AssertionError] si gameController o chefController son nulos
   void initialize(
     Size screenSize, {
-    GameController? gameController,
-    ChefController? chefController,
+    required GameController gameController,
+    required ChefController chefController,
   }) {
     if (_isInitialized) return;
 

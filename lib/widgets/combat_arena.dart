@@ -239,10 +239,11 @@ class CombatArena extends StatelessWidget {
                   ],
                 ),
                 child: Image.asset(
-                  'assets/images/paleto_spin.gif',
+                  'lib/assets/images/cocinero_linea/linea_spin.gif',
                   width: Player.spriteWidth,
                   height: Player.spriteHeight,
                   gaplessPlayback: true,
+                  errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
                 ),
               ),
 
