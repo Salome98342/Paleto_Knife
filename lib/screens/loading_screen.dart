@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../services/auth_service.dart';
+import '../services/firebase_auth_service.dart';
 import '../services/game_loader_service.dart';
 import 'login_screen.dart';
 import 'welcome_screen.dart';
@@ -69,8 +69,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
   /// Intentar auto-login silencioso
   Future<bool> _attemptAutoLogin() async {
     try {
-      final auth = AuthService();
-      final logged = await auth.signInSilently();
+      final auth = FirebaseAuthService.instance;
+      await auth.initialize();
+      final logged = auth.currentUser != null;
 
       if (mounted) {
         setState(() {

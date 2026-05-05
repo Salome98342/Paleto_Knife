@@ -54,30 +54,26 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
   }
 
   void _showRewardCard() {
-    print('[ChestRewardScreen._showRewardCard] Llamado');
-    print('[ChestRewardScreen._showRewardCard] isGachaReward: ${widget.isGachaReward}');
-    print('[ChestRewardScreen._showRewardCard] gachaResults length: ${widget.gachaResults?.length}');
-    
-    if (widget.isGachaReward && (widget.gachaResults != null && widget.gachaResults!.isNotEmpty)) {
-      // Mostrar recompensa de gacha (chef/arma)
-      print('[ChestRewardScreen._showRewardCard] Mostrando gacha: ${_currentGachaIndex}/${widget.gachaResults!.length}');
-      _showGachaReward();
-    } else {
-      // Mostrar recompensa de combate (monedas/gemas)
-      print('[ChestRewardScreen._showRewardCard] Mostrando combate');
-      _showCombatReward();
-    }
+    // Usar Future.microtask para evitar build durante construcción
+    Future.microtask(() {
+      if (!mounted) return;
+      
+      if (widget.isGachaReward && (widget.gachaResults != null && widget.gachaResults!.isNotEmpty)) {
+        _showGachaReward();
+      } else {
+        _showCombatReward();
+      }
+    });
   }
 
   void _showCombatReward() {
-    print('[ChestRewardScreen._showCombatReward] Iniciando diálogo de combate');
+    if (!mounted) return;
+    
     final rewardData = _selectReward(
       coins: widget.coinsReward ?? 0,
       gems: widget.gemsReward ?? 0,
       items: widget.itemsReward ?? 0,
     );
-
-    print('[ChestRewardScreen._showCombatReward] RewardData: ${rewardData.title}');
 
     showDialog(
       context: context,
@@ -88,9 +84,13 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
         child: RewardCard(
           rewardData: rewardData,
           onDismiss: () {
-            print('[ChestRewardScreen._showCombatReward] Diálogo cerrado');
-            Navigator.pop(ctx);
-            widget.onRewardAccepted();
+            if (mounted) {
+              Navigator.pop(ctx);
+              // Usar Future para evitar llamadas durante frame
+              Future.delayed(const Duration(milliseconds: 100), () {
+                if (mounted) widget.onRewardAccepted();
+              });
+            }
           },
           animationDuration: const Duration(milliseconds: 800),
         ),
@@ -99,13 +99,12 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
   }
 
   void _showGachaReward() {
-    print('[ChestRewardScreen._showGachaReward] Iniciando diálogo de gacha');
+    if (!mounted) return;
+    
     final results = widget.gachaResults!;
     final result = results[_currentGachaIndex];
     final entity = result.entity;
     final remainingCount = results.length - _currentGachaIndex - 1;
-    
-    print('[ChestRewardScreen._showGachaReward] Entidad: ${entity.name}, Restantes: $remainingCount');
     
     showDialog(
       context: context,
@@ -120,18 +119,21 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
               isNew: result.isNew,
               tokensGranted: result.tokensGranted,
               onDismiss: () {
-                Navigator.pop(ctx);
-                
-                // Si hay más resultados, mostrar el siguiente
-                if (remainingCount > 0) {
-                  _currentGachaIndex++;
-                  Future.delayed(const Duration(milliseconds: 200), () {
-                    _showGachaReward();
-                  });
-                } else {
-                  // Todos los resultados mostrados
-                  print('[ChestRewardScreen._showGachaReward] Todas las recompensas mostradas');
-                  widget.onRewardAccepted();
+                if (mounted) {
+                  Navigator.pop(ctx);
+                  
+                  // Si hay más resultados, mostrar el siguiente
+                  if (remainingCount > 0) {
+                    _currentGachaIndex++;
+                    Future.delayed(const Duration(milliseconds: 200), () {
+                      if (mounted) _showGachaReward();
+                    });
+                  } else {
+                    // Todos los resultados mostrados
+                    Future.delayed(const Duration(milliseconds: 100), () {
+                      if (mounted) widget.onRewardAccepted();
+                    });
+                  }
                 }
               },
               animationDuration: const Duration(milliseconds: 800),

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-/// Modelo de usuario autenticado
+/// Modelo de usuario autenticado con perfil personalizable
 class UserModel {
   final String id;
   final String email;
@@ -8,6 +8,13 @@ class UserModel {
   final String? avatarUrl;
   final DateTime createdAt;
   final DateTime lastLogin;
+  
+  // Campos personalizables del perfil
+  final String? bio;
+  final String? favoriteColor;
+  final int totalGamesPlayed;
+  final int highestLevel;
+  final int totalCoinsEarned;
 
   UserModel({
     required this.id,
@@ -16,6 +23,11 @@ class UserModel {
     this.avatarUrl,
     DateTime? createdAt,
     DateTime? lastLogin,
+    this.bio,
+    this.favoriteColor,
+    this.totalGamesPlayed = 0,
+    this.highestLevel = 0,
+    this.totalCoinsEarned = 0,
   })  : createdAt = createdAt ?? DateTime.now(),
         lastLogin = lastLogin ?? DateTime.now();
 
@@ -28,6 +40,11 @@ class UserModel {
       'avatarUrl': avatarUrl,
       'createdAt': createdAt.toIso8601String(),
       'lastLogin': lastLogin.toIso8601String(),
+      'bio': bio,
+      'favoriteColor': favoriteColor,
+      'totalGamesPlayed': totalGamesPlayed,
+      'highestLevel': highestLevel,
+      'totalCoinsEarned': totalCoinsEarned,
     };
   }
 
@@ -44,6 +61,11 @@ class UserModel {
       lastLogin: json['lastLogin'] != null
           ? DateTime.parse(json['lastLogin'] as String)
           : null,
+      bio: json['bio'] as String?,
+      favoriteColor: json['favoriteColor'] as String?,
+      totalGamesPlayed: json['totalGamesPlayed'] as int? ?? 0,
+      highestLevel: json['highestLevel'] as int? ?? 0,
+      totalCoinsEarned: json['totalCoinsEarned'] as int? ?? 0,
     );
   }
 
@@ -63,6 +85,11 @@ class UserModel {
     String? avatarUrl,
     DateTime? createdAt,
     DateTime? lastLogin,
+    String? bio,
+    String? favoriteColor,
+    int? totalGamesPlayed,
+    int? highestLevel,
+    int? totalCoinsEarned,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -71,6 +98,11 @@ class UserModel {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       createdAt: createdAt ?? this.createdAt,
       lastLogin: lastLogin ?? this.lastLogin,
+      bio: bio ?? this.bio,
+      favoriteColor: favoriteColor ?? this.favoriteColor,
+      totalGamesPlayed: totalGamesPlayed ?? this.totalGamesPlayed,
+      highestLevel: highestLevel ?? this.highestLevel,
+      totalCoinsEarned: totalCoinsEarned ?? this.totalCoinsEarned,
     );
   }
 

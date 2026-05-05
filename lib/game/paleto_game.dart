@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'dart:math';
 
 import 'components/bullet.dart';
+import 'components/debug_circle_marker.dart';
 import 'components/explosion.dart';
 import 'components/treasure_chest.dart';
 import 'player/player.dart';
@@ -304,6 +305,15 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
 
   void spawnBullet(Vector2 pos, Vector2 vel, {bool isPlayer = true}) {
     try {
+      add(
+        DebugCircleMarkerComponent(
+          position: pos.clone(),
+          baseColor: isPlayer ? Colors.greenAccent : Colors.orangeAccent,
+          radius: isPlayer ? 14.0 : 12.0,
+          duration: 0.45,
+        ),
+      );
+
       final bullet = _bulletPool.firstWhere((b) => !b.isActive);
       bullet.shoot(pos, vel, isPlayer: isPlayer);
     } catch (e) {
@@ -373,6 +383,15 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
           if (!enemy.isActive) continue;
           if (_checkCircleCollision(bullet, enemy)) {
             bullet.isActive = false;
+
+            add(
+              DebugCircleMarkerComponent(
+                position: enemy.position.clone(),
+                baseColor: Colors.redAccent,
+                radius: enemy.size.x * 0.45,
+                duration: 0.55,
+              ),
+            );
 
             // Efecto de hit
             ExplosionHelper.spawn(this, bullet.position, color: Colors.yellow);
@@ -460,6 +479,16 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
       } else {
         if (!player.isInvulnerable && _checkCircleCollision(bullet, player)) {
           bullet.isActive = false;
+
+          add(
+            DebugCircleMarkerComponent(
+              position: player.position.clone(),
+              baseColor: Colors.lightBlueAccent,
+              radius: player.size.x * 0.45,
+              duration: 0.55,
+            ),
+          );
+
           shakeScreen(15.0, 0.3);
           ExplosionHelper.spawn(
             this,

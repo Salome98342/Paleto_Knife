@@ -18,8 +18,7 @@ import '../game_logic/game_state.dart';
 import '../game_logic/session_sync_service.dart';
 import '../game_logic/revive_system.dart';
 import '../game_logic/reward_system.dart';
-import '../widgets/game_over_overlay.dart' as old_gameover;
-import 'overlays/game_over_overlay.dart' as new_gameover;
+import 'overlays/game_over_overlay.dart';
 import 'overlays/reward_overlay.dart';
 import '../widgets/thank_you_ad_overlay.dart';
 import 'chest_reward_screen.dart';
@@ -125,12 +124,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
 
           if (context.read<EconomyController>().playerHp <= 0) {
             _game.pauseEngine();
-            // Usar nuevo overlay si está disponible
-            if (_reviveSystem.canRevive) {
-              _game.overlays.add('NewGameOver');
-            } else {
-              _game.overlays.add('GameOver');
-            }
+            _game.overlays.add('GameOver');
           }
         }
       },
@@ -188,7 +182,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
     _game.pauseEngine();
     _gameState.setStatus(GameStatus.dead);
     _reviveSystem.offerRevive();
-    _game.overlays.add('NewGameOver');
+    _game.overlays.add('GameOver');
   }
 
   void _onReviveCompleted() {
@@ -197,7 +191,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
   }
 
   void _onReviveCancelled() {
-    _game.overlays.remove('NewGameOver');
+    _game.overlays.remove('GameOver');
     _gameState.showRewardScreen();
     _game.pauseEngine();
     _showChestReward();
@@ -209,6 +203,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
     final gems = _gameState.gemsEarned;
     final enemiesDefeated = _gameState.enemiesDefeated;
 
+    if (!mounted) return;
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => ChestRewardScreen(
@@ -216,11 +212,17 @@ class _GameplayScreenState extends State<GameplayScreen> {
           gemsReward: gems,
           itemsReward: 0,
           onRewardAccepted: () {
-            _game.resumeEngine();
-            if (mounted) {
+            if (!mounted) return;
+            try {
+              _game.resumeEngine();
               context.read<EconomyController>().saveProgress();
+              // Usar pop seguro con try-catch
+              if (Navigator.canPop(context)) {
+                Navigator.of(context).pop();
+              }
+            } catch (e) {
+              debugPrint('[ERROR] Error closing ChestRewardScreen: $e');
             }
-            Navigator.of(context).pop();
           },
         ),
       ),
@@ -306,10 +308,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
             ),
             'UpgradeShop': (context, game) => UpgradeShopOverlay(game: game),
             'WaveClear': (context, game) => WaveClearOverlay(game: game),
-            'GameOver': (context, game) => old_gameover.GameOverOverlay(game: game),
             'PauseMenu': (context, game) => PauseMenuOverlay(game: game),
-            // Nuevos overlays del sistema de muerte/revivir
-            'NewGameOver': (context, game) => new_gameover.GameOverOverlay(
+            'GameOver': (context, game) => GameOverOverlay(
               reviveSystem: _reviveSystem,
             ),
             'ThankYouAd': (context, game) => ThankYouAdOverlay(

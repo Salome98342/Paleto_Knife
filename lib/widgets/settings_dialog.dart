@@ -3,6 +3,7 @@ import '../services/audio_service.dart';
 import 'retro_style.dart';
 
 /// Diálogo de ajustes para gameplay
+/// Diálogo de ajustes para gameplay
 class SettingsDialog extends StatefulWidget {
   const SettingsDialog({super.key});
 
@@ -37,66 +38,64 @@ class _SettingsDialogState extends State<SettingsDialog> {
         width: MediaQuery.of(context).size.width * 0.88,
         constraints: const BoxConstraints(maxWidth: 420),
         decoration: RetroStyle.box(color: RetroStyle.panel),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Título
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: RetroStyle.primary.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Título
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: RetroStyle.primary.withValues(alpha: 0.3),
+                    width: 2,
                   ),
                 ),
-                child: Text(
-                  'AJUSTES',
-                  style: RetroStyle.font(
-                    color: RetroStyle.primary,
-                    size: 24,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
               ),
-              SizedBox(height: 20),
+              child: Text(
+                'AJUSTES',
+                style: RetroStyle.font(
+                  color: RetroStyle.primary,
+                  size: 24,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 20),
 
-              // Sección de Audio
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AUDIO',
-                      style: RetroStyle.font(
-                        size: 14,
-                        color: RetroStyle.primary,
-                      ),
+            // Sección de Audio
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'AUDIO',
+                    style: RetroStyle.font(
+                      size: 14,
+                      color: RetroStyle.primary,
                     ),
-                    const SizedBox(height: 12),
-                    _buildMusicVolumeControl(),
-                    const SizedBox(height: 12),
-                    _buildSfxVolumeControl(),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildMusicVolumeControl(),
+                  const SizedBox(height: 12),
+                  _buildSfxVolumeControl(),
+                  const SizedBox(height: 20),
+                ],
               ),
+            ),
 
-              // Botón Cerrar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                child: _buildMenuButton(
-                  label: 'CERRAR',
-                  backgroundColor: RetroStyle.primary,
-                  textColor: Colors.white,
-                  onTap: () => Navigator.pop(context),
-                ),
+            // Botón Cerrar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: _buildMenuButton(
+                label: 'CERRAR',
+                backgroundColor: RetroStyle.primary,
+                textColor: Colors.white,
+                onTap: () => Navigator.pop(context),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -20,6 +20,7 @@ class PlayerComponent extends PositionComponent
   double _chefFrameElapsed = 0.0;
   Rect? _chefVisibleSourceBounds;
   Size? _chefSourceSize;
+  static const double _hitboxOffsetXRatio = -0.08;
   static const double _hitboxWidthRatio = 0.42;
   static const double _hitboxHeightRatio = 0.56;
   static const double _hitboxOffsetYRatio = 0.22;
@@ -149,6 +150,16 @@ class PlayerComponent extends PositionComponent
     );
   }
 
+  Vector2 _getWorldVisibleCenter() {
+    final spriteRect = _getLocalSpriteRect();
+    final visibleRect = _getLocalVisibleContentRect(spriteRect);
+
+    return Vector2(
+      position.x + visibleRect.center.dx,
+      position.y + visibleRect.center.dy,
+    );
+  }
+
   void dash() {
     if (_dashCooldown > 0) return;
     _invulnerableTimer = 1.0; // 1 segundo de invulnerabilidad
@@ -156,12 +167,13 @@ class PlayerComponent extends PositionComponent
     game.shakeScreen(10.0, 0.2); // Pequeno efecto visual
 
     // Disparo circular (Nova)
+    final origin = _getWorldVisibleCenter();
     int bullets = 16;
     double step = (2 * math.pi) / bullets;
     for (int i = 0; i < bullets; i++) {
       final angle = i * step;
       final direction = Vector2(math.cos(angle), math.sin(angle));
-      game.spawnBullet(position.clone(), direction * 300.0, isPlayer: true);
+      game.spawnBullet(origin.clone(), direction * 300.0, isPlayer: true);
     }
   }
 
@@ -211,7 +223,7 @@ class PlayerComponent extends PositionComponent
   }
 
   void _shoot() {
-    game.spawnBullet(position.clone(), Vector2(0, -500), isPlayer: true);
+    game.spawnBullet(_getWorldVisibleCenter(), Vector2(0, -500), isPlayer: true);
   }
 
   @override
@@ -294,7 +306,7 @@ class PlayerComponent extends PositionComponent
 
     return Rect.fromCenter(
       center: Offset(
-        visibleRect.center.dx,
+        visibleRect.center.dx + (visibleRect.width * _hitboxOffsetXRatio),
         visibleRect.center.dy + hitboxOffsetY,
       ),
       width: hitboxWidth,

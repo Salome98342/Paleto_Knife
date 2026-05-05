@@ -62,8 +62,8 @@ class ReviveSystem {
     // 1. Mostrar overlay de agradecimiento
     onShowThankYouOverlay?.call();
 
-    // 2. Restaurar vida (50% o valor fijo)
-    gameState.revivePlayer(healthAmount: 50);
+    // 2. Restaurar vida (100%)
+    gameState.revivePlayer(healthAmount: gameState.maxHealth);
 
     // 3. Reposicionar jugador en zona segura
     onRepositionPlayer?.call();

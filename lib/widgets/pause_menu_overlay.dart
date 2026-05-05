@@ -48,59 +48,59 @@ class _PauseMenuOverlayState extends State<PauseMenuOverlay>
             constraints: const BoxConstraints(maxWidth: 420),
             padding: const EdgeInsets.all(24),
             decoration: RetroStyle.box(color: RetroStyle.panel),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Título
-                  Text(
-                    'PAUSA',
-                    style: RetroStyle.font(
-                      color: RetroStyle.primary,
-                      size: 28,
-                    ),
-                  )
-                      .animate(onPlay: (c) => c.repeat(reverse: true))
-                      .slideY(begin: -0.05, end: 0.05, duration: 1.seconds),
-                  const SizedBox(height: 24),
-
-                  // Control de volumen rápido
-                  _buildQuickVolumeControl(),
-                  const SizedBox(height: 20),
-
-                  // Botones principales
-                  _buildMenuButton(
-                    label: 'CONTINUAR JUEGO',
-                    backgroundColor: RetroStyle.primary,
-                    onTap: () {
-                      widget.game.resumeEngine();
-                      widget.game.overlays.remove('PauseMenu');
-                    },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Título
+                Text(
+                  'PAUSA',
+                  style: RetroStyle.font(
+                    color: RetroStyle.primary,
+                    size: 28,
                   ),
-                  const SizedBox(height: 12),
+                  textAlign: TextAlign.center,
+                )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .slideY(begin: -0.05, end: 0.05, duration: 1.seconds),
 
-                  _buildMenuButton(
-                    label: 'AJUSTES',
-                    backgroundColor: const Color(0xFF3a3a35),
-                    onTap: () {
-                      widget.game.resumeEngine();
-                      widget.game.overlays.remove('PauseMenu');
-                      SettingsDialog.show(context);
-                    },
-                  ),
-                  const SizedBox(height: 12),
+                const SizedBox(height: 24),
 
-                  _buildMenuButton(
-                    label: 'SALIR A MENU',
-                    backgroundColor: const Color(0xFF8B0000),
-                    onTap: () {
-                      widget.game.resumeEngine();
-                      widget.game.overlays.remove('PauseMenu');
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
+                // Control de volumen rápido
+                _buildQuickVolumeControl(),
+                const SizedBox(height: 20),
+
+                // Botones principales
+                _buildMenuButton(
+                  label: 'CONTINUAR JUEGO',
+                  backgroundColor: RetroStyle.primary,
+                  onTap: () {
+                    widget.game.resumeEngine();
+                    widget.game.overlays.remove('PauseMenu');
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                _buildMenuButton(
+                  label: 'AJUSTES',
+                  backgroundColor: const Color(0xFF3a3a35),
+                  onTap: () {
+                    widget.game.resumeEngine();
+                    widget.game.overlays.remove('PauseMenu');
+                    SettingsDialog.show(context);
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                _buildMenuButton(
+                  label: 'SALIR A MENU',
+                  backgroundColor: const Color(0xFF8B0000),
+                  onTap: () {
+                    widget.game.resumeEngine();
+                    widget.game.overlays.remove('PauseMenu');
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
             ),
           ),
         ),

@@ -11,7 +11,7 @@ import 'quests_view.dart';
 import 'gacha_store_view.dart';
 import 'gameplay_screen.dart'; // Import for RPG
 import 'world_view.dart'; // Import for World Map
-import 'profile_screen.dart';
+import 'user_profile_screen.dart';
 import '../widgets/settings_dialog.dart';
 import '../controllers/game_controller.dart';
 import '../services/audio_service.dart'; // Import for audios if needed
@@ -96,12 +96,7 @@ class _MainLayoutState extends State<MainLayout> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ProfileScreen(
-                      gameController: Provider.of<GameController>(
-                        context,
-                        listen: false,
-                      ),
-                    ),
+                    builder: (_) => const UserProfileScreen(),
                   ),
                 );
               },

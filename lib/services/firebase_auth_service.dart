@@ -36,6 +36,7 @@ class FirebaseAuthService extends ChangeNotifier {
   // Getters
   User? get firebaseUser => _currentFirebaseUser;
   UserModel? get user => _currentUser;
+  UserModel? get currentUser => _currentUser;  // Getter público para pantalla de perfil
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isSignedIn => _currentFirebaseUser != null;
@@ -116,23 +117,6 @@ class FirebaseAuthService extends ChangeNotifier {
     }
   }
 
-  /// Cierra sesión
-  Future<void> signOut() async {
-    try {
-      await _googleSignIn.signOut();
-      await _auth.signOut();
-      _currentFirebaseUser = null;
-      _currentUser = null;
-      _errorMessage = null;
-      print('✓ Sesión cerrada');
-      notifyListeners();
-    } catch (e) {
-      _errorMessage = 'Error al cerrar sesión: $e';
-      debugPrint('[FirebaseAuthService] Sign-out error: $e');
-      notifyListeners();
-    }
-  }
-
   /// Guarda usuario en Firebase Realtime Database
   Future<void> _saveUserToDatabase() async {
     if (_currentUser == null || _currentFirebaseUser == null) return;
@@ -146,6 +130,11 @@ class FirebaseAuthService extends ChangeNotifier {
         'avatarUrl': _currentUser!.avatarUrl,
         'createdAt': _currentUser!.createdAt.toIso8601String(),
         'lastLogin': _currentUser!.lastLogin.toIso8601String(),
+        'bio': _currentUser!.bio,
+        'favoriteColor': _currentUser!.favoriteColor,
+        'totalGamesPlayed': _currentUser!.totalGamesPlayed,
+        'highestLevel': _currentUser!.highestLevel,
+        'totalCoinsEarned': _currentUser!.totalCoinsEarned,
       });
       print('✓ Usuario guardado en base de datos');
     } catch (e) {
@@ -293,9 +282,17 @@ class FirebaseAuthService extends ChangeNotifier {
               _currentFirebaseUser!.displayName ??
               'Usuario',
           avatarUrl: data['avatarUrl'],
-          createdAt: DateTime.parse(data['createdAt'] ?? DateTime.now().toIso8601String()),
-          lastLogin: DateTime.parse(
-              data['lastLogin'] ?? DateTime.now().toIso8601String()),
+          createdAt: data['createdAt'] != null
+              ? DateTime.parse(data['createdAt'] as String)
+              : DateTime.now(),
+          lastLogin: data['lastLogin'] != null
+              ? DateTime.parse(data['lastLogin'] as String)
+              : DateTime.now(),
+          bio: data['bio'] as String?,
+          favoriteColor: data['favoriteColor'] as String?,
+          totalGamesPlayed: data['totalGamesPlayed'] as int? ?? 0,
+          highestLevel: data['highestLevel'] as int? ?? 0,
+          totalCoinsEarned: data['totalCoinsEarned'] as int? ?? 0,
         );
         print('✓ Usuario cargado desde base de datos');
       } else {
@@ -359,4 +356,166 @@ class FirebaseAuthService extends ChangeNotifier {
       return null;
     }
   }
+
+  /// Cierra sesión del usuario actual
+  Future<bool> signOut() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      
+      await _auth.signOut();
+      await _googleSignIn.signOut();
+      _currentUser = null;
+      _currentFirebaseUser = null;
+      _errorMessage = null;
+      
+      print('✓ Sesión cerrada');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = 'Error al cerrar sesión: $e';
+      _isLoading = false;
+      notifyListeners();
+      print('Error signing out: $e');
+      return false;
+    }
+  }
+
+  /// Actualiza el perfil del usuario
+  Future<bool> updateUserProfile({
+    String? username,
+    String? bio,
+    String? favoriteColor,
+    String? avatarUrl,
+  }) async {
+    if (_currentUser == null || _currentFirebaseUser == null) {
+      _errorMessage = 'No hay usuario autenticado';
+      return false;
+    }
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      // Actualizar en Firebase Auth si cambia el nombre
+      if (username != null && username != _currentUser!.username) {
+        await _currentFirebaseUser!.updateDisplayName(username);
+        await _currentFirebaseUser!.reload();
+      }
+
+      // Preparar datos para actualizar
+      Map<String, dynamic> updateData = {};
+      if (username != null) updateData['username'] = username;
+      if (bio != null) updateData['bio'] = bio;
+      if (favoriteColor != null) updateData['favoriteColor'] = favoriteColor;
+      if (avatarUrl != null) updateData['avatarUrl'] = avatarUrl;
+
+      // Actualizar en Realtime Database
+      final userRef = _database.ref('users/${_currentFirebaseUser!.uid}');
+      await userRef.update(updateData);
+
+      // Actualizar modelo local
+      _currentUser = _currentUser!.copyWith(
+        username: username,
+        bio: bio,
+        favoriteColor: favoriteColor,
+        avatarUrl: avatarUrl,
+      );
+
+      print('✓ Perfil actualizado');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Error al actualizar perfil: $e';
+      _isLoading = false;
+      notifyListeners();
+      print('Error updating profile: $e');
+      return false;
+    }
+  }
+
+  /// Elimina la cuenta del usuario
+  Future<bool> deleteUserAccount() async {
+    if (_currentUser == null || _currentFirebaseUser == null) {
+      _errorMessage = 'No hay usuario autenticado';
+      return false;
+    }
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final uid = _currentFirebaseUser!.uid;
+
+      // Eliminar datos de la BD
+      await _database.ref('users/$uid').remove();
+
+      // Eliminar usuario de Firebase Auth
+      await _currentFirebaseUser!.delete();
+
+      // Limpiar estado local
+      _currentUser = null;
+      _currentFirebaseUser = null;
+      _errorMessage = null;
+
+      print('✓ Cuenta eliminada');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Error al eliminar cuenta: $e';
+      _isLoading = false;
+      notifyListeners();
+      print('Error deleting account: $e');
+      return false;
+    }
+  }
+
+  /// Método auxiliar para guardar URL de avatar
+  Future<bool> updateAvatarUrl(String avatarUrl) async {
+    if (_currentUser == null || _currentFirebaseUser == null) {
+      _errorMessage = 'No hay usuario autenticado';
+      return false;
+    }
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      // Actualizar URL de foto en Firebase Auth
+      await _currentFirebaseUser!.updatePhotoURL(avatarUrl);
+      await _currentFirebaseUser!.reload();
+
+      // Actualizar en BD
+      final userRef = _database.ref('users/${_currentFirebaseUser!.uid}');
+      await userRef.update({'avatarUrl': avatarUrl});
+
+      // Actualizar modelo local
+      _currentUser = _currentUser!.copyWith(avatarUrl: avatarUrl);
+
+      print('✓ Avatar actualizado');
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = 'Error al actualizar avatar: $e';
+      _isLoading = false;
+      notifyListeners();
+      print('Error updating avatar: $e');
+      return false;
+    }
+  }
 }
+

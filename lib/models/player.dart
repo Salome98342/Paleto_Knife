@@ -196,7 +196,10 @@ class Player {
   /// Obtiene el rectangulo de colision del jugador
   Rect getHitbox() {
     return Rect.fromCenter(
-      center: Offset(position.dx, position.dy + (spriteHeight * 0.06)),
+      center: Offset(
+        position.dx - (spriteWidth * 0.08),
+        position.dy + (spriteHeight * 0.06),
+      ),
       width: hitboxWidth,
       height: hitboxHeight,
     );

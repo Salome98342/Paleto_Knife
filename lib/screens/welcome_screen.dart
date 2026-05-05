@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../services/auth_service.dart';
+import '../services/firebase_auth_service.dart';
 import '../services/welcome_message_service.dart';
 import 'main_layout.dart';
 
@@ -80,8 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final auth = AuthService();
-    final user = auth.getUser();
+    final user = FirebaseAuthService.instance.currentUser;
 
     if (user == null) {
       return Scaffold(
@@ -98,8 +97,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       );
     }
 
-    final welcomeMessage =
-        WelcomeMessageService.getRandomWelcomeMessage(user.username);
+    final welcomeMessage = WelcomeMessageService.getRandomWelcomeMessage(user.username);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1A),
