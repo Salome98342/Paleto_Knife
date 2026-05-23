@@ -1,13 +1,13 @@
-# 🔪 Paleto Knife - Clicker Game en Flutter
+# 🔪 Paleto Knife 
 
 ## Nombre del proyecto
-Paleto Knife — Knife Clicker
+Paleto Knife 
 
 ## Descripción general
-**Paleto Knife** es un juego clicker/autobattler desarrollado en **Flutter** con un estilo visual retro de 8 bits. El jugador entrena chefs (sous chefs) para combatir contra enemigos, mejora su equipo, realiza tiradas de gacha y explora diferentes regiones del mundo para progresar en el juego.
+**Paleto Knife** es un juego Bullet Hell desarrollado en **Flutter** con un estilo visual retro de 8 bits. El jugador entrena chefs (sous chefs) para combatir contra enemigos, mejora su equipo, realiza tiradas de gacha y explora diferentes regiones del mundo para progresar en el juego.
 
 ## Gameplay y mecánicas (Bullet Hell clásico)
-Paleto Knife fusiona mecánicas de clicker/progresión con combate en tiempo real al estilo "bullet hell" clásico. Puntos clave:
+Paleto Knife fusiona mecánicas de /progresión con combate en tiempo real al estilo "bullet hell" clásico. Puntos clave:
 
 - El jugador controla un chef que se mueve arrastrando (pan) en la pantalla; el jugador dispara automáticamente hacia arriba.
 - Controles principales: arrastrar para mover, doble-tap para dash (dash otorga invulnerabilidad breve y genera una explosión circular de proyectiles).
