@@ -1,6 +1,48 @@
 # 🔪 Paleto Knife - Clicker Game en Flutter
 
+## Nombre del proyecto
+Paleto Knife — Knife Clicker
+
+## Descripción general
 **Paleto Knife** es un juego clicker/autobattler desarrollado en **Flutter** con un estilo visual retro de 8 bits. El jugador entrena chefs (sous chefs) para combatir contra enemigos, mejora su equipo, realiza tiradas de gacha y explora diferentes regiones del mundo para progresar en el juego.
+
+## Gameplay y mecánicas (Bullet Hell clásico)
+Paleto Knife fusiona mecánicas de clicker/progresión con combate en tiempo real al estilo "bullet hell" clásico. Puntos clave:
+
+- El jugador controla un chef que se mueve arrastrando (pan) en la pantalla; el jugador dispara automáticamente hacia arriba.
+- Controles principales: arrastrar para mover, doble-tap para dash (dash otorga invulnerabilidad breve y genera una explosión circular de proyectiles).
+- Enemigos utilizan patrones de ataque configurables: `straight`, `aimed`, `spread`, `radial`.
+- Los bosses pueden tener patrones tipo Touhou (radial/spread con numerosas balas y fases). Existe un helper para probar bosses (`spawnTouhouBoss`) en el engine.
+- Colisiones: proyectiles usan pooling; las balas de enemigo dañan al jugador si el hitbox colisiona.
+- Sistema de olas: el `PaletoGame` gestiona spawn, conteo de muertes, y aparición de bosses.
+
+Consejos de gameplay y balance
+
+- Ajusta `enemiesToKillNextWave` y `_currentSpawnInterval` en [lib/game/paleto_game.dart](lib/game/paleto_game.dart) para controlar ritmo.
+- Modifica patrones en [lib/game_logic/enemy_system/attack_pattern.dart](lib/game_logic/enemy_system/attack_pattern.dart) y las definiciones en [lib/game_logic/enemy_system/enemy_types.dart](lib/game_logic/enemy_system/enemy_types.dart).
+- Pooling de proyectiles está en `PaletoGame` (`_bulletPool`) con tamaño 300; reduce/aumenta según rendimiento.
+
+Cómo probar un boss Touhou (rápido)
+
+Desde un entorno de desarrollo ejecuta la app y, desde la consola de debug o añadiendo un botón temporal que llame a `game.spawnTouhouBoss('elegant_asian')`, podrás invocar un boss con patrón radial para tests.
+
+## Arquitectura y archivos clave
+- `lib/game/paleto_game.dart`: motor principal, manejo de olas, spawn y colisiones.
+- `lib/game/components/bullet.dart`: comportamiento de proyectiles y pooling.
+- `lib/game/player/player.dart`: movimiento del jugador, dash (nova + invulnerabilidad), disparo automático.
+- `lib/game/enemies/enemy.dart`: lógica de enemigos (spawn, takeDamage, patrones).
+- `lib/game_logic/enemy_system/*`: definición de enemigos, patrones y bosses.
+- `lib/widgets/combat_arena.dart`: UI del campo de combate y renderizado de proyectiles.
+
+## Notas para desarrolladores
+- Para ajustar dificultad, revisa `EnemyTypeDefinition` en [lib/game_logic/enemy_system/enemy_types.dart](lib/game_logic/enemy_system/enemy_types.dart) (HP, pattern.cooldown, bulletSpeed, bulletCount).
+- Los sonidos de boss, hit y muerte están en `services/audio_service.dart` — úsalos para feedback en fases críticas.
+- El sistema usa Flame; los componentes extienden `PositionComponent` y el loop principal está en `FlameGame`.
+
+Si quieres, puedo:
+- Reescribir todo el `README.md` con estas secciones ordenadas y ejemplos de tuning (valores recomendados).
+- Generar un `DEVELOPER.md` con pasos rápidos para crear nuevos patrones y bosses.
+
 
 ## 🎮 Características Principales
 
@@ -53,7 +95,7 @@
 - Diferentes tipos: ataque, defensa, soporte
 - Combinaciones estratégicas para combate
 
-## 🛠️ Stack Tecnológico
+## 🔧 Tecnologías utilizadas
 
 | Componente | Tecnología |
 |-----------|-----------|
@@ -111,33 +153,46 @@ lib/
     └── ... (otros widgets)
 ```
 
-## 🚀 Instalación y Ejecución
+## 📥 Instrucciones de instalación
 
-### Prerequisites
+### Prerrequisitos
 - Flutter SDK (3.9+)
 - Dart SDK (3.9+)
 - Android Studio o Xcode (para compilación nativa)
 
-### Pasos
+### Instalación
 
 ```bash
 # 1. Clonar repo
 git clone <repo-url>
-cd Paleto\ Knife
+cd "Paleto Knife"
 
 # 2. Instalar dependencias
 flutter pub get
+```
 
-# 3. Ejecutar en desarrollo
-flutter run                    # Ejecuta en dispositivo/emulador conectado
-flutter run -d chrome         # Ejecuta en navegador
-flutter run -d windows        # Ejecuta en Windows
+## ▶️ Pasos para ejecutar el proyecto
 
-# 4. Build para producción
-flutter build android         # APK para Android
-flutter build ios             # App para iOS
-flutter build web             # Deploy web
-flutter build windows         # Ejecutable Windows
+### Ejecutar en desarrollo
+
+```bash
+# Ejecutar en dispositivo/emulador conectado
+flutter run
+
+# Ejecutar en navegador
+flutter run -d chrome
+
+# Ejecutar en Windows
+flutter run -d windows
+```
+
+### Construir artefactos
+
+```bash
+flutter build apk           # APK para Android
+flutter build ios           # App para iOS
+flutter build web           # Build para web
+flutter build windows       # Ejecutable Windows
 ```
 
 ## 🎯 Estado Actual del Proyecto
@@ -177,6 +232,14 @@ flutter build windows         # Ejecutable Windows
 ## 🤝 Contribuciones
 
 El proyecto está en desarrollo activo. Los sistemas principales están implementados y probados. Se acepta feedback sobre balanceo, nuevas features y optimizaciones.
+
+## 👥 Autores o integrantes del equipo
+
+- Como Jimmy Soft
+- Salome Rodriguez Moscoso
+- Kevin Santiago Trejos Serrano
+- Manuel Felipe Londoño
+- David Alejandro Escobar Garcia
 
 ## 📝 Licencia
 
