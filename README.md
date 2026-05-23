@@ -12,7 +12,7 @@ Paleto Knife fusiona mecánicas de clicker/progresión con combate en tiempo rea
 - El jugador controla un chef que se mueve arrastrando (pan) en la pantalla; el jugador dispara automáticamente hacia arriba.
 - Controles principales: arrastrar para mover, doble-tap para dash (dash otorga invulnerabilidad breve y genera una explosión circular de proyectiles).
 - Enemigos utilizan patrones de ataque configurables: `straight`, `aimed`, `spread`, `radial`.
-- Los bosses pueden tener patrones tipo Touhou (radial/spread con numerosas balas y fases). Existe un helper para probar bosses (`spawnTouhouBoss`) en el engine.
+- Los bosses pueden tener patrones tipo Bullet Hell (radial/spread con numerosas balas y fases). Existe un helper para probar bosses (`spawnBoss`) en el engine.
 - Colisiones: proyectiles usan pooling; las balas de enemigo dañan al jugador si el hitbox colisiona.
 - Sistema de olas: el `PaletoGame` gestiona spawn, conteo de muertes, y aparición de bosses.
 
@@ -22,9 +22,9 @@ Consejos de gameplay y balance
 - Modifica patrones en [lib/game_logic/enemy_system/attack_pattern.dart](lib/game_logic/enemy_system/attack_pattern.dart) y las definiciones en [lib/game_logic/enemy_system/enemy_types.dart](lib/game_logic/enemy_system/enemy_types.dart).
 - Pooling de proyectiles está en `PaletoGame` (`_bulletPool`) con tamaño 300; reduce/aumenta según rendimiento.
 
-Cómo probar un boss Touhou (rápido)
 
-Desde un entorno de desarrollo ejecuta la app y, desde la consola de debug o añadiendo un botón temporal que llame a `game.spawnTouhouBoss('elegant_asian')`, podrás invocar un boss con patrón radial para tests.
+
+Desde un entorno de desarrollo ejecuta la app y, desde la consola de debug o añadiendo un botón temporal que llame a `game.spawnBoss('elegant_asian')`, podrás invocar un boss con patrón radial para tests.
 
 ## Arquitectura y archivos clave
 - `lib/game/paleto_game.dart`: motor principal, manejo de olas, spawn y colisiones.
