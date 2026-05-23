@@ -24,7 +24,7 @@ class _AudioSettingsModalState extends State<AudioSettingsModal> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final modalWidth = screenWidth > 400 ? 350 : screenWidth * 0.85;
+    final double modalWidth = screenWidth > 400 ? 350.0 : screenWidth * 0.85;
     
     return Dialog(
       backgroundColor: Colors.transparent,

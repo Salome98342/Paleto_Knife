@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'experience_screen.dart';
+import '../services/consent_service.dart';
 
 /// Pantalla de presentación JimmySoft
 /// Muestra logo + texto con animación fade-in/out
@@ -68,10 +69,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   /// Navegar a ExperienceScreen
   void _navigateToNextScreen() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const ExperienceScreen()),
-    );
+    // Antes de navegar, asegurar consentimiento (si es la primera vez)
+    ConsentService.ensureConsent(context).then((_) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ExperienceScreen()),
+      );
+    });
   }
 
   @override

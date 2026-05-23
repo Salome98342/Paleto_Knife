@@ -477,7 +477,7 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
           }
         }
       } else {
-        if (!player.isInvulnerable && _checkCircleCollision(bullet, player)) {
+        if (!player.isInvulnerable && _checkBulletPlayerCollision(bullet)) {
           bullet.isActive = false;
 
           add(
@@ -515,9 +515,19 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
     return distanceSquared <= radiusSumSquared;
   }
 
+  bool _checkBulletPlayerCollision(BulletComponent bullet) {
+    final bulletRect = Rect.fromCenter(
+      center: bullet.position.toOffset(),
+      width: bullet.size.x,
+      height: bullet.size.y,
+    );
+
+    return bulletRect.overlaps(player.getHitbox());
+  }
+
   @override
   void onPanUpdate(DragUpdateInfo info) {
-    player.position.add(info.delta.global);
+    player.moveBy(info.delta.global);
   }
 
   @override

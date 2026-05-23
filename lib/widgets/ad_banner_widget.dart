@@ -13,7 +13,46 @@ class AdBannerWidget extends StatefulWidget {
 }
 
 class _AdBannerWidgetState extends State<AdBannerWidget> {
-  final AdService _adService = AdService();
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBanner();
+  }
+
+  void _loadBanner() {
+    if (kIsWeb) return;
+
+    _bannerAd = BannerAd(
+      adUnitId: AdService.bannerId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          if (!mounted) return;
+          setState(() => _isLoaded = true);
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          if (!mounted) return;
+          setState(() {
+            _isLoaded = false;
+            _bannerAd = null;
+          });
+        },
+      ),
+    );
+
+    _bannerAd!.load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,22 +62,17 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
     }
 
     // Mostrar banner si está listo, sino espacio
-    if (!_adService.isBannerReady) {
+    if (!_isLoaded || _bannerAd == null) {
       return const SizedBox(
         height: 50,
         child: SizedBox.shrink(),
       );
     }
 
-    final banner = _adService.getBanner();
-    if (banner == null) {
-      return const SizedBox(height: 50, child: SizedBox.shrink());
-    }
-
     return Container(
       height: AdSize.banner.height.toDouble(),
       color: Colors.black87,
-      child: AdWidget(ad: banner),
+      child: AdWidget(ad: _bannerAd!),
     );
   }
 }

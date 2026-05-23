@@ -168,6 +168,11 @@ class _WaveClearOverlayState extends State<WaveClearOverlay> {
                   onTap: () {
                     // Guardar progreso y continuar
                     eco.saveProgress();
+                    // Guardar oleada alcanzada por región
+                    try {
+                      final world = context.read<WorldController>();
+                      world.setSavedWave(widget.game.locationData.name, widget.game.currentWave);
+                    } catch (e) {}
                     // Actualizar progreso de recuperación en el mapa
                     final world = context.read<WorldController>();
                     world.updateRecoveryProgress(widget.game.locationData.name, recoveryPercentage);
@@ -199,6 +204,11 @@ class _WaveClearOverlayState extends State<WaveClearOverlay> {
                   onTap: () {
                     // Guardar, remover overlay y salir
                     eco.saveProgress();
+                    // Guardar oleada alcanzada por región
+                    try {
+                      final world = context.read<WorldController>();
+                      world.setSavedWave(widget.game.locationData.name, widget.game.currentWave);
+                    } catch (e) {}
                     eco.resetRun();
                     widget.game.overlays.remove('WaveClear');
                     widget.game.resumeEngine();

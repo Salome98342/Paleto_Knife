@@ -13,7 +13,6 @@ import 'gameplay_screen.dart'; // Import for RPG
 import 'world_view.dart'; // Import for World Map
 import 'user_profile_screen.dart';
 import '../widgets/settings_dialog.dart';
-import '../controllers/game_controller.dart';
 import '../services/audio_service.dart'; // Import for audios if needed
 
 class MainLayout extends StatefulWidget {
@@ -272,7 +271,7 @@ class _MainLayoutState extends State<MainLayout> {
 }
 
 class _HomeTab extends StatelessWidget {
-  const _HomeTab({super.key});
+  const _HomeTab();
 
   @override
   Widget build(BuildContext context) {

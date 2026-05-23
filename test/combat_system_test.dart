@@ -47,7 +47,7 @@ void main() {
     // Verify Boss System
     print('👑 Boss System:');
     print('  - Total bosses: ${BossCatalog.getAll().length}');
-    final dumpling = BossCatalog.get('gran_dumpling_ancestral')!;
+    final dumpling = BossCatalog.get('asia_boss_1_gran_dumpling')!;
     print('  - Dumpling boss HP: ${dumpling.maxHp}');
     print('  - Dumpling phases: ${dumpling.phases.length}');
     print('✅ Bosses verified\n');

@@ -118,7 +118,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
           context.read<EconomyController>().takeDamage(amount);
 
           // Verificar si el jugador murió
-          if (_gameState.playerHealth <= 0 && _gameState.status == GameStatus.playing) {
+          if (_gameState.playerHealth <= 0 &&
+              _gameState.status == GameStatus.playing) {
             _onPlayerDeath();
           }
 
@@ -167,6 +168,22 @@ class _GameplayScreenState extends State<GameplayScreen> {
         return 10.0;
       },
     );
+    // Inicializar oleada desde persistencia por región
+    try {
+      final world = context.read<WorldController>();
+      final saved = world.getSavedWave(world.selectedLocation.name);
+      if (saved > 1) {
+        _game.currentWave = saved;
+        // Ajustar enemigosToKillNextWave en función de la oleada inicial
+        if (context.read<WorldController>().selectedLocation.isAlert) {
+          _game.enemiesToKillNextWave = 25 + ((saved - 1) * 8);
+        } else {
+          _game.enemiesToKillNextWave = 15 + ((saved - 1) * 5);
+        }
+      }
+    } catch (e) {
+      debugPrint('[INFO] No se pudo inicializar oleada guardada: $e');
+    }
   }
 
   void _startPlayTimeTracking() {
@@ -201,7 +218,6 @@ class _GameplayScreenState extends State<GameplayScreen> {
   void _showChestReward() {
     final coins = _gameState.coinsEarned;
     final gems = _gameState.gemsEarned;
-    final enemiesDefeated = _gameState.enemiesDefeated;
 
     if (!mounted) return;
 
@@ -216,8 +232,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
             try {
               _game.resumeEngine();
               context.read<EconomyController>().saveProgress();
-              // Usar pop seguro con try-catch
-              if (Navigator.canPop(context)) {
+              if (Navigator.of(context).canPop()) {
                 Navigator.of(context).pop();
               }
             } catch (e) {
@@ -257,14 +272,14 @@ class _GameplayScreenState extends State<GameplayScreen> {
       final state = !isUnlocked
           ? StageCardState.locked
           : liberation >= 100
-              ? StageCardState.completed
-              : StageCardState.available;
+          ? StageCardState.completed
+          : StageCardState.available;
 
       final difficulty = location.bosses.length >= 3
           ? 3
           : location.bosses.isNotEmpty
-              ? 2
-              : 1;
+          ? 2
+          : 1;
 
       stages.add(
         StageData(
@@ -309,9 +324,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
             'UpgradeShop': (context, game) => UpgradeShopOverlay(game: game),
             'WaveClear': (context, game) => WaveClearOverlay(game: game),
             'PauseMenu': (context, game) => PauseMenuOverlay(game: game),
-            'GameOver': (context, game) => GameOverOverlay(
-              reviveSystem: _reviveSystem,
-            ),
+            'GameOver': (context, game) =>
+                GameOverOverlay(reviveSystem: _reviveSystem),
             'ThankYouAd': (context, game) => ThankYouAdOverlay(
               onComplete: () {
                 _game.overlays.remove('ThankYouAd');
@@ -333,9 +347,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
               },
             ),
           },
-          initialActiveOverlays: const [
-            'HUD',
-          ],
+          initialActiveOverlays: const ['HUD'],
         ),
       ),
     );

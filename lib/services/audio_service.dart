@@ -66,6 +66,7 @@ class AudioService extends ChangeNotifier {
   bool get musicEnabled => _musicEnabled;
   bool get sfxEnabled => _sfxEnabled;
   bool get isMusicPlaying => _isMusicPlaying;
+  bool get isInitialized => _initialized;
   double get musicVolume => _bgmVolume;
 
   @override

@@ -294,6 +294,7 @@ class EnemyComponent extends PositionComponent
     if (_isTouhouBoss && _touhouController != null) {
       if (!_touhouController!.isInvulnerable) {
         _touhouController!.takeDamage(amount);
+        hp = _touhouController!.currentHp;
       }
       return hp <= 0;
     }

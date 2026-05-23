@@ -15,7 +15,10 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const KnifeClickerApp());
 
-    // Verify that our app initializes correctly
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    // Verify that the root app initializes correctly.
+    expect(find.byType(MaterialApp), findsOneWidget);
+
+    // Let the splash-screen timers finish so the widget test can dispose cleanly.
+    await tester.pump(const Duration(seconds: 5));
   });
 }

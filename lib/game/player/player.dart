@@ -179,6 +179,11 @@ class PlayerComponent extends PositionComponent
 
   bool get isInvulnerable => _invulnerableTimer > 0;
 
+  void moveBy(Vector2 delta) {
+    position.add(delta);
+    _keepInBounds();
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
@@ -233,7 +238,7 @@ class PlayerComponent extends PositionComponent
     // Renderizar la imagen del chef
     if (_chefFrames.isNotEmpty) {
       final frame = _chefFrames[_chefFrameIndex].image;
-      final sourceRect = Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble());
+      final sourceRect = _getChefSourceRect(frame);
 
       canvas.drawImageRect(
         frame,
@@ -285,8 +290,9 @@ class PlayerComponent extends PositionComponent
     }
 
     final frame = _chefFrames[_chefFrameIndex].image;
+    final sourceRect = _getChefSourceRect(frame);
     final fittedSize = _fitContain(
-      Size(frame.width.toDouble(), frame.height.toDouble()),
+      Size(sourceRect.width, sourceRect.height),
       Size(size.x, size.y),
     );
 
@@ -316,22 +322,15 @@ class PlayerComponent extends PositionComponent
 
   Rect _getLocalVisibleContentRect([Rect? spriteRect]) {
     final baseSpriteRect = spriteRect ?? _getLocalSpriteRect();
-    final sourceBounds = _chefVisibleSourceBounds;
-    final sourceSize = _chefSourceSize;
 
-    if (sourceBounds == null || sourceSize == null) {
-      return baseSpriteRect;
-    }
+    // The sprite is rendered from the cropped visible source rect, so the local
+    // sprite rect already represents visible chef pixels.
+    return baseSpriteRect;
+  }
 
-    final scaleX = baseSpriteRect.width / sourceSize.width;
-    final scaleY = baseSpriteRect.height / sourceSize.height;
-
-    return Rect.fromLTWH(
-      baseSpriteRect.left + (sourceBounds.left * scaleX),
-      baseSpriteRect.top + (sourceBounds.top * scaleY),
-      sourceBounds.width * scaleX,
-      sourceBounds.height * scaleY,
-    );
+  Rect _getChefSourceRect(ui.Image frame) {
+    return _chefVisibleSourceBounds ??
+        Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble());
   }
 
   Future<Rect?> _calculateVisibleSourceBounds(List<ui.Image> frames) async {

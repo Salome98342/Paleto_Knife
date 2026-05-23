@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import '../services/firebase_auth_service.dart';
 import '../ui/theme/paleto_colors.dart';
 
@@ -18,7 +19,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _bioController;
   String? _selectedFavoriteColor;
   bool _isLoading = false;
-  File? _selectedImage;
+  // _selectedImage not needed; upload is handled directly via service
 
   @override
   void initState() {
@@ -222,53 +223,54 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          if (_selectedImage != null)
-            Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                border: Border.all(color: PaletoColors.borderDark, width: 2),
-              ),
-              child: Image.file(
-                _selectedImage!,
-                fit: BoxFit.cover,
-              ),
-            )
-          else
-            Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                border: Border.all(color: PaletoColors.borderDark, width: 2),
-                color: PaletoColors.bgDeep,
-              ),
-              child: Center(
-                child: Text(
-                  '📷',
-                  style: GoogleFonts.pressStart2p(fontSize: 50),
-                ),
-              ),
+          Container(
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+              border: Border.all(color: PaletoColors.borderDark, width: 2),
             ),
+            child: Consumer<FirebaseAuthService>(
+              builder: (context, authService, _) {
+                final avatar = authService.currentUser?.avatarUrl;
+                if (avatar != null && avatar.isNotEmpty) {
+                  return Image.network(
+                    avatar,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stack) => Center(child: Text('📷', style: GoogleFonts.pressStart2p(fontSize: 50))),
+                  );
+                }
+                return Container(color: PaletoColors.bgDeep, child: Center(child: Text('📷', style: GoogleFonts.pressStart2p(fontSize: 50))));
+              },
+            ),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: _buildSmallButton('GALERÍA', () {
+                child: _buildSmallButton('GALERÍA', () async {
+                  setState(() => _isLoading = true);
+                  final authService = Provider.of<FirebaseAuthService>(context, listen: false);
+                  final success = await authService.pickAndUploadAvatar(source: ImageSource.gallery);
+                  setState(() => _isLoading = false);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('📷 Seleccionar imagen (próximamente)'),
-                      duration: Duration(seconds: 2),
+                    SnackBar(
+                      content: Text(success ? 'Avatar subido' : (authService.errorMessage ?? 'Error al subir avatar')),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 }),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _buildSmallButton('CÁMARA', () {
+                child: _buildSmallButton('CÁMARA', () async {
+                  setState(() => _isLoading = true);
+                  final authService = Provider.of<FirebaseAuthService>(context, listen: false);
+                  final success = await authService.pickAndUploadAvatar(source: ImageSource.camera);
+                  setState(() => _isLoading = false);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('📸 Usar cámara (próximamente)'),
-                      duration: Duration(seconds: 2),
+                    SnackBar(
+                      content: Text(success ? 'Avatar subido' : (authService.errorMessage ?? 'Error al subir avatar')),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 }),

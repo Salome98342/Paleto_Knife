@@ -52,6 +52,7 @@ class WorldController extends ChangeNotifier {
   late LocationData selectedLocation;
 
   Map<String, double> liberationProgress = {};
+  Map<String, int> savedWaves = {};
 
   WorldController() {
     _initializeLocations();
@@ -250,6 +251,9 @@ class WorldController extends ChangeNotifier {
     for (var key in liberationProgress.keys) {
       prefs.setDouble('liberation_$key', liberationProgress[key]!);
     }
+    for (var key in savedWaves.keys) {
+      prefs.setInt('wave_$key', savedWaves[key]!);
+    }
   }
 
   Future<void> _loadData() async {
@@ -257,8 +261,22 @@ class WorldController extends ChangeNotifier {
     for (var loc in locations) {
       liberationProgress[loc.name] =
           prefs.getDouble('liberation_${loc.name}') ?? 0.0;
+      savedWaves[loc.name] = prefs.getInt('wave_${loc.name}') ?? 1;
     }
     notifyListeners();
+  }
+
+  /// Guarda la oleada actual para una región
+  Future<void> setSavedWave(String locationName, int wave) async {
+    savedWaves[locationName] = wave;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('wave_$locationName', wave);
+    notifyListeners();
+  }
+
+  /// Obtiene la oleada guardada para una región (por defecto 1)
+  int getSavedWave(String locationName) {
+    return savedWaves[locationName] ?? 1;
   }
 
   Future<void> updateRecoveryProgress(String locationName, double recoveryPercentage) async {

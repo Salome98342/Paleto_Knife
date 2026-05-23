@@ -20,9 +20,9 @@ class _AudioTestScreenState extends State<AudioTestScreen> {
   }
 
   Future<void> _checkAudioStatus() async {
-    await AudioService.instance._ensureInitialized();
+    await AudioService.init();
     setState(() {
-      _status = 'AudioService._initialized = ${AudioService.instance._initialized}';
+      _status = 'AudioService.isInitialized = ${AudioService.instance.isInitialized}';
     });
   }
 
@@ -126,9 +126,9 @@ class _AudioTestScreenState extends State<AudioTestScreen> {
             ElevatedButton(
               onPressed: () async {
                 debugPrint('[TEST] 🔄 Re-inicializando AudioService');
-                await AudioService.instance._ensureInitialized();
+                await AudioService.init();
                 setState(() {
-                  _status = 'AudioService._initialized = ${AudioService.instance._initialized}';
+                  _status = 'AudioService.isInitialized = ${AudioService.instance.isInitialized}';
                 });
               },
               child: const Text('Reiniciar AudioService'),

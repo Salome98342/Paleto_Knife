@@ -1,10 +1,13 @@
 import 'package:flame/components.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
 
-class AlertWarningBorder extends PositionComponent {
+class AlertWarningBorder extends PositionComponent
+    with HasGameReference<FlameGame> {
   static const double borderHeight = 40;
   static const double stripesSpeed = 200;
   static const double alertDuration = 6.0;
-  
+
   final bool isTopBorder;
   late Timer _alertTimer;
   late Sprite _stripesSprite;
@@ -16,27 +19,19 @@ class AlertWarningBorder extends PositionComponent {
 
   @override
   Future<void> onLoad() async {
-    // Cargar la imagen
-    _stripesSprite = Sprite(await gameRef.images.load('stripes_pattern.png'));
+    await super.onLoad();
 
-    // Configurar tamaño y posición
-    size = Vector2(gameRef.size.x, borderHeight);
-    position = Vector2(
-      0,
-      isTopBorder ? 0 : gameRef.size.y - borderHeight,
-    );
+    _stripesSprite = Sprite(await game.images.load('stripes_pattern.png'));
+    size = Vector2(game.size.x, borderHeight);
+    position = Vector2(0, isTopBorder ? 0 : game.size.y - borderHeight);
 
-    // Iniciar timer de duración
-    _alertTimer = Timer(alertDuration, onTick: _removeAlert);
-    _alertTimer.start();
+    _alertTimer = Timer(alertDuration, onTick: removeFromParent)..start();
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     _alertTimer.update(dt);
-    
-    // Actualizar scroll offset para movimiento continuo
     _scrollOffset += stripesSpeed * dt;
   }
 
@@ -44,11 +39,7 @@ class AlertWarningBorder extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    // Obtener dimensiones de la imagen
     final spriteWidth = _stripesSprite.src.width;
-    final spriteHeight = _stripesSprite.src.height;
-
-    // Dibujar patrón repetido con offset
     var currentX = -(_scrollOffset % spriteWidth);
 
     while (currentX < size.x) {
@@ -59,9 +50,5 @@ class AlertWarningBorder extends PositionComponent {
       );
       currentX += spriteWidth;
     }
-  }
-
-  void _removeAlert() {
-    removeFromParent();
   }
 }

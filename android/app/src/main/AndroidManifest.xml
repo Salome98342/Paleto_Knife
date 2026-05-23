@@ -2,6 +2,11 @@
     <!-- Permisos de red -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Permisos para cámara y acceso a imágenes -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Android 13+ permiso para imágenes -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     
     <!-- Permisos de audio -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
@@ -15,13 +20,12 @@
         android:required="false"/>
     
     <!-- Permitir tráfico HTTP (necesario para Web audio en algunos casos) -->
-    <uses-permission android:name="android.permission.READ_LOGS"/>
     
     <application
         android:label="knife_clicker"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="false">
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>

@@ -15,7 +15,7 @@ class GachaEntity {
   final String name;
   final GachaRarity rarity;
   final IconData icon;
-  final String? imagePath; // Ruta de imagen personalizada (ej: 'chef_linea/linea.png')
+  final String? imagePath; // Ruta de imagen personalizada.
   final String lore;
   final bool isChef;
 
@@ -523,15 +523,16 @@ class ChefController extends ChangeNotifier {
     final rand = math.Random();
     if (rand.nextDouble() < 0.20) {
       // Te regalamos un pull de caja Epic gratis como recompensa gorda! (o rara, ajustemos balance)
-      rollGacha(true, 1, "Raro", eco); // Cofre raro
+      final results = rollGacha(true, 1, "Raro", eco); // Cofre raro
+      final rewardName = results.isNotEmpty
+          ? results.first.entity.name
+          : 'recompensa';
 
       // Mostrar feedback al usuario del drop especial del Jefe
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.purple,
-          content: Text(
-            "¡El Jefe soltó un Cofre Raro! Obtenido: \${results.first.entity.name}",
-          ),
+          content: Text('El jefe solto un Cofre Raro. Obtenido: $rewardName'),
           duration: const Duration(seconds: 4),
         ),
       );
@@ -571,7 +572,7 @@ class ChefController extends ChangeNotifier {
     final randomChef = chefList[rng.nextInt(chefList.length)];
     // Drop 1 to 3 tokens
     final amount = rng.nextInt(3) + 1;
-    
+
     // Grant via ProgressionSystem
     _progressionSystem.grantTokens(randomChef.id, amount);
 

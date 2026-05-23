@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'consent_service.dart' as local_consent;
 
 class AdService {
   // =========================
@@ -10,16 +11,40 @@ class AdService {
   AdService._internal();
 
   // =========================
-  // IDS (GOOGLE TEST - PARA DESARROLLO)
+  // =========================
+  // Ad unit configuration
+  // Default values use Google's test ad units. Replace these at release
+  // with your real AdMob unit IDs via `setAdUnitIds(...)` before calling `init()`.
   // =========================
 
-  static const String bannerId = 'ca-app-pub-3940256099942544/6300978111';
-  static const String interstitialId = 'ca-app-pub-3940256099942544/1033173712';
+  static String bannerUnitId = 'ca-app-pub-3940256099942544/6300978111';
+  static String interstitialUnitId = 'ca-app-pub-3940256099942544/1033173712';
 
-  static const String rewardedGemasId = 'ca-app-pub-3940256099942544/5224354917';
-  static const String rewardedMonedasId = 'ca-app-pub-3940256099942544/5224354917';
-  static const String rewardedRevivirId = 'ca-app-pub-3940256099942544/5224354917';
-  static const String rewardedGachaId = 'ca-app-pub-3940256099942544/5224354917';
+  static String rewardedGemasUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  static String rewardedMonedasUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  static String rewardedRevivirUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  static String rewardedGachaUnitId = 'ca-app-pub-3940256099942544/5224354917';
+
+  // Test device IDs for development. Set to your device id(s) while testing.
+  // Example: ['ABCDEF012345']  (leave empty for production)
+  static List<String> testDeviceIds = [];
+
+  /// Replace ad unit IDs programmatically (call before `init()` in main)
+  static void setAdUnitIds({
+    String? banner,
+    String? interstitial,
+    String? rewardedGemas,
+    String? rewardedMonedas,
+    String? rewardedRevivir,
+    String? rewardedGacha,
+  }) {
+    if (banner != null) bannerUnitId = banner;
+    if (interstitial != null) interstitialUnitId = interstitial;
+    if (rewardedGemas != null) rewardedGemasUnitId = rewardedGemas;
+    if (rewardedMonedas != null) rewardedMonedasUnitId = rewardedMonedas;
+    if (rewardedRevivir != null) rewardedRevivirUnitId = rewardedRevivir;
+    if (rewardedGacha != null) rewardedGachaUnitId = rewardedGacha;
+  }
 
   // =========================
   // INSTANCIAS
@@ -62,30 +87,51 @@ class AdService {
     }
 
     _log('📱 Initializing AdService on mobile platform...');
+    // Apply test device ids configuration for development (no-op if empty)
+    try {
+      await MobileAds.instance.updateRequestConfiguration(
+        RequestConfiguration(testDeviceIds: testDeviceIds),
+      );
+      _log('✅ RequestConfiguration applied: testDeviceIds=${testDeviceIds}');
+    } catch (e) {
+      _log('⚠️ Failed to apply RequestConfiguration: $e');
+    }
+
     await MobileAds.instance.initialize();
     _log('✅ MobileAds initialized successfully');
 
-    _log('📦 Loading all ads...');
-    loadBanner();
-    loadInterstitial();
+    // Check consent preferences and decide whether to load ads
+    final consent = await local_consent.ConsentService.getConsentStatus();
+    final adFree = consent == local_consent.ConsentStatus.adFree;
+    final nonPersonalized = consent == local_consent.ConsentStatus.nonPersonalized;
 
-    loadRewardedGemas();
-    loadRewardedMonedas();
-    loadRewardedRevivir();
-    loadRewardedGacha();
+    if (adFree) {
+      _log('User opted-out of ads (ad-free). Skipping ad loading.');
+      return;
+    }
+
+    _log('📦 Loading all ads... (nonPersonalized=$nonPersonalized)');
+    loadBanner(nonPersonalized: nonPersonalized);
+    loadInterstitial(nonPersonalized: nonPersonalized);
+
+    loadRewardedGemas(nonPersonalized: nonPersonalized);
+    loadRewardedMonedas(nonPersonalized: nonPersonalized);
+    loadRewardedRevivir(nonPersonalized: nonPersonalized);
+    loadRewardedGacha(nonPersonalized: nonPersonalized);
   }
 
   // =========================
   // BANNER
   // =========================
 
-  void loadBanner() {
+  void loadBanner({bool nonPersonalized = false}) {
     if (kIsWeb) return;
+    final request = nonPersonalized ? AdRequest(nonPersonalizedAds: true) : const AdRequest();
 
     _bannerAd = BannerAd(
-      adUnitId: bannerId,
+      adUnitId: bannerUnitId,
       size: AdSize.banner,
-      request: const AdRequest(),
+      request: request,
       listener: BannerAdListener(
         onAdLoaded: (_) {
           isBannerReady = true;
@@ -108,12 +154,13 @@ class AdService {
   // INTERSTITIAL
   // =========================
 
-  void loadInterstitial() {
+  void loadInterstitial({bool nonPersonalized = false}) {
     if (kIsWeb) return;
+    final request = nonPersonalized ? AdRequest(nonPersonalizedAds: true) : const AdRequest();
 
     InterstitialAd.load(
-      adUnitId: interstitialId,
-      request: const AdRequest(),
+      adUnitId: interstitialUnitId,
+      request: request,
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           _interstitialAd = ad;
@@ -155,6 +202,7 @@ class AdService {
     required String id,
     required Function(RewardedAd) onLoaded,
     required Function() onFailed,
+    bool nonPersonalized = false,
   }) {
     _log('Loading RewardedAd with ID: $id');
     
@@ -163,9 +211,11 @@ class AdService {
       return;
     }
 
+    final request = nonPersonalized ? AdRequest(nonPersonalizedAds: true) : const AdRequest();
+
     RewardedAd.load(
       adUnitId: id,
-      request: const AdRequest(),
+      request: request,
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
           _log('✅ RewardedAd loaded successfully: $id');
@@ -214,14 +264,15 @@ class AdService {
   // GEMAS
   // =========================
 
-  void loadRewardedGemas() {
+  void loadRewardedGemas({bool nonPersonalized = false}) {
     _loadRewarded(
-      id: rewardedGemasId,
+      id: rewardedGemasUnitId,
       onLoaded: (ad) {
         _rewardedGemas = ad;
         isRewardedGemasReady = true;
       },
       onFailed: () => isRewardedGemasReady = false,
+      nonPersonalized: nonPersonalized,
     );
   }
 
@@ -257,14 +308,15 @@ class AdService {
   // MONEDAS
   // =========================
 
-  void loadRewardedMonedas() {
+  void loadRewardedMonedas({bool nonPersonalized = false}) {
     _loadRewarded(
-      id: rewardedMonedasId,
+      id: rewardedMonedasUnitId,
       onLoaded: (ad) {
         _rewardedMonedas = ad;
         isRewardedMonedasReady = true;
       },
       onFailed: () => isRewardedMonedasReady = false,
+      nonPersonalized: nonPersonalized,
     );
   }
 
@@ -300,14 +352,15 @@ class AdService {
   // REVIVIR
   // =========================
 
-  void loadRewardedRevivir() {
+  void loadRewardedRevivir({bool nonPersonalized = false}) {
     _loadRewarded(
-      id: rewardedRevivirId,
+      id: rewardedRevivirUnitId,
       onLoaded: (ad) {
         _rewardedRevivir = ad;
         isRewardedRevivirReady = true;
       },
       onFailed: () => isRewardedRevivirReady = false,
+      nonPersonalized: nonPersonalized,
     );
   }
 
@@ -343,14 +396,15 @@ class AdService {
   // GACHA
   // =========================
 
-  void loadRewardedGacha() {
+  void loadRewardedGacha({bool nonPersonalized = false}) {
     _loadRewarded(
-      id: rewardedGachaId,
+      id: rewardedGachaUnitId,
       onLoaded: (ad) {
         _rewardedGacha = ad;
         isRewardedGachaReady = true;
       },
       onFailed: () => isRewardedGachaReady = false,
+      nonPersonalized: nonPersonalized,
     );
   }
 

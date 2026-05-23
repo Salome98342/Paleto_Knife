@@ -11,6 +11,7 @@ import 'controllers/economy_controller.dart';
 import 'controllers/world_controller.dart';
 import 'controllers/chef_controller.dart';
 import 'controllers/settings_controller.dart';
+import 'controllers/quest_controller.dart';
 import 'services/audio_service.dart';
 import 'services/ad_service.dart';
 import 'services/firebase_auth_service.dart';
@@ -34,7 +35,7 @@ class PixelColors {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     // Inicializar Firebase
     print('🔥 Inicializando Firebase...');
@@ -46,7 +47,7 @@ void main() async {
     print('❌ Error inicializando Firebase: $e');
     // Continuar de todas formas
   }
-  
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -81,7 +82,7 @@ void main() async {
   } catch (e) {
     print('❌ Error en FirebaseAuthService: $e');
   }
-  
+
   try {
     print('⚔️ Inicializando Combat System...');
     initializeCombatSystem();
@@ -105,13 +106,22 @@ void main() async {
       child: MultiProvider(
         providers: [
           // Audio Service DEBE ser registrado primero para que esté disponible globalmente
-          ChangeNotifierProvider<AudioService>.value(value: AudioService.instance),
-          ChangeNotifierProvider<FirebaseAuthService>.value(value: FirebaseAuthService.instance),
-          ChangeNotifierProvider(create: (_) => SettingsController()..initialize()),
+          ChangeNotifierProvider<AudioService>.value(
+            value: AudioService.instance,
+          ),
+          ChangeNotifierProvider<FirebaseAuthService>.value(
+            value: FirebaseAuthService.instance,
+          ),
+          ChangeNotifierProvider(
+            create: (_) => SettingsController()..initialize(),
+          ),
           ChangeNotifierProvider(create: (_) => GameController()..initialize()),
           ChangeNotifierProvider(create: (_) => EconomyController()),
           ChangeNotifierProvider(create: (_) => WorldController()),
           ChangeNotifierProvider(create: (_) => ChefController()),
+          ChangeNotifierProvider(
+            create: (_) => QuestController()..initialize(),
+          ),
         ],
         child: const KnifeClickerApp(),
       ),

@@ -2,7 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'dart:convert';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+// dart:typed_data not required directly
+// dart:convert removed (not used)
 import '../models/user.dart' as user_module;
 
 typedef UserModel = user_module.UserModel;
@@ -514,6 +517,37 @@ class FirebaseAuthService extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       print('Error updating avatar: $e');
+      return false;
+    }
+  }
+
+  /// Selecciona imagen del dispositivo (galería o cámara) y la sube a Firebase Storage.
+  /// Al terminar actualiza la URL en Auth y Realtime DB.
+  Future<bool> pickAndUploadAvatar({ImageSource source = ImageSource.gallery}) async {
+    if (_currentFirebaseUser == null) {
+      _errorMessage = 'No hay usuario autenticado';
+      return false;
+    }
+
+    try {
+      final picker = ImagePicker();
+      final XFile? file = await picker.pickImage(source: source, maxWidth: 1200, imageQuality: 80);
+      if (file == null) return false;
+
+      final bytes = await file.readAsBytes();
+      final uid = _currentFirebaseUser!.uid;
+      final ref = FirebaseStorage.instance.ref().child('avatars/$uid/avatar.jpg');
+
+      final uploadTask = ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
+      await uploadTask;
+      final url = await ref.getDownloadURL();
+
+      // Actualizar URL en Auth y en Realtime DB
+      return await updateAvatarUrl(url);
+    } catch (e) {
+      _errorMessage = 'Error al subir avatar: $e';
+      notifyListeners();
+      debugPrint('[FirebaseAuthService] upload avatar error: $e');
       return false;
     }
   }

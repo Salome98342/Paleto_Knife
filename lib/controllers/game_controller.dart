@@ -4,6 +4,7 @@ import '../models/player_progress_data.dart';
 import '../models/technique.dart';
 import '../models/sous_chef.dart';
 import '../services/storage_service.dart';
+import '../services/firebase_auth_service.dart';
 
 /// Controlador principal del juego que maneja toda la logica de progresion
 /// Utiliza ChangeNotifier para notificar cambios a la UI
@@ -16,6 +17,8 @@ class GameController extends ChangeNotifier {
 
   PlayerProgressData _gameState = PlayerProgressData();
   Timer? _saveTimer;
+  Timer? _syncDebounceTimer;
+  Duration _syncDebounceDuration = const Duration(seconds: 20);
 
   bool _isInitialized = false;
 
@@ -397,6 +400,29 @@ class GameController extends ChangeNotifier {
     _gameState.lastSaveTime = DateTime.now();
     await _storageService.saveGameState(_gameState);
     debugPrint('Juego guardado');
+    // Programar sincronización al servidor (debounced)
+    _syncDebounceTimer?.cancel();
+    _syncDebounceTimer = Timer(_syncDebounceDuration, () async {
+      await _syncToServer();
+    });
+  }
+
+  /// Sincroniza el estado guardado localmente con Firebase (si hay sesión)
+  Future<void> _syncToServer() async {
+    try {
+      final auth = FirebaseAuthService.instance;
+      if (!auth.isSignedIn) {
+        debugPrint('No conectado: omitiendo sync al servidor');
+        return;
+      }
+
+      // Enviar representación JSON del estado del juego
+      final payload = _gameState.toJson();
+      await auth.saveGameData(payload);
+      debugPrint('Sincronización con servidor completada');
+    } catch (e) {
+      debugPrint('Error sincronizando con servidor: $e');
+    }
   }
 
   /// Alias para saveGame() - usado por SessionSyncService
@@ -414,6 +440,8 @@ class GameController extends ChangeNotifier {
   @override
   void dispose() {
     _saveTimer?.cancel();
+    _syncDebounceTimer?.cancel();
+    // Guardar local y sincronizar (sin bloquear dispose)
     saveGame(); // Guardar antes de cerrar
     super.dispose();
   }
