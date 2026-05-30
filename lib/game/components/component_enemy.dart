@@ -41,9 +41,7 @@ class ComponentEnemy extends PositionComponent {
     var typeDefinition = EnemyTypesCatalog.get(enemy.name.toLowerCase());
     
     // Si no encuentra, usar 'grunt' como default
-    if (typeDefinition == null) {
-      typeDefinition = EnemyTypesCatalog.get('grunt')!;
-    }
+    typeDefinition ??= EnemyTypesCatalog.get('grunt')!;
     
     enemyType = typeDefinition;
 

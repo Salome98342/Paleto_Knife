@@ -17,7 +17,7 @@ class EnemyCardWidget extends StatefulWidget {
   final EnemyTypeDefinition? enemyDefinition;
 
   const EnemyCardWidget({
-    Key? key,
+    super.key,
     required this.name,
     required this.description,
     required this.icon,
@@ -28,7 +28,7 @@ class EnemyCardWidget extends StatefulWidget {
     required this.elementColor,
     this.isNeutral = false,
     this.enemyDefinition,
-  }) : super(key: key);
+  });
 
   @override
   State<EnemyCardWidget> createState() => _EnemyCardWidgetState();

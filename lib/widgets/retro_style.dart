@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../utils/responsive_utils.dart';
 import '../utils/retro_responsive_style.dart';
 
 class RetroStyle {

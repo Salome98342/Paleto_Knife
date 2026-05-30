@@ -27,7 +27,6 @@ class ChestComponent extends PositionComponent {
   double _shakeTimer = 0.0;
   final double _shakeDuration = 0.5;
   final double _shakeIntensity = 3.0;
-  bool _shakeCompleted = false;
   
   // Control de clicks
   bool _clickInProgress = false;
@@ -79,7 +78,6 @@ class ChestComponent extends PositionComponent {
     
     _currentState = ChestState.shake;
     _shakeTimer = 0.0;
-    _shakeCompleted = false;
     _clickInProgress = true;
     
     // Aquí cargarías la animación Lottie de sacudida
@@ -90,7 +88,7 @@ class ChestComponent extends PositionComponent {
   Future<void> setOpenState() async {
     if (_currentState == ChestState.open) return;
     
-    print('[ChestComponent] Activando estado OPEN');
+    debugPrint('[ChestComponent] Activando estado OPEN');
     _currentState = ChestState.open;
     _clickInProgress = true;
     
@@ -100,11 +98,11 @@ class ChestComponent extends PositionComponent {
     // await Future.delayed(Duration(milliseconds: 800)); // Duración de la animación
     
     // Disparar callback cuando la animación de apertura termina completamente
-    print('[ChestComponent] Disparando callback onChestOpened');
+    debugPrint('[ChestComponent] Disparando callback onChestOpened');
     if (onChestOpened != null) {
       onChestOpened!();
     } else {
-      print('[ChestComponent] ⚠️ onChestOpened es null');
+      debugPrint('[ChestComponent] ⚠️ onChestOpened es null');
     }
   }
 
@@ -117,29 +115,29 @@ class ChestComponent extends PositionComponent {
     // Radio de interacción: 50% del tamaño más grande (área más grande para facilitar el tap)
     final interactionRadius = math.max(size.x, size.y) * 0.5;
     
-    print('[ChestComponent.hitTest] Posición cofre: ${position}, Click: $clickPos');
-    print('[ChestComponent.hitTest] Distancia: $distance, Radio: $interactionRadius');
-    print('[ChestComponent.hitTest] ¿Dentro? ${distance <= interactionRadius}');
+    debugPrint('[ChestComponent.hitTest] Posición cofre: $position, Click: $clickPos');
+    debugPrint('[ChestComponent.hitTest] Distancia: $distance, Radio: $interactionRadius');
+    debugPrint('[ChestComponent.hitTest] ¿Dentro? ${distance <= interactionRadius}');
     
     return distance <= interactionRadius;
   }
 
   /// Maneja el evento de click/toque en el cofre
   void onTap() {
-    print('[ChestComponent.onTap] ¡LLAMADO! Estado actual: $_currentState');
+    debugPrint('[ChestComponent.onTap] ¡LLAMADO! Estado actual: $_currentState');
     
     if (_currentState == ChestState.open || _clickInProgress) {
-      print('[ChestComponent.onTap] Ignorado - ya está abierto o en proceso');
+      debugPrint('[ChestComponent.onTap] Ignorado - ya está abierto o en proceso');
       return;
     }
     
     if (_currentState == ChestState.idle) {
-      print('[ChestComponent.onTap] Transición: idle -> shake');
+      debugPrint('[ChestComponent.onTap] Transición: idle -> shake');
       // Transición: idle -> shake
       setShakeState();
       // Después de la sacudida, ir a open
       Future.delayed(const Duration(milliseconds: 500), () {
-        print('[ChestComponent.onTap] Después de shake, abriendo...');
+        debugPrint('[ChestComponent.onTap] Después de shake, abriendo...');
         setOpenState();
       });
     }
@@ -177,7 +175,6 @@ class ChestComponent extends PositionComponent {
     _shakeTimer += dt;
     
     if (_shakeTimer >= _shakeDuration) {
-      _shakeCompleted = true;
       // Volver a posición base al completar shake
       position.setFrom(_basePosition);
       return;
@@ -224,10 +221,6 @@ class ChestComponent extends PositionComponent {
       ..color = const Color(0xFFA0826D) // Madera clara
       ..style = PaintingStyle.fill;
     
-    final darkPaint = Paint()
-      ..color = const Color(0xFF5C4033) // Madera oscura
-      ..style = PaintingStyle.fill;
-    
     final borderPaint = Paint()
       ..color = const Color(0xFF3D2817) // Borde oscuro
       ..style = PaintingStyle.stroke
@@ -235,7 +228,7 @@ class ChestComponent extends PositionComponent {
     
     // Sombra base
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
+      ..color = Colors.black.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
     canvas.drawOval(
       Rect.fromCenter(
@@ -279,7 +272,7 @@ class ChestComponent extends PositionComponent {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Colors.white.withOpacity(0.2),
+          Colors.white.withValues(alpha: 0.2),
           Colors.transparent,
         ],
       ).createShader(
@@ -302,7 +295,7 @@ class ChestComponent extends PositionComponent {
     
     // Brillo de metal en la cerradura
     final metallicPaint = Paint()
-      ..color = Colors.white.withOpacity(0.6)
+      ..color = Colors.white.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(
       Offset(-size.x * 0.06, size.y * 0.10),
@@ -326,7 +319,7 @@ class ChestComponent extends PositionComponent {
     // Brillo en reposo (idle)
     if (_currentState == ChestState.idle) {
       final highlightPaint = Paint()
-        ..color = Colors.white.withOpacity(0.3)
+        ..color = Colors.white.withValues(alpha: 0.3)
         ..style = PaintingStyle.fill;
       
       canvas.drawRRect(
@@ -361,7 +354,7 @@ class ChestComponent extends PositionComponent {
     
     // Sombra
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
+      ..color = Colors.black.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
     canvas.drawOval(
       Rect.fromCenter(
@@ -442,20 +435,20 @@ class ChestComponent extends PositionComponent {
       canvas.drawCircle(
         pos + Offset(-size.x * 0.04, -size.x * 0.04),
         size.x * 0.04,
-        Paint()..color = Colors.white.withOpacity(0.7),
+        Paint()..color = Colors.white.withValues(alpha: 0.7),
       );
       
       // Destello adicional
       canvas.drawCircle(
         pos + Offset(size.x * 0.02, size.x * 0.02),
         size.x * 0.02,
-        Paint()..color = Colors.white.withOpacity(0.4),
+        Paint()..color = Colors.white.withValues(alpha: 0.4),
       );
     }
     
     // Efecto de brillo del cofre abierto
     final glowPaint = Paint()
-      ..color = const Color(0xFFFFD700).withOpacity(0.3)
+      ..color = const Color(0xFFFFD700).withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
     
     canvas.drawRRect(

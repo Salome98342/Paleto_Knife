@@ -123,13 +123,11 @@ class CombatController extends ChangeNotifier {
   /// Actualizacion principal del juego
   void _update(double deltaTime) {
     // Sincronizar stats desde GameController si existe
-    if (_gameController != null) {
-      _playerController.player.baseDamage = _gameController!.baseDamage;
-      _playerController.player.attackSpeed = _gameController!.attackSpeed;
-      _playerController.player.critChance = _gameController!.critChance;
-      _playerController.player.critMultiplier = _gameController!.critMultiplier;
-    }
-
+    _playerController.player.baseDamage = _gameController.baseDamage;
+    _playerController.player.attackSpeed = _gameController.attackSpeed;
+    _playerController.player.critChance = _gameController.critChance;
+    _playerController.player.critMultiplier = _gameController.critMultiplier;
+  
     // Actualizar jugador
     _playerController.update(deltaTime);
 
@@ -198,35 +196,33 @@ class CombatController extends ChangeNotifier {
     _enemyController.stopAutoAttack();
 
     // Procesar recompensas si hay un GameController disponible
-    if (_gameController != null) {
-      // Otorgar oro
-      final goldReward = defeatedEnemy.getGoldReward();
-      _gameController!.addGold(goldReward);
-      AudioService.instance.playCoinCollect();
+    // Otorgar oro
+    final goldReward = defeatedEnemy.getGoldReward();
+    _gameController.addGold(goldReward);
+    AudioService.instance.playCoinCollect();
 
-      // Procesar drops (cofres/corazones)
-      _gameController!.processEnemyDefeat(defeatedLevel);
+    // Procesar drops (cofres/corazones)
+    _gameController.processEnemyDefeat(defeatedLevel);
 
-      // Fragmentos de cuchillo en jefes
-      if (defeatedEnemy.tier == EnemyTier.boss) {
-        _gameController!.addKnifeFragments(5); // 5 fragmentos por jefe
-        _chefController?.grantBossTokens();
-      } else if (defeatedEnemy.tier == EnemyTier.miniBoss) {
-        _gameController!.addKnifeFragments(2); // 2 fragmentos por mini-jefe
-      }
-
-      // Solo avanza de nivel cada 5 enemigos (para que la progresion no sea tan acelerada)
-      _enemiesDefeatedThisLevel++;
-      if (_enemiesDefeatedThisLevel >= 5 || defeatedEnemy.isBoss) {
-        _enemiesDefeatedThisLevel = 0;
-
-        final nextLevel = defeatedLevel + 1;
-        _gameController!.setCurrentLevel(nextLevel);
-        // Avanzar nivel en el WorldManager
-        _worldManager.advanceLevel();
-      }
+    // Fragmentos de cuchillo en jefes
+    if (defeatedEnemy.tier == EnemyTier.boss) {
+      _gameController.addKnifeFragments(5); // 5 fragmentos por jefe
+      _chefController.grantBossTokens();
+    } else if (defeatedEnemy.tier == EnemyTier.miniBoss) {
+      _gameController.addKnifeFragments(2); // 2 fragmentos por mini-jefe
     }
 
+    // Solo avanza de nivel cada 5 enemigos (para que la progresion no sea tan acelerada)
+    _enemiesDefeatedThisLevel++;
+    if (_enemiesDefeatedThisLevel >= 5 || defeatedEnemy.isBoss) {
+      _enemiesDefeatedThisLevel = 0;
+
+      final nextLevel = defeatedLevel + 1;
+      _gameController.setCurrentLevel(nextLevel);
+      // Avanzar nivel en el WorldManager
+      _worldManager.advanceLevel();
+    }
+  
     // Esperar un momento antes de crear nuevo enemigo
     Future.delayed(const Duration(milliseconds: 500), () {
       _spawnNextEnemy();

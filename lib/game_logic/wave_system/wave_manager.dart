@@ -16,9 +16,9 @@ enum WaveState {
 }
 
 /// Callback para eventos del WaveManager
-typedef void OnWaveEventCallback(Wave wave);
-typedef void OnEnemySpawnedCallback(Enemy enemy);
-typedef void OnWaveStateChangedCallback(WaveState state);
+typedef OnWaveEventCallback = void Function(Wave wave);
+typedef OnEnemySpawnedCallback = void Function(Enemy enemy);
+typedef OnWaveStateChangedCallback = void Function(WaveState state);
 
 /// Gestiona las oleadas del juego
 class WaveManager {

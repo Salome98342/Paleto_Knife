@@ -249,12 +249,12 @@ class CombatCycle {
   void _setupEventListeners() {
     // Cuando termina una oleada
     waveManager.waveEnded.listen((wave) {
-      print('✅ Onda $wave completada');
-      print('📍 Enemigos restantes: ${waveManager.remainingEnemies}');
+      debugPrint('✅ Onda $wave completada');
+      debugPrint('📍 Enemigos restantes: ${waveManager.remainingEnemies}');
 
       // Si no hay más oleadas, preparar el boss
       if (!waveManager.hasNextWave()) {
-        print('🎯 ¡BOSS INCOMING!');
+        debugPrint('🎯 ¡BOSS INCOMING!');
         Future.delayed(Duration(milliseconds: 800), () {
           bossManager.prepareBoss(
             'final_boss',
@@ -266,45 +266,45 @@ class CombatCycle {
 
     // Cuando comienza una oleada
     waveManager.waveStarted.listen((wave) {
-      print('🌊 ¡COMENZAR ONDA ${wave.waveNumber}!');
-      print('📊 Dificultad: ${wave.difficultyMultiplier}x');
-      print('👾 Total enemigos: ${wave.getTotalEnemyCount()}');
+      debugPrint('🌊 ¡COMENZAR ONDA ${wave.waveNumber}!');
+      debugPrint('📊 Dificultad: ${wave.difficultyMultiplier}x');
+      debugPrint('👾 Total enemigos: ${wave.getTotalEnemyCount()}');
     });
 
     // Cuando se spawne un enemigo
     waveManager.enemySpawned.listen((enemy) {
-      print('✨ Spawneado: ${enemy.name} en ${enemy.position}');
+      debugPrint('✨ Spawneado: ${enemy.name} en ${enemy.position}');
     });
 
     // Cambios de estado de oleada
     waveManager.stateChanged.listen((state) {
-      print('📍 Wave State: ${state.name}');
+      debugPrint('📍 Wave State: ${state.name}');
     });
 
     // Boss events
     bossManager.bossStarted.listen((boss) {
-      print('👑 ¡${boss.name} ha llegado!');
-      print('❤️ Boss HP: ${boss.currentHp}/${boss.maxHp}');
+      debugPrint('👑 ¡${boss.name} ha llegado!');
+      debugPrint('❤️ Boss HP: ${boss.currentHp}/${boss.maxHp}');
     });
 
     bossManager.phaseChanged.listen((event) {
-      print('⚡ CAMBIO DE FASE: ${event.newPhase.description}');
-      print('🔥 Multiplicador de dificultad: ${event.boss.getDifficultyMultiplier()}');
+      debugPrint('⚡ CAMBIO DE FASE: ${event.newPhase.description}');
+      debugPrint('🔥 Multiplicador de dificultad: ${event.boss.getDifficultyMultiplier()}');
     });
 
     bossManager.bossDefeated.listen((boss) {
-      print('🎉 ¡${boss.name} DERROTADO!');
-      print('🏆 ¡COMBATE COMPLETADO!');
+      debugPrint('🎉 ¡${boss.name} DERROTADO!');
+      debugPrint('🏆 ¡COMBATE COMPLETADO!');
     });
   }
 
   /// Inicia el ciclo de combate
   void start() {
-    print('═══════════════════════════════════════');
-    print('🎮 INICIANDO CICLO DE COMBATE');
-    print('═══════════════════════════════════════');
-    print('📋 Total de oleadas: ${waves.length}');
-    print('═══════════════════════════════════════\n');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint('🎮 INICIANDO CICLO DE COMBATE');
+    debugPrint('═══════════════════════════════════════');
+    debugPrint('📋 Total de oleadas: ${waves.length}');
+    debugPrint('═══════════════════════════════════════\n');
 
     waveManager.startFirstWave();
   }

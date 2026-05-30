@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import 'package:flutter/foundation.dart';
 
 /// Servicio de carga de recursos del juego
 class GameLoaderService {
@@ -13,7 +13,7 @@ class GameLoaderService {
         _loadConfiguration(),
       ]);
     } catch (e) {
-      print('Error loading assets: $e');
+        debugPrint('Error loading assets: $e');
       rethrow;
     }
   }
@@ -32,23 +32,23 @@ class GameLoaderService {
           // Simulación de carga de imagen
           await Future.delayed(const Duration(milliseconds: 100));
         } catch (e) {
-          print('Warning: Could not preload $asset: $e');
+            debugPrint('Warning: Could not preload $asset: $e');
           // Continuar con otros assets si uno falla
         }
       }
 
-      print('Images preloaded successfully');
+        debugPrint('Images preloaded successfully');
     } catch (e) {
-      print('Error preloading images: $e');
+        debugPrint('Error preloading images: $e');
     }
   }
 
   /// Precargar audio
   Future<void> _preloadAudio() async {
     try {
-      print('Audio preloaded successfully');
+      debugPrint('Audio preloaded successfully');
     } catch (e) {
-      print('Error preloading audio: $e');
+      debugPrint('Error preloading audio: $e');
     }
   }
 
@@ -60,9 +60,9 @@ class GameLoaderService {
 
       await Future.delayed(const Duration(milliseconds: 500));
 
-      print('Configuration loaded successfully');
+      debugPrint('Configuration loaded successfully');
     } catch (e) {
-      print('Error loading configuration: $e');
+      debugPrint('Error loading configuration: $e');
     }
   }
 }

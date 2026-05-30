@@ -7,7 +7,7 @@ import '../controllers/game_controller.dart';
 import '../services/firebase_auth_service.dart';
 import '../ui/theme/paleto_colors.dart';
 import 'login_screen.dart';
-import 'profile_edit_screen_fixed.dart';
+import 'profile_edit_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -83,7 +83,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           color: PaletoColors.btnNeutral,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               offset: const Offset(3, 3),
               blurRadius: 0,
             ),
@@ -110,7 +110,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ? Image.network(
                       user.avatarUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(),
+                      errorBuilder: (context, error, stackTrace) =>
+                          _buildDefaultAvatar(),
                     )
                   : _buildDefaultAvatar(),
             ),
@@ -196,7 +197,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildChefSection(ChefController chefController, GameController gameController) {
+  Widget _buildChefSection(
+    ChefController chefController,
+    GameController gameController,
+  ) {
     final chef = chefController.activeChef;
 
     return Padding(
@@ -219,7 +223,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               color: PaletoColors.btnNeutral,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   offset: const Offset(2, 2),
                   blurRadius: 0,
                 ),
@@ -269,7 +273,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildGameStatsSection(GameController gameController, ChefController chefController) {
+  Widget _buildGameStatsSection(
+    GameController gameController,
+    ChefController chefController,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -293,14 +300,38 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('DEL JUGADOR', style: GoogleFonts.pressStart2p(fontSize: 9, color: PaletoColors.textSecondary)),
+                Text(
+                  'DEL JUGADOR',
+                  style: GoogleFonts.pressStart2p(
+                    fontSize: 9,
+                    color: PaletoColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                _buildStatRow('Daño Base', gameController.baseDamage.toStringAsFixed(1)),
-                _buildStatRow('Velocidad de Ataque', gameController.attackSpeed.toStringAsFixed(2)),
-                _buildStatRow('Crítico', '${(gameController.critChance * 100).toStringAsFixed(1)}%'),
-                _buildStatRow('Multiplicador de Crítico', '${gameController.critMultiplier.toStringAsFixed(2)}x'),
-                _buildStatRow('Precisión', '${(gameController.accuracy * 100).toStringAsFixed(1)}%'),
-                _buildStatRow('Bonus de Oro', '+${(gameController.goldBonus * 100).toStringAsFixed(1)}%'),
+                _buildStatRow(
+                  'Daño Base',
+                  gameController.baseDamage.toStringAsFixed(1),
+                ),
+                _buildStatRow(
+                  'Velocidad de Ataque',
+                  gameController.attackSpeed.toStringAsFixed(2),
+                ),
+                _buildStatRow(
+                  'Crítico',
+                  '${(gameController.critChance * 100).toStringAsFixed(1)}%',
+                ),
+                _buildStatRow(
+                  'Multiplicador de Crítico',
+                  '${gameController.critMultiplier.toStringAsFixed(2)}x',
+                ),
+                _buildStatRow(
+                  'Precisión',
+                  '${(gameController.accuracy * 100).toStringAsFixed(1)}%',
+                ),
+                _buildStatRow(
+                  'Bonus de Oro',
+                  '+${(gameController.goldBonus * 100).toStringAsFixed(1)}%',
+                ),
               ],
             ),
           ),
@@ -314,11 +345,26 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('DEL MINIJUEGO', style: GoogleFonts.pressStart2p(fontSize: 9, color: PaletoColors.textSecondary)),
+                Text(
+                  'DEL MINIJUEGO',
+                  style: GoogleFonts.pressStart2p(
+                    fontSize: 9,
+                    color: PaletoColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                _buildStatRow('Vida Máxima', chefController.activeChef.currentHp.toInt().toString()),
-                _buildStatRow('Daño Total', chefController.getTotalDamage('').toStringAsFixed(1)),
-                _buildStatRow('Cadencia', '${chefController.activeChef.currentFireRate.toStringAsFixed(2)}s'),
+                _buildStatRow(
+                  'Vida Máxima',
+                  chefController.activeChef.currentHp.toInt().toString(),
+                ),
+                _buildStatRow(
+                  'Daño Total',
+                  chefController.getTotalDamage('').toStringAsFixed(1),
+                ),
+                _buildStatRow(
+                  'Cadencia',
+                  '${chefController.activeChef.currentFireRate.toStringAsFixed(2)}s',
+                ),
               ],
             ),
           ),
@@ -329,7 +375,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Widget _buildResetSection(GameController gameController) {
     final resetState = gameController.gameState.resetState;
-    final tokensToGain = resetState.calculateTokensForReset(gameController.currentLevel);
+    final tokensToGain = resetState.calculateTokensForReset(
+      gameController.currentLevel,
+    );
     final canReset = resetState.canReset(gameController.currentLevel);
 
     return Padding(
@@ -355,16 +403,31 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildStatRow('Tokens Disponibles', tokensToGain.toStringAsFixed(0)),
-                _buildStatRow('Reinicios Totales', resetState.totalResets.toString()),
-                _buildStatRow('Nivel Máximo Alcanzado', resetState.highestLevelReached.toString()),
+                _buildStatRow(
+                  'Tokens Disponibles',
+                  tokensToGain.toStringAsFixed(0),
+                ),
+                _buildStatRow(
+                  'Reinicios Totales',
+                  resetState.totalResets.toString(),
+                ),
+                _buildStatRow(
+                  'Nivel Máximo Alcanzado',
+                  resetState.highestLevelReached.toString(),
+                ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: _buildNESButton(
-                    label: canReset ? 'REALIZAR REINICIO' : 'NIVEL INSUFICIENTE (150+)',
-                    backgroundColor: canReset ? PaletoColors.btnPrimary : PaletoColors.btnNeutralDk,
-                    onPressed: canReset ? () => _showResetDialog(gameController) : null,
+                    label: canReset
+                        ? 'REALIZAR REINICIO'
+                        : 'NIVEL INSUFICIENTE (150+)',
+                    backgroundColor: canReset
+                        ? PaletoColors.btnPrimary
+                        : PaletoColors.btnNeutralDk,
+                    onPressed: canReset
+                        ? () => _showResetDialog(gameController)
+                        : null,
                   ),
                 ),
               ],
@@ -375,7 +438,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildResourcesSection(GameController gameController, EconomyController ecoController) {
+  Widget _buildResourcesSection(
+    GameController gameController,
+    EconomyController ecoController,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -402,9 +468,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 _buildStatRow('Oro', gameController.gold.toStringAsFixed(0)),
                 _buildStatRow('Monedas', ecoController.coins.toString()),
                 _buildStatRow('Gemas', ecoController.gems.toString()),
-                _buildStatRow('Fragmentos de Cuchillo', gameController.knifeFragments.toString()),
-                _buildStatRow('Cofres de Reliquia', gameController.relicChests.toString()),
-                _buildStatRow('Corazones de Culto', gameController.cultHearts.toString()),
+                _buildStatRow(
+                  'Fragmentos de Cuchillo',
+                  gameController.knifeFragments.toString(),
+                ),
+                _buildStatRow(
+                  'Cofres de Reliquia',
+                  gameController.relicChests.toString(),
+                ),
+                _buildStatRow(
+                  'Corazones de Culto',
+                  gameController.cultHearts.toString(),
+                ),
               ],
             ),
           ),
@@ -413,7 +488,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _buildActionsSection(FirebaseAuthService authService, GameController gameController) {
+  Widget _buildActionsSection(
+    FirebaseAuthService authService,
+    GameController gameController,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -428,34 +506,37 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildActionButton(
-            'EDITAR PERFIL',
-            PaletoColors.btnNeutral,
-            () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
-              );
-            },
-          ),
+          _buildActionButton('EDITAR PERFIL', PaletoColors.btnNeutral, () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+            );
+          }),
           const SizedBox(height: 8),
-          _buildActionButton(
-            'GUARDAR JUEGO',
-            PaletoColors.btnPrimary,
-            () {
-              gameController.saveGame();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Progreso guardado', style: GoogleFonts.pressStart2p(fontSize: 10)),
-                  backgroundColor: PaletoColors.rarityCommon,
-                  duration: const Duration(milliseconds: 800),
+          _buildActionButton('GUARDAR JUEGO', PaletoColors.btnPrimary, () {
+            gameController.saveGame();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Progreso guardado',
+                  style: GoogleFonts.pressStart2p(fontSize: 10),
                 ),
-              );
-            },
+                backgroundColor: PaletoColors.rarityCommon,
+                duration: const Duration(milliseconds: 800),
+              ),
+            );
+          }),
+          const SizedBox(height: 8),
+          _buildActionButton(
+            'CERRAR SESIÓN',
+            PaletoColors.btnSecondary,
+            () => _showLogoutConfirmation(authService),
           ),
           const SizedBox(height: 8),
-          _buildActionButton('CERRAR SESIÓN', PaletoColors.btnSecondary, () => _showLogoutConfirmation(authService)),
-          const SizedBox(height: 8),
-          _buildActionButton('ELIMINAR CUENTA', const Color.fromARGB(255, 120, 60, 60), () => _showDeleteConfirmation(authService)),
+          _buildActionButton(
+            'ELIMINAR CUENTA',
+            const Color.fromARGB(255, 120, 60, 60),
+            () => _showDeleteConfirmation(authService),
+          ),
         ],
       ),
     );
@@ -471,8 +552,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.pressStart2p(fontSize: 9, color: PaletoColors.textSecondary, letterSpacing: 0.5)),
-          Text(value, style: GoogleFonts.robotoMono(fontSize: 10, color: PaletoColors.textPrimary, fontWeight: FontWeight.bold)),
+          Text(
+            label,
+            style: GoogleFonts.pressStart2p(
+              fontSize: 9,
+              color: PaletoColors.textSecondary,
+              letterSpacing: 0.5,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.robotoMono(
+              fontSize: 10,
+              color: PaletoColors.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -486,19 +581,30 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.robotoMono(fontSize: 9, color: PaletoColors.textSecondary),
+              style: GoogleFonts.robotoMono(
+                fontSize: 9,
+                color: PaletoColors.textSecondary,
+              ),
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.robotoMono(fontSize: 10, color: PaletoColors.textPrimary, fontWeight: FontWeight.bold),
+            style: GoogleFonts.robotoMono(
+              fontSize: 10,
+              color: PaletoColors.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton(String label, Color color, VoidCallback? onPressed) {
+  Widget _buildActionButton(
+    String label,
+    Color color,
+    VoidCallback? onPressed,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: GestureDetector(
@@ -507,20 +613,40 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           decoration: BoxDecoration(
             color: color,
             border: Border(
-              top: BorderSide(color: Colors.white.withOpacity(0.8), width: 3),
-              left: BorderSide(color: Colors.white.withOpacity(0.8), width: 3),
-              bottom: BorderSide(color: Colors.black.withOpacity(0.8), width: 3),
-              right: BorderSide(color: Colors.black.withOpacity(0.8), width: 3),
+              top: BorderSide(
+                color: Colors.white.withValues(alpha: 0.8),
+                width: 3,
+              ),
+              left: BorderSide(
+                color: Colors.white.withValues(alpha: 0.8),
+                width: 3,
+              ),
+              bottom: BorderSide(
+                color: Colors.black.withValues(alpha: 0.8),
+                width: 3,
+              ),
+              right: BorderSide(
+                color: Colors.black.withValues(alpha: 0.8),
+                width: 3,
+              ),
             ),
             boxShadow: const [
-              BoxShadow(color: Colors.black26, offset: Offset(2, 2), blurRadius: 0),
+              BoxShadow(
+                color: Colors.black26,
+                offset: Offset(2, 2),
+                blurRadius: 0,
+              ),
             ],
           ),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           child: Center(
             child: Text(
               label,
-              style: GoogleFonts.pressStart2p(fontSize: 11, color: Colors.white, letterSpacing: 1),
+              style: GoogleFonts.pressStart2p(
+                fontSize: 11,
+                color: Colors.white,
+                letterSpacing: 1,
+              ),
             ),
           ),
         ),
@@ -539,13 +665,29 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         decoration: BoxDecoration(
           color: backgroundColor,
           border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.8), width: 3),
-            left: BorderSide(color: Colors.white.withOpacity(0.8), width: 3),
-            bottom: BorderSide(color: Colors.black.withOpacity(0.8), width: 3),
-            right: BorderSide(color: Colors.black.withOpacity(0.8), width: 3),
+            top: BorderSide(
+              color: Colors.white.withValues(alpha: 0.8),
+              width: 3,
+            ),
+            left: BorderSide(
+              color: Colors.white.withValues(alpha: 0.8),
+              width: 3,
+            ),
+            bottom: BorderSide(
+              color: Colors.black.withValues(alpha: 0.8),
+              width: 3,
+            ),
+            right: BorderSide(
+              color: Colors.black.withValues(alpha: 0.8),
+              width: 3,
+            ),
           ),
           boxShadow: const [
-            BoxShadow(color: Colors.black26, offset: Offset(2, 2), blurRadius: 0),
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(2, 2),
+              blurRadius: 0,
+            ),
           ],
         ),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -565,21 +707,35 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   void _showResetDialog(GameController gameController) {
     final resetState = gameController.gameState.resetState;
-    final tokensToGain = resetState.calculateTokensForReset(gameController.currentLevel);
+    final tokensToGain = resetState.calculateTokensForReset(
+      gameController.currentLevel,
+    );
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: PaletoColors.bgPanel,
-        title: Text('REINICIO (PRESTIGE)', style: GoogleFonts.pressStart2p(fontSize: 12, color: PaletoColors.textPrimary)),
+        title: Text(
+          'REINICIO (PRESTIGE)',
+          style: GoogleFonts.pressStart2p(
+            fontSize: 12,
+            color: PaletoColors.textPrimary,
+          ),
+        ),
         content: Text(
           'Al reiniciar obtendrás ${tokensToGain.toStringAsFixed(0)} tokens.\n\nPerderás: Nivel y Oro\n\nConservarás: Técnicas, Sous-chefs, Equipo y Gemas',
-          style: GoogleFonts.robotoMono(fontSize: 11, color: PaletoColors.textPrimary),
+          style: GoogleFonts.robotoMono(
+            fontSize: 11,
+            color: PaletoColors.textPrimary,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text('CANCELAR', style: GoogleFonts.pressStart2p(fontSize: 10)),
+            child: Text(
+              'CANCELAR',
+              style: GoogleFonts.pressStart2p(fontSize: 10),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -587,13 +743,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               Navigator.pop(dialogContext);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('¡Reinicio completado!', style: GoogleFonts.pressStart2p(fontSize: 10)),
+                  content: Text(
+                    '¡Reinicio completado!',
+                    style: GoogleFonts.pressStart2p(fontSize: 10),
+                  ),
                   backgroundColor: PaletoColors.rarityCommon,
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: PaletoColors.btnPrimary),
-            child: Text('REINICIAR', style: GoogleFonts.pressStart2p(fontSize: 10)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: PaletoColors.btnPrimary,
+            ),
+            child: Text(
+              'REINICIAR',
+              style: GoogleFonts.pressStart2p(fontSize: 10),
+            ),
           ),
         ],
       ),
@@ -605,12 +769,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: PaletoColors.bgPanel,
-        title: Text('¿CERRAR SESIÓN?', style: GoogleFonts.pressStart2p(fontSize: 12, color: PaletoColors.textPrimary)),
-        content: Text('Tu progreso se guardará automáticamente.', style: GoogleFonts.robotoMono(fontSize: 11, color: PaletoColors.textPrimary)),
+        title: Text(
+          '¿CERRAR SESIÓN?',
+          style: GoogleFonts.pressStart2p(
+            fontSize: 12,
+            color: PaletoColors.textPrimary,
+          ),
+        ),
+        content: Text(
+          'Tu progreso se guardará automáticamente.',
+          style: GoogleFonts.robotoMono(
+            fontSize: 11,
+            color: PaletoColors.textPrimary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text('CANCELAR', style: GoogleFonts.pressStart2p(fontSize: 10)),
+            child: Text(
+              'CANCELAR',
+              style: GoogleFonts.pressStart2p(fontSize: 10),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -622,8 +801,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 (route) => false,
               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: PaletoColors.btnSecondary),
-            child: Text('CERRAR SESIÓN', style: GoogleFonts.pressStart2p(fontSize: 10)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: PaletoColors.btnSecondary,
+            ),
+            child: Text(
+              'CERRAR SESIÓN',
+              style: GoogleFonts.pressStart2p(fontSize: 10),
+            ),
           ),
         ],
       ),
@@ -635,15 +819,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: PaletoColors.bgPanel,
-        title: Text('⚠️ ELIMINAR CUENTA', style: GoogleFonts.pressStart2p(fontSize: 12, color: Colors.red)),
+        title: Text(
+          '⚠️ ELIMINAR CUENTA',
+          style: GoogleFonts.pressStart2p(fontSize: 12, color: Colors.red),
+        ),
         content: Text(
           '¡Esta acción NO se puede deshacer!\n\nSe eliminarán:\n- Tu cuenta\n- Todos tus datos\n- Tu progreso de juego',
-          style: GoogleFonts.robotoMono(fontSize: 10, color: PaletoColors.textPrimary),
+          style: GoogleFonts.robotoMono(
+            fontSize: 10,
+            color: PaletoColors.textPrimary,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text('CANCELAR', style: GoogleFonts.pressStart2p(fontSize: 10)),
+            child: Text(
+              'CANCELAR',
+              style: GoogleFonts.pressStart2p(fontSize: 10),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -652,7 +845,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               if (!mounted) return;
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Cuenta eliminada'), backgroundColor: Colors.red),
+                  const SnackBar(
+                    content: Text('Cuenta eliminada'),
+                    backgroundColor: Colors.red,
+                  ),
                 );
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -660,12 +856,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(authService.errorMessage ?? 'Error al eliminar cuenta'), backgroundColor: Colors.red),
+                  SnackBar(
+                    content: Text(
+                      authService.errorMessage ?? 'Error al eliminar cuenta',
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('ELIMINAR', style: GoogleFonts.pressStart2p(fontSize: 10)),
+            child: Text(
+              'ELIMINAR',
+              style: GoogleFonts.pressStart2p(fontSize: 10),
+            ),
           ),
         ],
       ),
@@ -677,24 +881,49 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       backgroundColor: PaletoColors.bgDeep,
       appBar: AppBar(
         backgroundColor: PaletoColors.btnNeutral,
-        title: Text('MI PERFIL', style: GoogleFonts.pressStart2p(fontSize: 14, color: PaletoColors.textPrimary, letterSpacing: 2)),
+        title: Text(
+          'MI PERFIL',
+          style: GoogleFonts.pressStart2p(
+            fontSize: 14,
+            color: PaletoColors.textPrimary,
+            letterSpacing: 2,
+          ),
+        ),
         centerTitle: true,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('No has iniciado sesión', textAlign: TextAlign.center, style: GoogleFonts.pressStart2p(fontSize: 14, color: PaletoColors.textPrimary)),
+            Text(
+              'No has iniciado sesión',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.pressStart2p(
+                fontSize: 14,
+                color: PaletoColors.textPrimary,
+              ),
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: PaletoColors.btnPrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
-              child: Text('INICIAR SESIÓN', style: GoogleFonts.pressStart2p(fontSize: 12, color: Colors.white)),
+              child: Text(
+                'INICIAR SESIÓN',
+                style: GoogleFonts.pressStart2p(
+                  fontSize: 12,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),

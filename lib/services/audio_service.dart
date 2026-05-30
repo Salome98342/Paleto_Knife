@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
-import 'dart:typed_data';
 
 enum _BgmTrack { none, menu, gameplay, shop, settings }
 

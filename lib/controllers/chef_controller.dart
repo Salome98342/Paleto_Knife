@@ -7,6 +7,7 @@ import '../models/gacha_result.dart';
 import '../game_logic/gacha_system.dart';
 import '../game_logic/progression_system.dart';
 import '../game_logic/economy_system.dart';
+import '../services/firebase_auth_service.dart';
 
 enum GachaRarity { Common, Rare, Epic, Legendary }
 
@@ -177,6 +178,13 @@ class ChefController extends ChangeNotifier {
     _loadData();
   }
 
+  String get _scopeKey {
+    final userId = FirebaseAuthService.instance.firebaseUser?.uid;
+    return userId == null || userId.isEmpty ? 'guest' : userId;
+  }
+
+  String _key(String suffix) => 'chef_${_scopeKey}_$suffix';
+
   GachaEntity get activeChef => allEntities[_activeChefIndex];
   GachaEntity get activeKnife =>
       allEntities[_activeKnifeIndex == -1
@@ -316,10 +324,10 @@ class ChefController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     for (int i = 0; i < allEntities.length; i++) {
       final e = allEntities[i];
-      e.level = prefs.getInt('entity_level_${e.id}') ?? 1;
-      e.tokens = prefs.getInt('entity_tokens_\${e.id}') ?? 0;
+      e.level = prefs.getInt(_key('entity_level_${e.id}')) ?? 1;
+      e.tokens = prefs.getInt(_key('entity_tokens_${e.id}')) ?? 0;
       if (e.id != 'k1' && e.id != 'r_fire_1') {
-        e.isUnlocked = prefs.getBool('entity_unlocked_\${e.id}') ?? false;
+        e.isUnlocked = prefs.getBool(_key('entity_unlocked_${e.id}')) ?? false;
       }
       // Sincronizar con el backend de progresion
       if (e.isChef && e.isUnlocked) {
@@ -333,24 +341,29 @@ class ChefController extends ChangeNotifier {
         }
       }
     }
-    _activeChefIndex = prefs.getInt('active_chef_index') ?? 0;
+    _activeChefIndex = prefs.getInt(_key('active_chef_index')) ?? 0;
     _activeKnifeIndex =
-        prefs.getInt('active_knife_index') ??
+        prefs.getInt(_key('active_knife_index')) ??
         allEntities.indexWhere((e) => !e.isChef);
     notifyListeners();
   }
 
   Future<void> _saveData(GachaEntity e) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('entity_level_${e.id}', e.level);
-    await prefs.setInt('entity_tokens_${e.id}', e.tokens);
-    await prefs.setBool('entity_unlocked_${e.id}', e.isUnlocked);
+    await prefs.setInt(_key('entity_level_${e.id}'), e.level);
+    await prefs.setInt(_key('entity_tokens_${e.id}'), e.tokens);
+    await prefs.setBool(_key('entity_unlocked_${e.id}'), e.isUnlocked);
   }
 
   Future<void> _saveActiveIndices() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('active_chef_index', _activeChefIndex);
-    await prefs.setInt('active_knife_index', _activeKnifeIndex);
+    await prefs.setInt(_key('active_chef_index'), _activeChefIndex);
+    await prefs.setInt(_key('active_knife_index'), _activeKnifeIndex);
+  }
+
+  Future<void> reloadForCurrentUser() async {
+    await _loadData();
+    notifyListeners();
   }
 
   void setActive(GachaEntity entity) {
@@ -421,15 +434,16 @@ class ChefController extends ChangeNotifier {
 
     // Determine chest type
     ChestType targetChest = ChestType.common;
-    if (chestInfo.toLowerCase().contains("raro"))
+    if (chestInfo.toLowerCase().contains("raro")) {
       targetChest = ChestType.rare;
-    else if (chestInfo.toLowerCase().contains("legendario") ||
+    } else if (chestInfo.toLowerCase().contains("legendario") ||
         chestInfo.toLowerCase().contains("epico"))
       targetChest =
           ChestType.epic; // Mapear epico a legendario o épico basado en nombre
     if (chestInfo.toLowerCase().contains("epico")) targetChest = ChestType.epic;
-    if (chestInfo.toLowerCase().contains("legendario"))
+    if (chestInfo.toLowerCase().contains("legendario")) {
       targetChest = ChestType.legendary;
+    }
 
     for (int i = 0; i < amount; i++) {
       if (isChefRoll) {
@@ -465,9 +479,9 @@ class ChefController extends ChangeNotifier {
         int tokensGranted = 0;
 
         if (wasUnlocked) {
-          if (rolled.rarity == GachaRarity.Common)
+          if (rolled.rarity == GachaRarity.Common) {
             tokensGranted = 2;
-          else if (rolled.rarity == GachaRarity.Rare)
+          } else if (rolled.rarity == GachaRarity.Rare)
             tokensGranted = 5;
           else if (rolled.rarity == GachaRarity.Epic)
             tokensGranted = 15;
@@ -500,9 +514,9 @@ class ChefController extends ChangeNotifier {
       double roll = rand.nextDouble() * 100;
       GachaRarity targetRarity;
 
-      if (roll < 50)
+      if (roll < 50) {
         targetRarity = GachaRarity.Common;
-      else if (roll < 80)
+      } else if (roll < 80)
         targetRarity = GachaRarity.Rare;
       else if (roll < 95)
         targetRarity = GachaRarity.Epic;
@@ -510,8 +524,9 @@ class ChefController extends ChangeNotifier {
         targetRarity = GachaRarity.Legendary;
 
       var matchingPool = pool.where((e) => e.rarity == targetRarity).toList();
-      if (matchingPool.isEmpty)
+      if (matchingPool.isEmpty) {
         continue; // Si no hay en este pool (ej extremo), reintenta.
+      }
 
       // Regla cambiada: Los comunes pueden salir duplicados para dar tokens de mejora
       return matchingPool[rand.nextInt(matchingPool.length)];
@@ -544,9 +559,9 @@ class ChefController extends ChangeNotifier {
 
     String elemLocation = location.toLowerCase();
     // Mapear localizaciones de UI (Asia, America, Europa) a elementos
-    if (elemLocation.contains('asia'))
+    if (elemLocation.contains('asia')) {
       elemLocation = 'fire';
-    else if (elemLocation.contains('america'))
+    } else if (elemLocation.contains('america'))
       elemLocation = 'water';
     else if (elemLocation.contains('euro'))
       elemLocation = 'earth';

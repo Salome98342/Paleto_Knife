@@ -1,11 +1,12 @@
 /// Integration verification for the complete combat system
 /// Run this to verify all components work together
+library;
 
-import '../lib/game_logic/enemy_system/enemy_types.dart';
-import '../lib/game_logic/enemy_system/enemy_modifiers.dart';
-import '../lib/game_logic/boss_system/boss_catalog.dart';
-import '../lib/game_logic/wave_system/wave_catalog.dart';
-import '../lib/models/element_type.dart';
+import 'package:knife_clicker/game_logic/enemy_system/enemy_types.dart';
+import 'package:knife_clicker/game_logic/enemy_system/enemy_modifiers.dart';
+import 'package:knife_clicker/game_logic/boss_system/boss_catalog.dart';
+import 'package:knife_clicker/game_logic/wave_system/wave_catalog.dart';
+import 'package:knife_clicker/models/element_type.dart';
 
 void main() {
   print('🎮 COMBAT SYSTEM INTEGRATION VERIFICATION\n');

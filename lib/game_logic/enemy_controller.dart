@@ -68,9 +68,7 @@ class EnemyController {
 
     // Movimiento del Jefe
     if (_enemy.isBoss) {
-      if (_spawnPosition == null) {
-        _spawnPosition = _enemy.position;
-      }
+      _spawnPosition ??= _enemy.position;
 
       // REGLA 1: Movimiento oscilatorio de Boss en la parte superior
       // Ecuacion de Seno con amplitud de 100 pixeles.

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../services/firebase_auth_service.dart';
 import '../ui/theme/paleto_colors.dart';
@@ -24,10 +23,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
-    final authService = Provider.of<FirebaseAuthService>(context, listen: false);
+    final authService = Provider.of<FirebaseAuthService>(
+      context,
+      listen: false,
+    );
     final currentUser = authService.currentUser;
 
-    _usernameController = TextEditingController(text: currentUser?.username ?? '');
+    _usernameController = TextEditingController(
+      text: currentUser?.username ?? '',
+    );
     _bioController = TextEditingController(text: currentUser?.bio ?? '');
     _selectedFavoriteColor = currentUser?.favoriteColor;
   }
@@ -180,7 +184,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: entry.value.withOpacity(0.5),
+                        color: entry.value.withValues(alpha: 0.5),
                         blurRadius: 8,
                         spreadRadius: 2,
                       ),
@@ -236,10 +240,23 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   return Image.network(
                     avatar,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stack) => Center(child: Text('📷', style: GoogleFonts.pressStart2p(fontSize: 50))),
+                    errorBuilder: (context, error, stack) => Center(
+                      child: Text(
+                        '📷',
+                        style: GoogleFonts.pressStart2p(fontSize: 50),
+                      ),
+                    ),
                   );
                 }
-                return Container(color: PaletoColors.bgDeep, child: Center(child: Text('📷', style: GoogleFonts.pressStart2p(fontSize: 50))));
+                return Container(
+                  color: PaletoColors.bgDeep,
+                  child: Center(
+                    child: Text(
+                      '📷',
+                      style: GoogleFonts.pressStart2p(fontSize: 50),
+                    ),
+                  ),
+                );
               },
             ),
           ),
@@ -249,12 +266,23 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               Expanded(
                 child: _buildSmallButton('GALERÍA', () async {
                   setState(() => _isLoading = true);
-                  final authService = Provider.of<FirebaseAuthService>(context, listen: false);
-                  final success = await authService.pickAndUploadAvatar(source: ImageSource.gallery);
+                  final authService = Provider.of<FirebaseAuthService>(
+                    context,
+                    listen: false,
+                  );
+                  final success = await authService.pickAndUploadAvatar(
+                    source: ImageSource.gallery,
+                  );
+                  if (!mounted) return;
                   setState(() => _isLoading = false);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(success ? 'Avatar subido' : (authService.errorMessage ?? 'Error al subir avatar')),
+                      content: Text(
+                        success
+                            ? 'Avatar subido'
+                            : (authService.errorMessage ??
+                                  'Error al subir avatar'),
+                      ),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -264,12 +292,23 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               Expanded(
                 child: _buildSmallButton('CÁMARA', () async {
                   setState(() => _isLoading = true);
-                  final authService = Provider.of<FirebaseAuthService>(context, listen: false);
-                  final success = await authService.pickAndUploadAvatar(source: ImageSource.camera);
+                  final authService = Provider.of<FirebaseAuthService>(
+                    context,
+                    listen: false,
+                  );
+                  final success = await authService.pickAndUploadAvatar(
+                    source: ImageSource.camera,
+                  );
+                  if (!mounted) return;
                   setState(() => _isLoading = false);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(success ? 'Avatar subido' : (authService.errorMessage ?? 'Error al subir avatar')),
+                      content: Text(
+                        success
+                            ? 'Avatar subido'
+                            : (authService.errorMessage ??
+                                  'Error al subir avatar'),
+                      ),
                       duration: const Duration(seconds: 2),
                     ),
                   );
@@ -289,10 +328,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         decoration: BoxDecoration(
           color: PaletoColors.btnNeutral,
           border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.8), width: 2),
-            left: BorderSide(color: Colors.white.withOpacity(0.8), width: 2),
-            bottom: BorderSide(color: Colors.black.withOpacity(0.8), width: 2),
-            right: BorderSide(color: Colors.black.withOpacity(0.8), width: 2),
+            top: BorderSide(
+              color: Colors.white.withValues(alpha: 0.8),
+              width: 2,
+            ),
+            left: BorderSide(
+              color: Colors.white.withValues(alpha: 0.8),
+              width: 2,
+            ),
+            bottom: BorderSide(
+              color: Colors.black.withValues(alpha: 0.8),
+              width: 2,
+            ),
+            right: BorderSide(
+              color: Colors.black.withValues(alpha: 0.8),
+              width: 2,
+            ),
           ),
         ),
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -319,10 +370,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           decoration: BoxDecoration(
             color: PaletoColors.btnNeutral,
             border: Border(
-              top: BorderSide(color: Colors.white.withOpacity(0.8), width: 3),
-              left: BorderSide(color: Colors.white.withOpacity(0.8), width: 3),
-              bottom: BorderSide(color: Colors.black.withOpacity(0.8), width: 3),
-              right: BorderSide(color: Colors.black.withOpacity(0.8), width: 3),
+              top: BorderSide(
+                color: Colors.white.withValues(alpha: 0.8),
+                width: 3,
+              ),
+              left: BorderSide(
+                color: Colors.white.withValues(alpha: 0.8),
+                width: 3,
+              ),
+              bottom: BorderSide(
+                color: Colors.black.withValues(alpha: 0.8),
+                width: 3,
+              ),
+              right: BorderSide(
+                color: Colors.black.withValues(alpha: 0.8),
+                width: 3,
+              ),
             ),
             boxShadow: const [
               BoxShadow(
@@ -374,7 +437,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     setState(() => _isLoading = true);
 
-    final authService = Provider.of<FirebaseAuthService>(context, listen: false);
+    final authService = Provider.of<FirebaseAuthService>(
+      context,
+      listen: false,
+    );
     final success = await authService.updateUserProfile(
       username: _usernameController.text.trim(),
       bio: _bioController.text.trim(),

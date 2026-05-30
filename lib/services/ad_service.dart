@@ -17,17 +17,22 @@ class AdService {
   // with your real AdMob unit IDs via `setAdUnitIds(...)` before calling `init()`.
   // =========================
 
-  static String bannerUnitId = 'ca-app-pub-3940256099942544/6300978111';
-  static String interstitialUnitId = 'ca-app-pub-3940256099942544/1033173712';
+  static String bannerUnitId = 'ca-app-pub-4429728476735259/7173399735';
+  static String interstitialUnitId = 'ca-app-pub-4429728476735259/2965324316';
 
-  static String rewardedGemasUnitId = 'ca-app-pub-3940256099942544/5224354917';
-  static String rewardedMonedasUnitId = 'ca-app-pub-3940256099942544/5224354917';
-  static String rewardedRevivirUnitId = 'ca-app-pub-3940256099942544/5224354917';
-  static String rewardedGachaUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  static String rewardedGemasUnitId = 'ca-app-pub-4429728476735259/2299313168';
+  static String rewardedMonedasUnitId = 'ca-app-pub-4429728476735259/5695429435';
+  static String rewardedRevivirUnitId = 'ca-app-pub-4429728476735259/4382347765';
+  static String rewardedGachaUnitId = 'ca-app-pub-4429728476735259/6761302358';
 
   // Test device IDs for development. Set to your device id(s) while testing.
   // Example: ['ABCDEF012345']  (leave empty for production)
-  static List<String> testDeviceIds = [];
+  // Add your test device IDs here to force test ads while debugging.
+  // Example device id found in device logs: D0CF9BE58E804327C669D288EBD2BBE6
+  // Keep this empty for production.
+  static List<String> testDeviceIds = [
+    'D0CF9BE58E804327C669D288EBD2BBE6',
+  ];
 
   /// Replace ad unit IDs programmatically (call before `init()` in main)
   static void setAdUnitIds({
@@ -55,7 +60,7 @@ class AdService {
   // ================================
   void _log(String message) {
     if (kDebugMode) {
-      print('[AdService] $message');
+      debugPrint('[AdService] $message');
     }
   }
 
@@ -92,7 +97,7 @@ class AdService {
       await MobileAds.instance.updateRequestConfiguration(
         RequestConfiguration(testDeviceIds: testDeviceIds),
       );
-      _log('✅ RequestConfiguration applied: testDeviceIds=${testDeviceIds}');
+      _log('✅ RequestConfiguration applied: testDeviceIds=$testDeviceIds');
     } catch (e) {
       _log('⚠️ Failed to apply RequestConfiguration: $e');
     }

@@ -223,8 +223,9 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
   }
 
   void _spawnEnemy() {
-    if (enemiesSpawnedInWave > enemiesToKillNextWave)
+    if (enemiesSpawnedInWave > enemiesToKillNextWave) {
       return; // Esperar a que muera el jefe
+    }
     final isBoss = enemiesSpawnedInWave == enemiesToKillNextWave;
 
     if (isBoss && !_isSpawningBoss) {
@@ -365,9 +366,9 @@ class PaletoGame extends FlameGame with PanDetector, DoubleTapDetector, TapCallb
         bossType: bossType,
       );
       
-      print('🎮 Touhou Boss spawned: $bossType');
+      debugPrint('🎮 Touhou Boss spawned: $bossType');
     } catch (e) {
-      print('❌ Error spawning Touhou boss: $e');
+      debugPrint('❌ Error spawning Touhou boss: $e');
     }
   }
 

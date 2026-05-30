@@ -18,7 +18,7 @@ class GameController extends ChangeNotifier {
   PlayerProgressData _gameState = PlayerProgressData();
   Timer? _saveTimer;
   Timer? _syncDebounceTimer;
-  Duration _syncDebounceDuration = const Duration(seconds: 20);
+  final Duration _syncDebounceDuration = const Duration(seconds: 20);
 
   bool _isInitialized = false;
 
@@ -53,19 +53,50 @@ class GameController extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
   PlayerProgressData get gameState => _gameState;
 
+  Future<void> reloadForCurrentUser() async {
+    _isInitialized = false;
+    _gameState = PlayerProgressData();
+    await initialize();
+  }
+
   /// Inicializa el juego, cargando datos guardados o creando un nuevo juego
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Intentar cargar el estado guardado
-    final savedState = await _storageService.loadGameState();
+    final auth = FirebaseAuthService.instance;
 
-    if (savedState != null) {
-      _gameState = savedState;
+    PlayerProgressData? localState;
+    PlayerProgressData? cloudState;
+
+    try {
+      localState = await _storageService.loadGameState();
+    } catch (e) {
+      debugPrint('Error cargando estado local del juego: $e');
+    }
+
+    if (auth.isSignedIn) {
+      try {
+        final remoteData = await auth.loadGameData();
+        if (remoteData != null) {
+          cloudState = PlayerProgressData.fromJson(remoteData);
+        }
+      } catch (e) {
+        debugPrint('Error cargando estado del juego desde Firebase: $e');
+      }
+    }
+
+    _gameState = _selectBestSavedState(localState, cloudState) ??
+        _createInitialGameState();
+
+    if (localState != null || cloudState != null) {
       _calculateOfflineRewards();
-    } else {
-      // Crear un nuevo juego con tecnicas base
-      _gameState = _createInitialGameState();
+    }
+
+    // Si la nube tenía progreso más reciente, dejar copia local al día.
+    if (cloudState != null &&
+        (localState == null ||
+            cloudState.lastSaveTime.isAfter(localState.lastSaveTime))) {
+      await _storageService.saveGameState(_gameState);
     }
 
     // Iniciar temporizador de guardado automatico
@@ -73,6 +104,18 @@ class GameController extends ChangeNotifier {
 
     _isInitialized = true;
     notifyListeners();
+  }
+
+  PlayerProgressData? _selectBestSavedState(
+    PlayerProgressData? localState,
+    PlayerProgressData? cloudState,
+  ) {
+    if (localState == null) return cloudState;
+    if (cloudState == null) return localState;
+
+    return cloudState.lastSaveTime.isAfter(localState.lastSaveTime)
+        ? cloudState
+        : localState;
   }
 
   /// Crea el estado inicial del juego con las tecnicas predefinidas

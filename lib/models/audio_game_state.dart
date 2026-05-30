@@ -2,6 +2,7 @@
 /// AudioGameState - Máquina de estados para control de audio
 /// Sincroniza el audio con los estados del juego (menú, gameplay, boss, tienda)
 /// ═══════════════════════════════════════════════════════════════════════════
+library;
 
 import 'dart:async';
 

@@ -24,7 +24,7 @@ class PlayerComponent extends PositionComponent
   static const double _hitboxWidthRatio = 0.42;
   static const double _hitboxHeightRatio = 0.56;
   static const double _hitboxOffsetYRatio = 0.22;
-  bool _showHitbox = true; // Flag para mostrar/ocultar hitbox debug
+  final bool _showHitbox = true; // Flag para mostrar/ocultar hitbox debug
 
   static const double _defaultFrameDuration = 1 / 12;
 
@@ -116,7 +116,7 @@ class PlayerComponent extends PositionComponent
         debugPrint('[PlayerComponent] Attempting to load r_fire_1 image');
         
         // Esperar a que el game esté completamente listo
-        await game.ready;
+        game.ready;
         debugPrint('[PlayerComponent] Game ready confirmed');
         
         await _loadChefFramesWithFallback();
@@ -220,11 +220,13 @@ class PlayerComponent extends PositionComponent
     final halfWidth = size.x / 2;
     final halfHeight = size.y / 2;
     if (position.x < halfWidth) position.x = halfWidth;
-    if (position.x > game.size.x - halfWidth)
+    if (position.x > game.size.x - halfWidth) {
       position.x = game.size.x - halfWidth;
+    }
     if (position.y < halfHeight) position.y = halfHeight;
-    if (position.y > game.size.y - halfHeight)
+    if (position.y > game.size.y - halfHeight) {
       position.y = game.size.y - halfHeight;
+    }
   }
 
   void _shoot() {

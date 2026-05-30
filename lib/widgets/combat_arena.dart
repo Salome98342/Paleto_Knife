@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flame/widgets.dart';
-import 'package:flame/sprite.dart';
 import 'package:flame/components.dart'; // Para Vector2
 import '../models/player.dart';
 import '../models/enemy.dart';

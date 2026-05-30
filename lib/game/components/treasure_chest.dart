@@ -8,9 +8,9 @@ class TreasureChestComponent extends PositionComponent {
   
   // Animación
   double _bobTimer = 0.0;
-  double _bobHeight = 5.0;
-  Vector2 _basePosition = Vector2.zero();
-  double _bobSpeed = 2.0;
+  final double _bobHeight = 5.0;
+  final Vector2 _basePosition = Vector2.zero();
+  final double _bobSpeed = 2.0;
   
   // Física
   Vector2 velocity = Vector2.zero();

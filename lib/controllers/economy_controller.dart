@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
+import '../services/firebase_auth_service.dart';
 
 class EconomyController extends ChangeNotifier {
   int _coins = 0;
@@ -27,19 +28,26 @@ class EconomyController extends ChangeNotifier {
     _loadData();
   }
 
+  String get _scopeKey {
+    final userId = FirebaseAuthService.instance.firebaseUser?.uid;
+    return userId == null || userId.isEmpty ? 'guest' : userId;
+  }
+
+  String _key(String suffix) => 'eco_${_scopeKey}_$suffix';
+
   // Carga de datos guardados localmente
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
-    _coins = prefs.getInt('coins') ?? 0;
-    _gems = prefs.getInt('gems') ?? 0;
-    _damageStat = prefs.getInt('damageStat') ?? 1;
-    _fireRateStat = prefs.getInt('fireRateStat') ?? 1;
+    _coins = prefs.getInt(_key('coins')) ?? 0;
+    _gems = prefs.getInt(_key('gems')) ?? 0;
+    _damageStat = prefs.getInt(_key('damageStat')) ?? 1;
+    _fireRateStat = prefs.getInt(_key('fireRateStat')) ?? 1;
 
     // Quest stats
-    _monstersKilled = prefs.getInt('monstersKilled') ?? 0;
-    _chefsLeveledUp = prefs.getInt('chefsLeveledUp') ?? 0;
-    _gamesPlayed = prefs.getInt('gamesPlayed') ?? 0;
-    _coinsSpent = prefs.getInt('coinsSpent') ?? 0;
+    _monstersKilled = prefs.getInt(_key('monstersKilled')) ?? 0;
+    _chefsLeveledUp = prefs.getInt(_key('chefsLeveledUp')) ?? 0;
+    _gamesPlayed = prefs.getInt(_key('gamesPlayed')) ?? 0;
+    _coinsSpent = prefs.getInt(_key('coinsSpent')) ?? 0;
 
     // Iniciamos la wave en 1 cada vez que se abre la app (Mecanica Roguelite/Idle)
     _currentWave = 1;
@@ -52,17 +60,22 @@ class EconomyController extends ChangeNotifier {
 
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('coins', _coins);
-    await prefs.setInt('gems', _gems); // Anadido
-    await prefs.setInt('damageStat', _damageStat);
-    await prefs.setInt('fireRateStat', _fireRateStat);
+    await prefs.setInt(_key('coins'), _coins);
+    await prefs.setInt(_key('gems'), _gems); // Anadido
+    await prefs.setInt(_key('damageStat'), _damageStat);
+    await prefs.setInt(_key('fireRateStat'), _fireRateStat);
 
     // Quest stats
-    await prefs.setInt('monstersKilled', _monstersKilled);
-    await prefs.setInt('chefsLeveledUp', _chefsLeveledUp);
-    await prefs.setInt('gamesPlayed', _gamesPlayed);
-    await prefs.setInt('coinsSpent', _coinsSpent);
+    await prefs.setInt(_key('monstersKilled'), _monstersKilled);
+    await prefs.setInt(_key('chefsLeveledUp'), _chefsLeveledUp);
+    await prefs.setInt(_key('gamesPlayed'), _gamesPlayed);
+    await prefs.setInt(_key('coinsSpent'), _coinsSpent);
     // No guardamos la currentWave para que el jugador vuelva a farmear desde el inicio
+  }
+
+  Future<void> reloadForCurrentUser() async {
+    await _loadData();
+    notifyListeners();
   }
 
   int get coins => _coins;
@@ -95,6 +108,11 @@ class EconomyController extends ChangeNotifier {
   void setMaxHp(double hp) {
     _maxHp = hp;
     _playerHp = hp;
+    notifyListeners();
+  }
+
+  void restoreFullHp() {
+    _playerHp = _maxHp;
     notifyListeners();
   }
 

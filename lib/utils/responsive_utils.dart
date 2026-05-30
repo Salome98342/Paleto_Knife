@@ -51,7 +51,6 @@ class ResponsiveUtils {
   /// Categoría de dispositivo
   static DeviceCategory getDeviceCategory(BuildContext context) {
     final height = screenHeight(context);
-    final width = screenWidth(context);
 
     // Teléfono pequeño (< 600px height)
     if (height < 600) {

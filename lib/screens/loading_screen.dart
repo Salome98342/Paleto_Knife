@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../services/firebase_auth_service.dart';
 import '../services/game_loader_service.dart';
+import '../controllers/economy_controller.dart';
+import '../controllers/game_controller.dart';
+import '../controllers/chef_controller.dart';
 import 'login_screen.dart';
 import 'welcome_screen.dart';
-import 'main_layout.dart' as main_layout;
 
 /// Pantalla de carga
 /// Imagen de fondo full-screen con indicador de progreso abajo
@@ -45,7 +48,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         _navigateToNextScreen(logged);
       }
     } catch (e) {
-      print('Error during game initialization: $e');
+      debugPrint('Error during game initialization: $e');
       if (mounted) {
         _navigateToNextScreen(false); // Ir a login en caso de error
       }
@@ -62,7 +65,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         setState(() => _progress = 0.6);
       }
     } catch (e) {
-      print('Error loading resources: $e');
+      debugPrint('Error loading resources: $e');
     }
   }
 
@@ -72,6 +75,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
       final auth = FirebaseAuthService.instance;
       await auth.initialize();
       final logged = auth.currentUser != null;
+
+      if (logged && mounted) {
+        await Future.wait([
+          context.read<EconomyController>().reloadForCurrentUser(),
+          context.read<GameController>().reloadForCurrentUser(),
+          context.read<ChefController>().reloadForCurrentUser(),
+        ]);
+      }
 
       if (mounted) {
         setState(() {
@@ -85,7 +96,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
       return logged;
     } catch (e) {
-      print('Error during auto-login: $e');
+      debugPrint('Error during auto-login: $e');
       return false;
     }
   }

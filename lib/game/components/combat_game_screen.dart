@@ -73,7 +73,7 @@ class CombatGameScreen extends PositionComponent {
   void _setupEventListeners() {
     // Evento: Comienza oleada
     combatCycle.waveManager.waveStarted.listen((wave) {
-      print('🌊 ¡ONDA ${wave.waveNumber}!');
+      debugPrint('🌊 ¡ONDA ${wave.waveNumber}!');
       gameState = GameScreenState.waveActive;
 
       waveInfo.showWaveStart();
@@ -95,7 +95,7 @@ class CombatGameScreen extends PositionComponent {
 
     // Evento: Oleada completada
     combatCycle.waveManager.waveEnded.listen((wave) {
-      print('✅ Onda ${wave.waveNumber} completada');
+      debugPrint('✅ Onda ${wave.waveNumber} completada');
       waveInfo.updateState(
         newWaveNumber: wave.waveNumber,
         newTotalEnemies: 0,
@@ -114,7 +114,7 @@ class CombatGameScreen extends PositionComponent {
 
     // Evento: Boss comienza a entrar
     combatCycle.bossManager.bossStarted.listen((boss) {
-      print('👑 ¡${boss.name} ha llegado!');
+      debugPrint('👑 ¡${boss.name} ha llegado!');
       gameState = GameScreenState.bossFighting;
 
       // Mostrar bordes de alerta animados
@@ -135,8 +135,7 @@ class CombatGameScreen extends PositionComponent {
 
     // Evento: Cambio de fase del boss
     combatCycle.bossManager.phaseChanged.listen((event) {
-      print(
-          '⚡ CAMBIO DE FASE: ${event.newPhase.description}');
+      debugPrint('⚡ CAMBIO DE FASE: ${event.newPhase.description}');
 
       bossInfo.updateState(
         newBossName: event.boss.name,
@@ -149,8 +148,8 @@ class CombatGameScreen extends PositionComponent {
 
     // Evento: Boss derrotado
     combatCycle.bossManager.bossDefeated.listen((boss) {
-      print('🏆 ¡${boss.name} DERROTADO!');
-      print('🎉 ¡COMBATE COMPLETADO!');
+      debugPrint('🏆 ¡${boss.name} DERROTADO!');
+      debugPrint('🎉 ¡COMBATE COMPLETADO!');
 
       gameState = GameScreenState.completed;
       bossInfo.hide();
@@ -166,10 +165,10 @@ class CombatGameScreen extends PositionComponent {
   }
 
   /// Inicia el combate
-  void _startCombat() {
-    print('═══════════════════════════════════════');
-    print('🎮 INICIANDO COMBATE');
-    print('═══════════════════════════════════════');
+    void _startCombat() {
+    debugPrint('═══════════════════════════════════════');
+    debugPrint('🎮 INICIANDO COMBATE');
+    debugPrint('═══════════════════════════════════════');
     combatCycle.start();
   }
 

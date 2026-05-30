@@ -15,9 +15,9 @@ enum BossManagerState {
 }
 
 /// Callback para eventos del boss
-typedef void OnBossEventCallback(Boss boss);
-typedef void OnBossPhaseChangeCallback(Boss boss, BossPhase oldPhase, BossPhase newPhase);
-typedef void OnBossStateCallback(BossManagerState state);
+typedef OnBossEventCallback = void Function(Boss boss);
+typedef OnBossPhaseChangeCallback = void Function(Boss boss, BossPhase oldPhase, BossPhase newPhase);
+typedef OnBossStateCallback = void Function(BossManagerState state);
 
 /// Factory de bosses predefinidos
 class BossFactory {

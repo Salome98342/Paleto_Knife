@@ -20,9 +20,9 @@ class GameOverOverlay extends StatefulWidget {
   final ReviveSystem reviveSystem;
 
   const GameOverOverlay({
-    Key? key,
+    super.key,
     required this.reviveSystem,
-  }) : super(key: key);
+  });
 
   @override
   State<GameOverOverlay> createState() => _GameOverOverlayState();
@@ -91,7 +91,7 @@ class _GameOverOverlayState extends State<GameOverOverlay>
               elevation: 0,
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A2E).withOpacity(0.95),
+                  color: const Color(0xFF1A1A2E).withValues(alpha: 0.95),
                   borderRadius: BorderRadius.zero,
                   border: Border.all(
                     color: const Color(0xFFFF4444),
@@ -99,7 +99,7 @@ class _GameOverOverlayState extends State<GameOverOverlay>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF4444).withOpacity(0.5),
+                      color: const Color(0xFFFF4444).withValues(alpha: 0.5),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),

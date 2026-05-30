@@ -24,7 +24,7 @@ class GameStateManager extends ChangeNotifier {
 
   GameStatus _status = GameStatus.playing;
   int _playerHealth = 100;
-  int _maxHealth = 100;
+  final int _maxHealth = 100;
   bool _hasRevived = false; // Solo 1 revive por run
 
   // =========================
@@ -49,7 +49,9 @@ class GameStateManager extends ChangeNotifier {
   int get playerHealth => _playerHealth;
   int get maxHealth => _maxHealth;
   bool get hasRevived => _hasRevived;
-  bool get canRevive => !_hasRevived && _status == GameStatus.dead;
+  bool get canRevive =>
+      !_hasRevived &&
+      (_status == GameStatus.dead || _status == GameStatus.reviveOffered);
 
   // Recompensas
   int get coinsEarned => _coinsEarned * _rewardMultiplier;

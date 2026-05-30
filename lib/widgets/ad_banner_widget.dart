@@ -25,8 +25,8 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
   void _loadBanner() {
     if (kIsWeb) return;
 
-    _bannerAd = BannerAd(
-      adUnitId: AdService.bannerId,
+      _bannerAd = BannerAd(
+        adUnitId: AdService.bannerUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(

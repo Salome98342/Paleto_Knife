@@ -36,7 +36,7 @@ class SettingsController extends ChangeNotifier {
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
-      print('Error inicializando SettingsController: $e');
+      debugPrint('Error inicializando SettingsController: $e');
       _themeMode = _defaultTheme;
       _fontSizeMultiplier = _defaultFontSizeMultiplier;
       _isInitialized = true;
@@ -52,7 +52,7 @@ class SettingsController extends ChangeNotifier {
       await _prefs.setString(_themeModeKey, mode);
       notifyListeners();
     } catch (e) {
-      print('Error guardando tema: $e');
+      debugPrint('Error guardando tema: $e');
     }
   }
 
@@ -72,7 +72,7 @@ class SettingsController extends ChangeNotifier {
       await _prefs.setDouble(_fontSizeMultiplierKey, _fontSizeMultiplier);
       notifyListeners();
     } catch (e) {
-      print('Error guardando tamaño de fuente: $e');
+      debugPrint('Error guardando tamaño de fuente: $e');
     }
   }
 
@@ -97,7 +97,7 @@ class SettingsController extends ChangeNotifier {
       await _prefs.setDouble(_fontSizeMultiplierKey, _defaultFontSizeMultiplier);
       notifyListeners();
     } catch (e) {
-      print('Error reiniciando ajustes: $e');
+      debugPrint('Error reiniciando ajustes: $e');
     }
   }
 }

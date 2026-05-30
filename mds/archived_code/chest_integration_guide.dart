@@ -7,8 +7,8 @@ import 'components/chest_component.dart';
 
 /// Minimal integration example for ChestComponent + RewardCard.
 ///
-/// This file is kept compilable because anything under lib/ is analyzed and
-/// included by Flutter tooling.
+/// This file was moved from lib/game to mds/archived_code because it's
+/// documentation/example code and not part of the runtime app flow.
 class ExampleGameWithChest extends FlameGame with TapCallbacks {
   late final ChestComponent chestComponent;
   late BuildContext gameContext;
@@ -39,18 +39,21 @@ class ExampleGameWithChest extends FlameGame with TapCallbacks {
     showDialog<void>(
       context: gameContext,
       barrierDismissible: false,
-      builder: (context) => RewardCardOverlay(
-        rewardData: const RewardData(
-          title: 'Cuchillo Legendario',
-          description: 'Un cuchillo forjado en las sombras. +50 ATK',
-          icon: Icons.call_split,
-          accentColor: Color(0xFFFF6B00),
-          rarityLevel: 3,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: RewardCard(
+          rewardData: const RewardData(
+            title: 'Cuchillo Legendario',
+            description: 'Un cuchillo forjado en las sombras. +50 ATK',
+            icon: Icons.call_split,
+            accentColor: Color(0xFFFF6B00),
+            rarityLevel: 3,
+          ),
+          onDismiss: () {
+            Navigator.of(context).pop();
+            debugPrint('Recompensa aceptada');
+          },
         ),
-        onDismiss: () {
-          Navigator.of(context).pop();
-          debugPrint('Recompensa aceptada');
-        },
       ),
     );
   }

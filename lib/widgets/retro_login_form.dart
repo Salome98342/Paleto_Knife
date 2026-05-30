@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../ui/theme/paleto_colors.dart';
 import '../services/firebase_auth_service.dart';
+import '../controllers/economy_controller.dart';
+import '../controllers/game_controller.dart';
+import '../controllers/chef_controller.dart';
 import '../screens/welcome_screen.dart';
 import '../screens/main_layout.dart' as main_layout;
 
@@ -101,6 +106,14 @@ class _RetroLoginFormState extends State<RetroLoginForm>
         .hasMatch(email);
   }
 
+  Future<void> _refreshAccountState() async {
+    await Future.wait([
+      context.read<EconomyController>().reloadForCurrentUser(),
+      context.read<GameController>().reloadForCurrentUser(),
+      context.read<ChefController>().reloadForCurrentUser(),
+    ]);
+  }
+
   /// Manejar login
   Future<void> _handleLogin() async {
     if (!_validateForm()) return;
@@ -112,6 +125,7 @@ class _RetroLoginFormState extends State<RetroLoginForm>
 
     if (mounted) {
       if (success && _authService.user != null) {
+        await _refreshAccountState();
         _showSuccessSnackbar('¡Bienvenido ${_authService.user!.username}!');
         await Future.delayed(const Duration(milliseconds: 500));
 
@@ -142,6 +156,7 @@ class _RetroLoginFormState extends State<RetroLoginForm>
 
     if (mounted) {
       if (success && _authService.user != null) {
+        await _refreshAccountState();
         _showSuccessSnackbar('¡Registro exitoso! Bienvenido ${_authService.user!.username}!');
         await Future.delayed(const Duration(milliseconds: 500));
 
@@ -167,6 +182,74 @@ class _RetroLoginFormState extends State<RetroLoginForm>
         context,
         MaterialPageRoute(builder: (_) => const main_layout.MainLayout()),
       );
+    }
+  }
+
+  /// Mostrar diálogo para recuperar contraseña
+  Future<void> _showPasswordResetDialog() async {
+    final String? email = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        String emailValue = _emailController.text.trim();
+
+        return AlertDialog(
+          backgroundColor: PaletoColors.bgPanel,
+          title: Text(
+            'RECUPERAR CONTRASEÑA',
+            style: GoogleFonts.pressStart2p(fontSize: 10, color: PaletoColors.textAccent),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Ingresa tu email para recibir instrucciones',
+                  style: GoogleFonts.robotoMono(color: PaletoColors.textPrimary, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  initialValue: emailValue,
+                  onChanged: (value) => emailValue = value,
+                  keyboardType: TextInputType.emailAddress,
+                  style: GoogleFonts.robotoMono(color: PaletoColors.textPrimary, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'tu@email.com',
+                    hintStyle: GoogleFonts.robotoMono(color: PaletoColors.textSecondary, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop<String>(null),
+              child: Text('CANCELAR', style: GoogleFonts.pressStart2p(fontSize: 7, color: PaletoColors.textAccent)),
+            ),
+            TextButton(
+              onPressed: () {
+                final email = emailValue.trim();
+                if (email.isEmpty || !_isValidEmail(email)) {
+                  _showErrorSnackbar('Por favor ingresa un email válido');
+                  return;
+                }
+                Navigator.of(ctx).pop(email);
+              },
+              child: Text('ENVIAR', style: GoogleFonts.pressStart2p(fontSize: 7, color: PaletoColors.textAccent)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (email == null || !mounted) return;
+
+    final ok = await _authService.sendPasswordReset(email: email);
+    if (!mounted) return;
+
+    if (ok) {
+      _showSuccessSnackbar('Email de recuperación enviado');
+    } else {
+      _showErrorSnackbar(_authService.errorMessage ?? 'Error al enviar email');
     }
   }
 
@@ -239,6 +322,10 @@ class _RetroLoginFormState extends State<RetroLoginForm>
                     // Botón de invitado
                     _buildGuestButton(),
                     const SizedBox(height: 40),
+
+                    // Contacto de soporte
+                    _buildSupportFooter(),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -385,6 +472,21 @@ class _RetroLoginFormState extends State<RetroLoginForm>
             },
             enabled: !_authService.isLoading,
           ),
+          const SizedBox(height: 8),
+
+          // Enlace para recuperar contraseña (solo en login)
+          if (!_isSignUp)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _authService.isLoading ? null : _showPasswordResetDialog,
+                style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0)),
+                child: Text(
+                  '¿OLVIDASTE TU CONTRASEÑA?',
+                  style: GoogleFonts.pressStart2p(fontSize: 6, color: PaletoColors.textSecondary),
+                ),
+              ),
+            ),
           const SizedBox(height: 16),
 
           // Campo de confirmar contraseña (solo en signup)
@@ -654,6 +756,64 @@ class _RetroLoginFormState extends State<RetroLoginForm>
             fontSize: 8,
             color: PaletoColors.textPrimary,
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Pie de soporte con correo de la empresa
+  Widget _buildSupportFooter() {
+    const supportEmail = 'ecdj.jimmy.soft@gmail.com';
+
+    return InkWell(
+      onTap: () async {
+        await Clipboard.setData(const ClipboardData(text: supportEmail));
+        if (mounted) {
+          _showSuccessSnackbar('Correo de soporte copiado');
+        }
+      },
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Column(
+          children: [
+            Text(
+              'SOPORTE',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.pressStart2p(
+                fontSize: 7,
+                color: PaletoColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.email_outlined, size: 16, color: PaletoColors.textAccent),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    supportEmail,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 12,
+                      color: PaletoColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Toca para copiar',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.pressStart2p(
+                fontSize: 5,
+                color: PaletoColors.textSecondary,
+              ),
+            ),
+          ],
         ),
       ),
     );

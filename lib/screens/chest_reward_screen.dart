@@ -111,7 +111,7 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
           children: [
             RewardCard.fromGacha(
               gachaEntity: entity,
-              isNew: result.isNew,
+              isNewGacha: result.isNew,
               tokensGranted: result.tokensGranted,
               onDismiss: () {
                 if (mounted) {
@@ -250,8 +250,8 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFF1a1a2e).withOpacity(0.5),
-                        const Color(0xFF0D0D1A).withOpacity(0.3),
+                        const Color(0xFF1a1a2e).withValues(alpha: 0.5),
+                        const Color(0xFF0D0D1A).withValues(alpha: 0.3),
                       ],
                     ),
                   ),
@@ -284,7 +284,7 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: const Color(0xFFFFD700).withOpacity(0.5),
+                        color: const Color(0xFFFFD700).withValues(alpha: 0.5),
                         width: 2,
                       ),
                     ),
@@ -302,7 +302,7 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
                                 Shadow(
                                   color: const Color(
                                     0xFFFF6B00,
-                                  ).withOpacity(0.8),
+                                  ).withValues(alpha: 0.8),
                                   blurRadius: 8,
                                 ),
                                 const Shadow(
@@ -384,7 +384,7 @@ class _ChestRewardScreenState extends State<ChestRewardScreen> {
                           color: const Color(0xFFFF6B00),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFFFD700).withOpacity(0.5),
+                              color: const Color(0xFFFFD700).withValues(alpha: 0.5),
                               blurRadius: 12,
                               spreadRadius: 2,
                             ),
@@ -437,7 +437,7 @@ class _PixelPatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.03)
+      ..color = Colors.white.withValues(alpha: 0.03)
       ..style = PaintingStyle.fill;
 
     const pixelSize = 16.0;

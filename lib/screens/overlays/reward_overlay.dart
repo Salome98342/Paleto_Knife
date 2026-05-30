@@ -21,10 +21,10 @@ class RewardOverlay extends StatefulWidget {
   final VoidCallback onClose;
 
   const RewardOverlay({
-    Key? key,
+    super.key,
     required this.rewardSystem,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   State<RewardOverlay> createState() => _RewardOverlayState();
@@ -89,7 +89,7 @@ class _RewardOverlayState extends State<RewardOverlay>
               elevation: 0,
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A2E).withOpacity(0.97),
+                  color: const Color(0xFF1A1A2E).withValues(alpha: 0.97),
                   borderRadius: BorderRadius.zero,
                   border: Border.all(
                     color: const Color(0xFFFFD700),
@@ -97,7 +97,7 @@ class _RewardOverlayState extends State<RewardOverlay>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFFD700).withOpacity(0.6),
+                      color: const Color(0xFFFFD700).withValues(alpha: 0.6),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),

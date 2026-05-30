@@ -30,7 +30,6 @@ class EnemyComponent extends PositionComponent
   // Máquina de Estados (nuevo)
   EnemyStateMachine? _stateMachine;
   AbilityCooldownManager? _abilityManager;
-  double _totalElapsedTime = 0.0;
 
   // Sistema Visual (nuevo)
   BossVisualManager? _visualManager;
@@ -232,12 +231,12 @@ class EnemyComponent extends PositionComponent
 
   /// NUEVO: Callback para término de Spell Card
   void _onTouhouSpellCardComplete() {
-    print('✅ Spell Card completada');
+    debugPrint('✅ Spell Card completada');
   }
 
   /// NUEVO: Callback para derrota del boss
   void _onTouhouBossDefeated() {
-    print('💀 Boss derrotado!');
+    debugPrint('💀 Boss derrotado!');
     hp = 0;
     // El onDeath() se llamará automáticamente en el render
   }
@@ -329,9 +328,6 @@ class EnemyComponent extends PositionComponent
       
       return; // No ejecutar lógica de enemigo normal
     }
-
-    // Actualizar tiempo total (para enemigos normales)
-    _totalElapsedTime += dt;
 
     // Actualizar cooldowns de habilidades
     _abilityManager?.update(dt);

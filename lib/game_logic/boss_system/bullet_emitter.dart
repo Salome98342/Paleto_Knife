@@ -53,7 +53,6 @@ class BulletEmitter {
 
   // Runtime
   double _elapsedTime = 0.0;
-  int _shotCount = 0;
   double _currentAngle = 0.0;
 
   BulletEmitter({
@@ -130,7 +129,6 @@ class BulletEmitter {
       ));
     }
 
-    _shotCount++;
     return bullets;
   }
 

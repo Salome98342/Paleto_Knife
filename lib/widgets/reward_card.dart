@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:math' as math;
 import '../main.dart'; // Para acceder a PixelColors
 import '../controllers/chef_controller.dart';
@@ -37,23 +36,21 @@ class RewardCard extends StatefulWidget {
     required this.rewardData,
     this.onDismiss,
     this.animationDuration = const Duration(milliseconds: 800),
-  })  : gachaEntity = null,
-        isGachaReward = false,
-        isNewGacha = null,
-        tokensGranted = null;
+  }) : gachaEntity = null,
+       isGachaReward = false,
+       isNewGacha = null,
+       tokensGranted = null;
 
   /// Constructor para mostrar recompensa de gacha (chef/arma)
   const RewardCard.fromGacha({
     super.key,
     required this.gachaEntity,
-    required bool isNew,
-    required int tokensGranted,
+    required this.isNewGacha,
+    required this.tokensGranted,
     this.onDismiss,
     this.animationDuration = const Duration(milliseconds: 800),
-  })  : rewardData = null,
-        isGachaReward = true,
-        isNewGacha = isNew,
-        tokensGranted = tokensGranted;
+  }) : rewardData = null,
+       isGachaReward = true;
 
   @override
   State<RewardCard> createState() => _RewardCardState();
@@ -64,9 +61,8 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
   late AnimationController _shimmerController;
   late AnimationController _flashController;
   late List<AnimationController> _particleControllers;
-  
+
   double _shimmerRotation = 0.0;
-  double _cardRotation = 0.0;
 
   /// Calcula la duración y efectos según rareza
   Duration _getAnimationDuration() {
@@ -89,14 +85,11 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    
+
     final duration = _getAnimationDuration();
-    
+
     // Controlador para la animación de escalado
-    _scaleController = AnimationController(
-      duration: duration,
-      vsync: this,
-    );
+    _scaleController = AnimationController(duration: duration, vsync: this);
 
     // Controlador para el efecto de brillo infinito
     _shimmerController = AnimationController(
@@ -114,9 +107,12 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
     _particleControllers = [];
     if (widget.isGachaReward) {
       final rarity = widget.gachaEntity!.rarity;
-      int particleCount = rarity == GachaRarity.Legendary ? 15
-        : rarity == GachaRarity.Epic ? 10 : 0;
-      
+      int particleCount = rarity == GachaRarity.Legendary
+          ? 15
+          : rarity == GachaRarity.Epic
+          ? 10
+          : 0;
+
       for (int i = 0; i < particleCount; i++) {
         final controller = AnimationController(
           duration: Duration(milliseconds: 800 + (i * 100)),
@@ -143,7 +139,7 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
         _shimmerRotation = _shimmerController.value * 2 * math.pi;
       });
     });
-    
+
     // Animar partículas
     for (final controller in _particleControllers) {
       controller.forward();
@@ -172,7 +168,7 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
   /// Construye las partículas de brillo para épico y legendario
   List<Widget> _buildParticles() {
     if (_particleControllers.isEmpty) return [];
-    
+
     final random = math.Random(42); // Seed para reproducibilidad
     return List.generate(_particleControllers.length, (index) {
       final controller = _particleControllers[index];
@@ -180,7 +176,7 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
       final distance = 150.0 + random.nextDouble() * 50;
       final dx = math.cos(angle) * distance;
       final dy = math.sin(angle) * distance;
-      
+
       return AnimatedBuilder(
         animation: controller,
         builder: (context, child) {
@@ -195,10 +191,10 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _getRarityColor().withOpacity(0.7),
+                  color: _getRarityColor().withValues(alpha: 0.7),
                   boxShadow: [
                     BoxShadow(
-                      color: _getRarityColor().withOpacity(0.5),
+                      color: _getRarityColor().withValues(alpha: 0.5),
                       blurRadius: 4,
                     ),
                   ],
@@ -221,17 +217,19 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: widget.isGachaReward && widget.gachaEntity!.rarity == GachaRarity.Legendary
-              ? [
-                  Colors.white.withValues(alpha: 0.5),
-                  Colors.white.withValues(alpha: 0.2),
-                  Colors.white.withValues(alpha: 0.0),
-                ]
-              : [
-                  Colors.white.withValues(alpha: 0.3),
-                  Colors.white.withValues(alpha: 0.0),
-                  Colors.white.withValues(alpha: 0.0),
-                ],
+            colors:
+                widget.isGachaReward &&
+                    widget.gachaEntity!.rarity == GachaRarity.Legendary
+                ? [
+                    Colors.white.withValues(alpha: 0.5),
+                    Colors.white.withValues(alpha: 0.2),
+                    Colors.white.withValues(alpha: 0.0),
+                  ]
+                : [
+                    Colors.white.withValues(alpha: 0.3),
+                    Colors.white.withValues(alpha: 0.0),
+                    Colors.white.withValues(alpha: 0.0),
+                  ],
             stops: const [0.0, 0.3, 1.0],
           ),
         ),
@@ -246,13 +244,15 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
         animation: _flashController,
         builder: (context, child) {
           final opacity = (1.0 - _flashController.value).clamp(0.0, 1.0);
-          
+
           // Múltiples flashes para legendario
-          if (widget.isGachaReward && widget.gachaEntity!.rarity == GachaRarity.Legendary) {
+          if (widget.isGachaReward &&
+              widget.gachaEntity!.rarity == GachaRarity.Legendary) {
             // Pulse effect: múltiples flashes rápidos
-            final pulse = (math.sin(_flashController.value * math.pi * 4) + 1) / 2;
+            final pulse =
+                (math.sin(_flashController.value * math.pi * 4) + 1) / 2;
             final finalOpacity = opacity * pulse * 0.6;
-            
+
             return Visibility(
               visible: finalOpacity > 0.01,
               child: Container(
@@ -260,7 +260,7 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
               ),
             );
           }
-          
+
           return Visibility(
             visible: opacity > 0.01,
             child: Container(
@@ -274,10 +274,10 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
 
   /// Construye el contenido principal de la carta
   Widget _buildCardContent() {
-    final accentColor = widget.isGachaReward 
-      ? widget.gachaEntity!.rarityColor
-      : widget.rewardData!.accentColor;
-      
+    final accentColor = widget.isGachaReward
+        ? widget.gachaEntity!.rarityColor
+        : widget.rewardData!.accentColor;
+
     return ScaleTransition(
       scale: Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
@@ -290,10 +290,7 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
           constraints: const BoxConstraints(maxWidth: 280, maxHeight: 400),
           decoration: BoxDecoration(
             color: PixelColors.bgCard,
-            border: Border.all(
-              color: accentColor,
-              width: 3,
-            ),
+            border: Border.all(color: accentColor, width: 3),
             borderRadius: BorderRadius.zero,
             boxShadow: [
               BoxShadow(
@@ -312,15 +309,15 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             children: [
               // Fondo con patrón pixel
               _buildPixelBackground(accentColor: accentColor),
-              
+
               // Contenido
               Padding(
                 padding: const EdgeInsets.all(20),
-                child: widget.isGachaReward 
-                  ? _buildGachaContent(accentColor)
-                  : _buildCombatContent(accentColor),
+                child: widget.isGachaReward
+                    ? _buildGachaContent(accentColor)
+                    : _buildCombatContent(accentColor),
               ),
-              
+
               // Flash effect
               _buildFlashEffect(),
             ],
@@ -336,30 +333,23 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
       children: [
         // Rareity indicator (stars)
         _buildRarityIndicator(widget.rewardData!.rarityLevel, accentColor),
-        
+
         const SizedBox(height: 16),
-        
+
         // Icono de la recompensa
         Container(
           width: 70,
           height: 70,
           decoration: BoxDecoration(
             color: accentColor.withValues(alpha: 0.15),
-            border: Border.all(
-              color: accentColor,
-              width: 2,
-            ),
+            border: Border.all(color: accentColor, width: 2),
             borderRadius: BorderRadius.zero,
           ),
-          child: Icon(
-            widget.rewardData!.icon,
-            size: 40,
-            color: accentColor,
-          ),
+          child: Icon(widget.rewardData!.icon, size: 40, color: accentColor),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Título
         Text(
           'RECOMPENSA',
@@ -370,9 +360,9 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             letterSpacing: 2,
           ),
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         // Nombre de la recompensa
         Text(
           widget.rewardData!.title,
@@ -384,9 +374,9 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             letterSpacing: 1,
           ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Descripción
         Text(
           widget.rewardData!.description,
@@ -399,9 +389,9 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             height: 1.5,
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Botón de aceptación
         _buildAcceptButton(accentColor),
       ],
@@ -410,18 +400,22 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
 
   Widget _buildGachaContent(Color accentColor) {
     final entity = widget.gachaEntity!;
-    final rarityStars = entity.rarity == GachaRarity.Common ? 1 
-      : entity.rarity == GachaRarity.Rare ? 2
-      : entity.rarity == GachaRarity.Epic ? 3 : 4;
-    
+    final rarityStars = entity.rarity == GachaRarity.Common
+        ? 1
+        : entity.rarity == GachaRarity.Rare
+        ? 2
+        : entity.rarity == GachaRarity.Epic
+        ? 3
+        : 4;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Rareity indicator
         _buildRarityIndicator(rarityStars, accentColor),
-        
+
         const SizedBox(height: 8),
-        
+
         // Tipo de recompensa (Chef/Arma)
         Text(
           widget.isNewGacha! ? '¡NUEVO!' : 'DUPLICADO',
@@ -432,9 +426,9 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             letterSpacing: 1,
           ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Icono
         Container(
           width: 70,
@@ -444,15 +438,11 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             border: Border.all(color: accentColor, width: 2),
             borderRadius: BorderRadius.zero,
           ),
-          child: Icon(
-            entity.icon,
-            size: 40,
-            color: accentColor,
-          ),
+          child: Icon(entity.icon, size: 40, color: accentColor),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Nombre
         Text(
           entity.isChef ? 'CHEF' : 'ARMA',
@@ -463,9 +453,9 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             letterSpacing: 2,
           ),
         ),
-        
+
         const SizedBox(height: 6),
-        
+
         Text(
           entity.name,
           textAlign: TextAlign.center,
@@ -475,29 +465,23 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
             fontWeight: FontWeight.bold,
           ),
         ),
-        
+
         const SizedBox(height: 10),
-        
+
         // Info adicional
         if (widget.isNewGacha!)
           Text(
             'Tokens obtenidos: ${widget.tokensGranted}',
-            style: const TextStyle(
-              color: PixelColors.textDim,
-              fontSize: 10,
-            ),
+            style: const TextStyle(color: PixelColors.textDim, fontSize: 10),
           )
         else
           Text(
             '+${widget.tokensGranted} tokens (duplicado)',
-            style: const TextStyle(
-              color: Colors.amber,
-              fontSize: 10,
-            ),
+            style: const TextStyle(color: Colors.amber, fontSize: 10),
           ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Botón
         _buildAcceptButton(accentColor),
       ],
@@ -534,10 +518,7 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: accentColor,
-            border: Border.all(
-              color: Colors.white,
-              width: 1.5,
-            ),
+            border: Border.all(color: Colors.white, width: 1.5),
             borderRadius: BorderRadius.zero,
           ),
           child: const Text(
@@ -557,18 +538,15 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
 
   /// Construye un patrón pixel art de fondo
   Widget _buildPixelBackground({Color? accentColor}) {
-    final color = accentColor ?? (
-      widget.isGachaReward 
-        ? widget.gachaEntity!.rarityColor
-        : widget.rewardData!.accentColor
-    );
-    
+    final color =
+        accentColor ??
+        (widget.isGachaReward
+            ? widget.gachaEntity!.rarityColor
+            : widget.rewardData!.accentColor);
+
     return Positioned.fill(
       child: CustomPaint(
-        painter: _PixelPatternPainter(
-          accentColor: color,
-          opacity: 0.05,
-        ),
+        painter: _PixelPatternPainter(accentColor: color, opacity: 0.05),
       ),
     );
   }
@@ -588,14 +566,12 @@ class _RewardCardState extends State<RewardCard> with TickerProviderStateMixin {
               ),
             ),
           ),
-        
+
         // Partículas de explosión (solo para épico/legendario)
         ..._buildParticles(),
-        
+
         // Contenido de la carta
-        Center(
-          child: _buildCardContent(),
-        ),
+        Center(child: _buildCardContent()),
       ],
     );
   }
@@ -606,10 +582,7 @@ class _PixelPatternPainter extends CustomPainter {
   final Color accentColor;
   final double opacity;
 
-  _PixelPatternPainter({
-    required this.accentColor,
-    required this.opacity,
-  });
+  _PixelPatternPainter({required this.accentColor, required this.opacity});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -618,12 +591,14 @@ class _PixelPatternPainter extends CustomPainter {
       ..strokeWidth = 1.0;
 
     const pixelSize = 8.0;
-    
+
     // Dibujar patrón de cuadrícula de pixels
     for (double x = 0; x < size.width; x += pixelSize) {
       for (double y = 0; y < size.height; y += pixelSize) {
         // Alternar patrón de tablero
-        if ((x.toInt() ~/ pixelSize.toInt() + y.toInt() ~/ pixelSize.toInt()) % 2 == 0) {
+        if ((x.toInt() ~/ pixelSize.toInt() + y.toInt() ~/ pixelSize.toInt()) %
+                2 ==
+            0) {
           canvas.drawRect(
             Rect.fromLTWH(x + 1, y + 1, pixelSize - 2, pixelSize - 2),
             paint,

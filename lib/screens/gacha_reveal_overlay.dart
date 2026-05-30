@@ -189,7 +189,7 @@ class _GachaRevealOverlayState extends State<GachaRevealOverlay> {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8.0),
                                   child: Text(
-                                    "+${tokens} Tokens",
+                                    "+$tokens Tokens",
                                     style: RetroStyle.font(
                                       size: 12,
                                       color: Colors.amber,

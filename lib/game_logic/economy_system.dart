@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 class EconomySystem {
   int _gold = 0;
   int _premiumCurrency = 0; // e.g. gems for gacha
-  Map<String, int> _items = {};
+  final Map<String, int> _items = {};
 
   EconomySystem();
 

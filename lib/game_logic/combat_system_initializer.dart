@@ -1,5 +1,8 @@
 /// Central initialization point for the entire combat system
 /// Call this once at app startup to initialize all combat catalogs
+library;
+
+import 'package:flutter/foundation.dart';
 
 import 'enemy_system/enemy_types.dart';
 import 'enemy_system/enemy_modifiers.dart';
@@ -24,12 +27,12 @@ void initializeCombatSystem() {
     // Note: wave_system was removed as it duplicated PaletoGame's internal wave system
     // The game uses PaletoGame's manual wave management (currentWave, enemiesKilledInWave, etc)
 
-    print('✅ Combat System Initialized Successfully');
-    print('   - Enemy Modifiers: Ready');
-    print('   - Enemy Types: ${EnemyTypesCatalog.getAll().length} enemies');
-    print('   - Bosses: ${BossCatalog.getAll().length} bosses');
+    debugPrint('✅ Combat System Initialized Successfully');
+    debugPrint('   - Enemy Modifiers: Ready');
+    debugPrint('   - Enemy Types: ${EnemyTypesCatalog.getAll().length} enemies');
+    debugPrint('   - Bosses: ${BossCatalog.getAll().length} bosses');
   } catch (e) {
-    print('❌ Combat System Initialization Failed: $e');
+    debugPrint('❌ Combat System Initialization Failed: $e');
     rethrow;
   }
 }
@@ -41,7 +44,7 @@ bool isCombatSystemInitialized() {
     return EnemyTypesCatalog.getAll().isNotEmpty &&
         BossCatalog.getAll().isNotEmpty;
   } catch (e) {
-    print('[ERROR] Catalog initialization failed: $e');
+    debugPrint('[ERROR] Catalog initialization failed: $e');
     return false;
   }
 }

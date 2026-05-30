@@ -330,8 +330,4 @@ class TouhouBossController extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

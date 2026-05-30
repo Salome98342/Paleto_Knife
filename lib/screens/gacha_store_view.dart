@@ -101,7 +101,7 @@ class GachaStoreView extends StatelessWidget {
           "Ficha Epica Aleatoria",
           "Obten fragmentos garantizados",
           Icons.card_giftcard,
-          500,
+          300,
         ),
         const SizedBox(height: 32),
 
@@ -142,8 +142,8 @@ class GachaStoreView extends StatelessWidget {
           name: "Cofre Comun (Chef)",
           color: Colors.grey,
           icon: Icons.inventory_2,
-          cost1x: 100,
-          cost10x: 900,
+          cost1x: 60,
+          cost10x: 540,
           isChef: true,
         ).animate(delay: 100.ms).slideX(begin: 0.5).fadeIn(),
         const SizedBox(height: 20),
@@ -152,8 +152,8 @@ class GachaStoreView extends StatelessWidget {
           name: "Cofre Raro (Chef)",
           color: Colors.blue,
           icon: Icons.work,
-          cost1x: 300,
-          cost10x: 2700,
+          cost1x: 180,
+          cost10x: 1620,
           isChef: true,
         ).animate(delay: 200.ms).slideX(begin: -0.5).fadeIn(),
         const SizedBox(height: 20),
@@ -162,8 +162,8 @@ class GachaStoreView extends StatelessWidget {
           name: "Cofre Epico (Chef)",
           color: Colors.purple,
           icon: Icons.all_inbox,
-          cost1x: 800,
-          cost10x: 7000,
+          cost1x: 450,
+          cost10x: 4050,
           isChef: true,
         ).animate(delay: 300.ms).slideX(begin: 0.5).fadeIn(),
         const SizedBox(height: 32),
@@ -205,8 +205,8 @@ class GachaStoreView extends StatelessWidget {
           name: "Cofre Comun (Arma)",
           color: Colors.grey,
           icon: Icons.hardware,
-          cost1x: 100,
-          cost10x: 900,
+          cost1x: 60,
+          cost10x: 540,
           isChef: false,
         ).animate(delay: 100.ms).slideX(begin: -0.5).fadeIn(),
         const SizedBox(height: 20),
@@ -215,8 +215,8 @@ class GachaStoreView extends StatelessWidget {
           name: "Cofre Raro (Arma)",
           color: Colors.blue,
           icon: Icons.construction,
-          cost1x: 300,
-          cost10x: 2700,
+          cost1x: 180,
+          cost10x: 1620,
           isChef: false,
         ).animate(delay: 200.ms).slideX(begin: 0.5).fadeIn(),
         const SizedBox(height: 20),
@@ -225,8 +225,8 @@ class GachaStoreView extends StatelessWidget {
           name: "Cofre Epico (Arma)",
           color: Colors.purple,
           icon: Icons.handyman,
-          cost1x: 800,
-          cost10x: 7000,
+          cost1x: 450,
+          cost10x: 4050,
           isChef: false,
         ).animate(delay: 300.ms).slideX(begin: -0.5).fadeIn(),
         const SizedBox(height: 32),
@@ -245,27 +245,40 @@ class GachaStoreView extends StatelessWidget {
           "Saco de Monedas",
           "+10,000 Monedas",
           Icons.monetization_on,
-          100,
+          75,
           isGemsCost: true,
         ),
         const SizedBox(height: 16),
-        _buildExchangeCard(
+        _buildGemPackCard(
           context,
-          "Punado de Gemas",
-          "+500 Gemas",
-          Icons.diamond,
-          1,
-          isGemsCost: false,
-          isRealMoney: true,
+          title: "Mini pack de gemas",
+          gemsAmount: 250,
+          copPrice: 4900,
+          icon: Icons.diamond,
         ),
-        _buildExchangeCard(
+        const SizedBox(height: 12),
+        _buildGemPackCard(
           context,
-          "Cofre de Gemas",
-          "+5,000 Gemas",
-          Icons.diamond,
-          5,
-          isGemsCost: false,
-          isRealMoney: true,
+          title: "Pack de gemas",
+          gemsAmount: 800,
+          copPrice: 12900,
+          icon: Icons.diamond,
+        ),
+        const SizedBox(height: 12),
+        _buildGemPackCard(
+          context,
+          title: "Pack grande de gemas",
+          gemsAmount: 2200,
+          copPrice: 29900,
+          icon: Icons.diamond,
+        ),
+        const SizedBox(height: 12),
+        _buildGemPackCard(
+          context,
+          title: "Mega pack de gemas",
+          gemsAmount: 7000,
+          copPrice: 69900,
+          icon: Icons.diamond,
         ),
         const SizedBox(height: 40),
       ],
@@ -279,15 +292,19 @@ class GachaStoreView extends StatelessWidget {
         children: [
           SizedBox(width: 24, height: 24, child: icon),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.55),
-              border: Border.all(color: RetroStyle.accent, width: 2),
-            ),
-            child: Text(
-              title,
-              style: RetroStyle.font(size: 14, color: Colors.white),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.55),
+                border: Border.all(color: RetroStyle.accent, width: 2),
+              ),
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: RetroStyle.font(size: 14, color: Colors.white),
+              ),
             ),
           ),
           if (actionView != null) ...[const SizedBox(width: 8), actionView],
@@ -344,34 +361,44 @@ class GachaStoreView extends StatelessWidget {
               ],
             ),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: RetroStyle.accent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-            ),
-            onPressed: () {
-              final eco = context.read<EconomyController>();
-              if (eco.gems >= cost) {
-                eco.spendGems(cost);
-                RetroStyle.showSuccess(
-                  context,
-                  "FICHA ADQUIRIDA",
-                  icon: Icons.card_giftcard,
-                );
-              } else {
-                RetroStyle.showInsufficient(context, "GEMAS INSUFICIENTES");
-              }
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.diamond, size: 14, color: Colors.white),
-                const SizedBox(width: 4),
-                Text(
-                  "$cost",
-                  style: RetroStyle.font(size: 12, color: Colors.white),
+          Flexible(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: RetroStyle.accent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  minimumSize: const Size(0, 0),
                 ),
-              ],
+                onPressed: () {
+                  final eco = context.read<EconomyController>();
+                  if (eco.gems >= cost) {
+                    eco.spendGems(cost);
+                    RetroStyle.showSuccess(
+                      context,
+                      "FICHA ADQUIRIDA",
+                      icon: Icons.card_giftcard,
+                    );
+                  } else {
+                    RetroStyle.showInsufficient(context, "GEMAS INSUFICIENTES");
+                  }
+                },
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.diamond, size: 14, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        "$cost",
+                        style: RetroStyle.font(size: 12, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -428,63 +455,144 @@ class GachaStoreView extends StatelessWidget {
               ],
             ),
           ),
+          Flexible(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isRealMoney ? Colors.green : RetroStyle.accent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  minimumSize: const Size(0, 0),
+                ),
+                onPressed: () {
+                  final eco = context.read<EconomyController>();
+
+                  if (isRealMoney) {
+                    // Simular compra exitosa con dinero real (modo testing)
+                    if (name.contains("Punado")) {
+                      eco.addGems(500);
+                    } else if (name.contains("Cofre")) {
+                      eco.addGems(5000);
+                    }
+                    RetroStyle.showSuccess(
+                      context,
+                      "!$subtitle COMPRADOS!\nGRACIAS :)",
+                    );
+                  } else if (isGemsCost) {
+                    // Comprando con Gemas
+                    if (eco.gems >= cost) {
+                      eco.spendGems(cost);
+                      // Anadir lo prometido (hack simple para el SACO DE MONEDAS que cuesta 100 y da +10,000)
+                      if (name.contains("Monedas")) {
+                        eco.addCoins(10000);
+                      }
+                      RetroStyle.showSuccess(
+                        context,
+                        "$name OBTENIDO",
+                        icon: Icons.monetization_on,
+                      );
+                    } else {
+                      RetroStyle.showInsufficient(context, "GEMAS INSUFICIENTES");
+                    }
+                  } else {
+                    // Comprando con dinero del juego / monedas (si existiese)
+                    if (eco.coins >= cost) {
+                      eco.spendCoins(cost);
+                      RetroStyle.showSuccess(context, "COMPRADO");
+                    } else {
+                      RetroStyle.showInsufficient(context, "MONEDAS INSUFICIENTES");
+                    }
+                  }
+                },
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!isRealMoney)
+                        Icon(
+                          isGemsCost ? Icons.diamond : Icons.monetization_on,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      if (!isRealMoney) const SizedBox(width: 4),
+                      Text(
+                        isRealMoney ? _formatCopPrice(cost) : "$cost",
+                        style: RetroStyle.font(size: 12, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGemPackCard(
+    BuildContext context, {
+    required String title,
+    required int gemsAmount,
+    required int copPrice,
+    required IconData icon,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0F1F18), Color(0xFF20382F)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: Colors.greenAccent, width: 2),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 32, color: Colors.greenAccent)
+              .animate(onPlay: (c) => c.repeat(reverse: true))
+              .scaleXY(end: 1.1, duration: 800.ms),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: RetroStyle.font(size: 12, color: Colors.white),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '+$gemsAmount gemas',
+                  style: RetroStyle.font(size: 10, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: isRealMoney ? Colors.green : RetroStyle.accent,
+              backgroundColor: Colors.green,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
             onPressed: () {
               final eco = context.read<EconomyController>();
-
-              if (isRealMoney) {
-                // Simular compra exitosa con dinero real (modo testing)
-                if (name.contains("Punado")) {
-                  eco.addGems(500);
-                } else if (name.contains("Cofre")) {
-                  eco.addGems(5000);
-                }
-                RetroStyle.showSuccess(
-                  context,
-                  "!$subtitle COMPRADOS!\nGRACIAS :)",
-                );
-              } else if (isGemsCost) {
-                // Comprando con Gemas
-                if (eco.gems >= cost) {
-                  eco.spendGems(cost);
-                  // Anadir lo prometido (hack simple para el SACO DE MONEDAS que cuesta 100 y da +10,000)
-                  if (name.contains("Monedas")) {
-                    eco.addCoins(10000);
-                  }
-                  RetroStyle.showSuccess(
-                    context,
-                    "$name OBTENIDO",
-                    icon: Icons.monetization_on,
-                  );
-                } else {
-                  RetroStyle.showInsufficient(context, "GEMAS INSUFICIENTES");
-                }
-              } else {
-                // Comprando con dinero del juego / monedas (si existiese)
-                if (eco.coins >= cost) {
-                  eco.spendCoins(cost);
-                  RetroStyle.showSuccess(context, "COMPRADO");
-                } else {
-                  RetroStyle.showInsufficient(context, "MONEDAS INSUFICIENTES");
-                }
-              }
+              eco.addGems(gemsAmount);
+              RetroStyle.showSuccess(
+                context,
+                'PAQUETE ADQUIRIDO',
+                icon: Icons.diamond,
+              );
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (!isRealMoney)
-                  Icon(
-                    isGemsCost ? Icons.diamond : Icons.monetization_on,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                if (!isRealMoney) const SizedBox(width: 4),
+                const Icon(Icons.payments, size: 14, color: Colors.white),
+                const SizedBox(width: 4),
                 Text(
-                  isRealMoney ? "\$$cost.99" : "$cost",
+                  _formatCopPrice(copPrice),
                   style: RetroStyle.font(size: 12, color: Colors.white),
                 ),
               ],
@@ -946,5 +1054,18 @@ class GachaStoreView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatCopPrice(int amount) {
+    final raw = amount.toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < raw.length; i++) {
+      buffer.write(raw[i]);
+      final digitsRemaining = raw.length - i;
+      if (digitsRemaining > 1 && (digitsRemaining - 1) % 3 == 0) {
+        buffer.write('.');
+      }
+    }
+    return 'COP ${buffer.toString()}';
   }
 }

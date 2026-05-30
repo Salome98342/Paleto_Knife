@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -38,13 +39,13 @@ void main() async {
 
   try {
     // Inicializar Firebase
-    print('🔥 Inicializando Firebase...');
+    debugPrint('🔥 Inicializando Firebase...');
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('✓ Firebase inicializado correctamente');
+    debugPrint('✓ Firebase inicializado correctamente');
   } catch (e) {
-    print('❌ Error inicializando Firebase: $e');
+    debugPrint('❌ Error inicializando Firebase: $e');
     // Continuar de todas formas
   }
 
@@ -60,45 +61,45 @@ void main() async {
   );
 
   try {
-    print('🎵 Inicializando AudioService...');
+    debugPrint('🎵 Inicializando AudioService...');
     await AudioService.init();
-    print('✓ AudioService inicializado');
+    debugPrint('✓ AudioService inicializado');
   } catch (e) {
-    print('❌ Error en AudioService: $e');
+    debugPrint('❌ Error en AudioService: $e');
   }
 
   try {
-    print('📱 Inicializando AdService...');
+    debugPrint('📱 Inicializando AdService...');
     await AdService().init();
-    print('✓ AdService inicializado');
+    debugPrint('✓ AdService inicializado');
   } catch (e) {
-    print('❌ Error en AdService: $e');
+    debugPrint('❌ Error en AdService: $e');
   }
 
   try {
-    print('👤 Inicializando FirebaseAuthService...');
+    debugPrint('👤 Inicializando FirebaseAuthService...');
     await FirebaseAuthService.instance.initialize();
-    print('✓ FirebaseAuthService inicializado');
+    debugPrint('✓ FirebaseAuthService inicializado');
   } catch (e) {
-    print('❌ Error en FirebaseAuthService: $e');
+    debugPrint('❌ Error en FirebaseAuthService: $e');
   }
 
   try {
-    print('⚔️ Inicializando Combat System...');
+    debugPrint('⚔️ Inicializando Combat System...');
     initializeCombatSystem();
     assert(isCombatSystemInitialized(), 'Combat system failed to initialize');
-    print('✓ Combat System inicializado');
+    debugPrint('✓ Combat System inicializado');
   } catch (e) {
-    print('❌ Error en Combat System: $e');
+    debugPrint('❌ Error en Combat System: $e');
   }
 
   try {
-    print('⚙️ Inicializando SettingsController...');
+    debugPrint('⚙️ Inicializando SettingsController...');
     final settingsController = SettingsController();
     await settingsController.initialize();
-    print('✓ SettingsController inicializado');
+    debugPrint('✓ SettingsController inicializado');
   } catch (e) {
-    print('❌ Error en SettingsController: $e');
+    debugPrint('❌ Error en SettingsController: $e');
   }
 
   runApp(

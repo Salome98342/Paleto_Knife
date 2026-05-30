@@ -92,7 +92,6 @@ class FirebaseAuthService extends ChangeNotifier {
         throw Exception('No user returned from Firebase');
       }
 
-      // Crear modelo de usuario
       _currentUser = UserModel(
         id: _currentFirebaseUser!.uid,
         email: _currentFirebaseUser!.email ?? googleAccount.email,
@@ -104,10 +103,12 @@ class FirebaseAuthService extends ChangeNotifier {
         lastLogin: DateTime.now(),
       );
 
+      _ensureFallbackUser(googleAccount.email, googleAccount.displayName);
+
       // Guardar en Realtime Database
       await _saveUserToDatabase();
 
-      print('✓ Google Sign-In exitoso: ${_currentUser!.username}');
+      debugPrint('✓ Google Sign-In exitoso: ${_currentUser!.username}');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -139,9 +140,9 @@ class FirebaseAuthService extends ChangeNotifier {
         'highestLevel': _currentUser!.highestLevel,
         'totalCoinsEarned': _currentUser!.totalCoinsEarned,
       });
-      print('✓ Usuario guardado en base de datos');
+      debugPrint('✓ Usuario guardado en base de datos');
     } catch (e) {
-      print('Error saving user to database: $e');
+      debugPrint('Error saving user to database: $e');
     }
   }
 
@@ -167,7 +168,11 @@ class FirebaseAuthService extends ChangeNotifier {
       }
 
       await _loadUserFromDatabase();
-      print('✓ Login con email exitoso: ${_currentUser!.username}');
+      final currentUsername = _currentUser?.username ??
+          _currentFirebaseUser?.displayName ??
+          email.split('@').first;
+      _ensureFallbackUser(email, currentUsername);
+      debugPrint('✓ Login con email exitoso: $currentUsername');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -182,6 +187,36 @@ class FirebaseAuthService extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       debugPrint('[FirebaseAuthService] Sign-in error: $e');
+      return false;
+    }
+  }
+
+  /// Envía un email de recuperación de contraseña
+  Future<bool> sendPasswordReset({
+    required String email,
+  }) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _auth.sendPasswordResetEmail(email: email);
+
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('✓ Password reset email sent to $email');
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorMessage(e.code);
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('[FirebaseAuthService] sendPasswordReset error: $e');
+      return false;
+    } catch (e) {
+      _errorMessage = 'Error al enviar recuperación: $e';
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('[FirebaseAuthService] sendPasswordReset error: $e');
       return false;
     }
   }
@@ -208,6 +243,8 @@ class FirebaseAuthService extends ChangeNotifier {
         throw Exception('No user returned from Firebase');
       }
 
+      _ensureFallbackUser(email, username);
+
       // Establecer nombre de usuario en Firebase Auth
       await _currentFirebaseUser!.updateDisplayName(username);
       await _currentFirebaseUser!.reload();
@@ -225,7 +262,7 @@ class FirebaseAuthService extends ChangeNotifier {
       // Guardar en Realtime Database
       await _saveUserToDatabase();
 
-      print('✓ Registro exitoso: $username');
+      debugPrint('✓ Registro exitoso: $username');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -297,7 +334,7 @@ class FirebaseAuthService extends ChangeNotifier {
           highestLevel: data['highestLevel'] as int? ?? 0,
           totalCoinsEarned: data['totalCoinsEarned'] as int? ?? 0,
         );
-        print('✓ Usuario cargado desde base de datos');
+        debugPrint('✓ Usuario cargado desde base de datos');
       } else {
         // Usuario no existe en BD, crear nuevo registro
         _currentUser = UserModel(
@@ -311,8 +348,38 @@ class FirebaseAuthService extends ChangeNotifier {
         await _saveUserToDatabase();
       }
     } catch (e) {
-      print('Error loading user from database: $e');
+      debugPrint('Error loading user from database: $e');
+      _ensureFallbackUser(
+        _currentFirebaseUser?.email,
+        _currentFirebaseUser?.displayName,
+      );
+      if (_currentUser == null && _currentFirebaseUser != null) {
+        _currentUser = UserModel(
+          id: _currentFirebaseUser!.uid,
+          email: _currentFirebaseUser!.email ?? '',
+          username: _currentFirebaseUser!.displayName ??
+              (_currentFirebaseUser!.email ?? 'Usuario').split('@')[0],
+          avatarUrl: _currentFirebaseUser!.photoURL,
+          createdAt: DateTime.now(),
+          lastLogin: DateTime.now(),
+        );
+      }
     }
+  }
+
+  void _ensureFallbackUser(String? email, String? displayName) {
+    if (_currentFirebaseUser == null) return;
+
+    _currentUser ??= UserModel(
+      id: _currentFirebaseUser!.uid,
+      email: email ?? _currentFirebaseUser!.email ?? '',
+      username: displayName ??
+          _currentFirebaseUser!.displayName ??
+          (email ?? _currentFirebaseUser!.email ?? 'Usuario').split('@')[0],
+      avatarUrl: _currentFirebaseUser!.photoURL,
+      createdAt: DateTime.now(),
+      lastLogin: DateTime.now(),
+    );
   }
 
   /// Actualiza último login
@@ -326,7 +393,7 @@ class FirebaseAuthService extends ChangeNotifier {
         'lastLogin': _currentUser!.lastLogin.toIso8601String(),
       });
     } catch (e) {
-      print('Error updating lastLogin: $e');
+      debugPrint('Error updating lastLogin: $e');
     }
   }
 
@@ -337,9 +404,9 @@ class FirebaseAuthService extends ChangeNotifier {
     try {
       final gameRef = _database.ref('users/${_currentFirebaseUser!.uid}/gameData');
       await gameRef.set(gameData);
-      print('✓ Datos del juego guardados');
+      debugPrint('✓ Datos del juego guardados');
     } catch (e) {
-      print('Error saving game data: $e');
+      debugPrint('Error saving game data: $e');
     }
   }
 
@@ -355,7 +422,7 @@ class FirebaseAuthService extends ChangeNotifier {
       }
       return null;
     } catch (e) {
-      print('Error loading game data: $e');
+      debugPrint('Error loading game data: $e');
       return null;
     }
   }
@@ -372,7 +439,7 @@ class FirebaseAuthService extends ChangeNotifier {
       _currentFirebaseUser = null;
       _errorMessage = null;
       
-      print('✓ Sesión cerrada');
+      debugPrint('✓ Sesión cerrada');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -380,7 +447,7 @@ class FirebaseAuthService extends ChangeNotifier {
       _errorMessage = 'Error al cerrar sesión: $e';
       _isLoading = false;
       notifyListeners();
-      print('Error signing out: $e');
+      debugPrint('Error signing out: $e');
       return false;
     }
   }
@@ -426,7 +493,7 @@ class FirebaseAuthService extends ChangeNotifier {
         avatarUrl: avatarUrl,
       );
 
-      print('✓ Perfil actualizado');
+      debugPrint('✓ Perfil actualizado');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -439,7 +506,7 @@ class FirebaseAuthService extends ChangeNotifier {
       _errorMessage = 'Error al actualizar perfil: $e';
       _isLoading = false;
       notifyListeners();
-      print('Error updating profile: $e');
+      debugPrint('Error updating profile: $e');
       return false;
     }
   }
@@ -468,7 +535,7 @@ class FirebaseAuthService extends ChangeNotifier {
       _currentFirebaseUser = null;
       _errorMessage = null;
 
-      print('✓ Cuenta eliminada');
+      debugPrint('✓ Cuenta eliminada');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -481,7 +548,7 @@ class FirebaseAuthService extends ChangeNotifier {
       _errorMessage = 'Error al eliminar cuenta: $e';
       _isLoading = false;
       notifyListeners();
-      print('Error deleting account: $e');
+      debugPrint('Error deleting account: $e');
       return false;
     }
   }
@@ -508,7 +575,7 @@ class FirebaseAuthService extends ChangeNotifier {
       // Actualizar modelo local
       _currentUser = _currentUser!.copyWith(avatarUrl: avatarUrl);
 
-      print('✓ Avatar actualizado');
+      debugPrint('✓ Avatar actualizado');
       _isLoading = false;
       notifyListeners();
       return true;
@@ -516,7 +583,7 @@ class FirebaseAuthService extends ChangeNotifier {
       _errorMessage = 'Error al actualizar avatar: $e';
       _isLoading = false;
       notifyListeners();
-      print('Error updating avatar: $e');
+      debugPrint('Error updating avatar: $e');
       return false;
     }
   }

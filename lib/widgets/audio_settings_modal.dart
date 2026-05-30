@@ -205,7 +205,7 @@ class _AudioSettingsModalState extends State<AudioSettingsModal> {
               child: Switch(
                 value: isEnabled,
                 onChanged: onToggle,
-                activeColor: Colors.amber[400],
+                activeThumbColor: Colors.amber[400],
                 inactiveThumbColor: Colors.grey[700],
               ),
             ),

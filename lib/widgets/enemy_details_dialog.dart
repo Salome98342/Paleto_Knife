@@ -8,9 +8,9 @@ class EnemyDetailsDialog extends StatelessWidget {
   final EnemyTypeDefinition enemy;
 
   const EnemyDetailsDialog({
-    Key? key,
+    super.key,
     required this.enemy,
-  }) : super(key: key);
+  });
 
   String _getAttackPatternName(AttackPatternType type) {
     switch (type) {
@@ -285,7 +285,7 @@ class EnemyDetailsDialog extends StatelessWidget {
                             style: RetroStyle.font(size: 8, color: Colors.black),
                           ),
                           Text(
-                            '${enemy.attackPattern.bulletDamage.toStringAsFixed(1)}',
+                            enemy.attackPattern.bulletDamage.toStringAsFixed(1),
                             style: RetroStyle.font(
                               size: 8,
                               color: Colors.red.shade700,

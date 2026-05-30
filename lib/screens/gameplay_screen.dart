@@ -87,7 +87,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
     // Configurar callbacks del ReviveSystem
     _reviveSystem.onReviveStarted = () {
       // Cerrar overlay de game over
-      _game.overlays.remove('NewGameOver');
+      _game.overlays.remove('GameOver');
     };
     _reviveSystem.onReviveCompleted = _onReviveCompleted;
     _reviveSystem.onReviveCancelled = _onReviveCancelled;
@@ -115,15 +115,15 @@ class _GameplayScreenState extends State<GameplayScreen> {
         if (mounted) {
           AudioService.instance.playHitSound();
           _gameState.takeDamage(amount.toInt());
-          context.read<EconomyController>().takeDamage(amount);
+          final economy = context.read<EconomyController>();
+          economy.takeDamage(amount);
+
+          final isDead = _gameState.playerHealth <= 0 || economy.playerHp <= 0;
 
           // Verificar si el jugador murió
-          if (_gameState.playerHealth <= 0 &&
-              _gameState.status == GameStatus.playing) {
+          if (isDead && _gameState.status == GameStatus.playing) {
             _onPlayerDeath();
-          }
-
-          if (context.read<EconomyController>().playerHp <= 0) {
+          } else if (isDead && !_game.overlays.isActive('GameOver')) {
             _game.pauseEngine();
             _game.overlays.add('GameOver');
           }
@@ -205,6 +205,9 @@ class _GameplayScreenState extends State<GameplayScreen> {
   void _onReviveCompleted() {
     // El juego será reanudado por el ThankYouAdOverlay cuando se cierre
     _gameState.resumeAfterRevive();
+    if (mounted) {
+      context.read<EconomyController>().restoreFullHp();
+    }
   }
 
   void _onReviveCancelled() {
