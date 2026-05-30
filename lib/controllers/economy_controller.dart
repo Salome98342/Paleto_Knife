@@ -26,6 +26,40 @@ class EconomyController extends ChangeNotifier {
 
   EconomyController() {
     _loadData();
+    // Escuchar cambios de autenticación para sincronizar con la nube
+    FirebaseAuthService.instance.addListener(_onAuthChanged);
+  }
+
+  void _onAuthChanged() {
+    // Si hay usuario autenticado, intentar cargar sus datos desde la nube
+    final user = FirebaseAuthService.instance.firebaseUser;
+    if (user != null) {
+      _loadCloudData();
+    }
+  }
+
+  Future<void> _loadCloudData() async {
+    try {
+      final cloud = await FirebaseAuthService.instance.loadGameData();
+      if (cloud == null) return;
+
+      // Merge simple numeric fields if existen en la nube
+      _coins = (cloud['coins'] is int) ? cloud['coins'] as int : _coins;
+      _gems = (cloud['gems'] is int) ? cloud['gems'] as int : _gems;
+      _damageStat = (cloud['damageStat'] is int) ? cloud['damageStat'] as int : _damageStat;
+      _fireRateStat = (cloud['fireRateStat'] is int) ? cloud['fireRateStat'] as int : _fireRateStat;
+
+      _monstersKilled = (cloud['monstersKilled'] is int) ? cloud['monstersKilled'] as int : _monstersKilled;
+      _chefsLeveledUp = (cloud['chefsLeveledUp'] is int) ? cloud['chefsLeveledUp'] as int : _chefsLeveledUp;
+      _gamesPlayed = (cloud['gamesPlayed'] is int) ? cloud['gamesPlayed'] as int : _gamesPlayed;
+      _coinsSpent = (cloud['coinsSpent'] is int) ? cloud['coinsSpent'] as int : _coinsSpent;
+
+      // Guardar localmente la copia sincronizada
+      await _saveData();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[EconomyController] Error loading cloud data: $e');
+    }
   }
 
   String get _scopeKey {
@@ -71,6 +105,26 @@ class EconomyController extends ChangeNotifier {
     await prefs.setInt(_key('gamesPlayed'), _gamesPlayed);
     await prefs.setInt(_key('coinsSpent'), _coinsSpent);
     // No guardamos la currentWave para que el jugador vuelva a farmear desde el inicio
+
+    // Intentar sincronizar con la nube si hay usuario autenticado
+    try {
+      final user = FirebaseAuthService.instance.firebaseUser;
+      if (user != null) {
+        final gameData = {
+          'coins': _coins,
+          'gems': _gems,
+          'damageStat': _damageStat,
+          'fireRateStat': _fireRateStat,
+          'monstersKilled': _monstersKilled,
+          'chefsLeveledUp': _chefsLeveledUp,
+          'gamesPlayed': _gamesPlayed,
+          'coinsSpent': _coinsSpent,
+        };
+        await FirebaseAuthService.instance.saveGameData(gameData);
+      }
+    } catch (e) {
+      debugPrint('[EconomyController] Error saving to cloud: $e');
+    }
   }
 
   Future<void> reloadForCurrentUser() async {
@@ -209,5 +263,13 @@ class EconomyController extends ChangeNotifier {
       return true;
     }
     return false;
+  }
+
+  @override
+  void dispose() {
+    try {
+      FirebaseAuthService.instance.removeListener(_onAuthChanged);
+    } catch (_) {}
+    super.dispose();
   }
 }
