@@ -273,9 +273,9 @@ class QuestController extends ChangeNotifier {
 
   List<QuestDefinition> _dailyDefinitions() {
     final seed = _hash(_dailyKey);
-    final killTarget = 35 + (seed % 4) * 15;
-    final gamesTarget = 1 + (seed % 3);
-    final spendTarget = 500 + (seed % 4) * 250;
+    final killTarget = 20 + (seed % 4) * 10; // Ajustado para ser más accesible
+    final gamesTarget = 1; // Siempre 1 partida requerida (más fácil)
+    final spendTarget = 250 + (seed % 4) * 150; // Menor gasto requerido
     final levelTarget = 1;
     final bonusReward = seed.isEven
         ? const QuestReward(QuestRewardType.characterBox, 1)
@@ -336,7 +336,7 @@ class QuestController extends ChangeNotifier {
         description: 'Derrota una gran cantidad de enemigos esta semana.',
         period: QuestPeriod.weekly,
         stat: QuestStat.monstersKilled,
-        target: 220 + (seed % 4) * 40,
+        target: 140 + (seed % 4) * 30,
         rewards: const [
           QuestReward(QuestRewardType.gems, 90),
           QuestReward(QuestRewardType.characterBox, 1),
@@ -348,7 +348,7 @@ class QuestController extends ChangeNotifier {
         description: 'Juega varias partidas durante la semana.',
         period: QuestPeriod.weekly,
         stat: QuestStat.gamesPlayed,
-        target: 8 + (seed % 3),
+        target: 5 + (seed % 2),
         rewards: const [
           QuestReward(QuestRewardType.coins, 3500),
           QuestReward(QuestRewardType.knifeBox, 1),
@@ -360,7 +360,7 @@ class QuestController extends ChangeNotifier {
         description: 'Invierte monedas en mejoras.',
         period: QuestPeriod.weekly,
         stat: QuestStat.coinsSpent,
-        target: 4500 + (seed % 4) * 750,
+        target: 2500 + (seed % 4) * 500,
         rewards: const [QuestReward(QuestRewardType.gems, 120)],
       ),
       QuestDefinition(
@@ -369,7 +369,7 @@ class QuestController extends ChangeNotifier {
         description: 'Sube chefs de nivel varias veces.',
         period: QuestPeriod.weekly,
         stat: QuestStat.chefsLeveledUp,
-        target: 3,
+        target: 2,
         rewards: const [
           QuestReward(QuestRewardType.characterBox, 1),
           QuestReward(QuestRewardType.knifeBox, 1),
