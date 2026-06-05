@@ -11,7 +11,7 @@ class PlayerComponent extends PositionComponent
   double _invulnerableTimer = 0.0; // Dash invulnerability
   double _dashCooldown = 0.0;
   late Paint _paint;
-  final IconData? icon;
+  final bool _showHitbox = false; // <-- Cámbialo a false
   final String? chefId; // ID del chef para cargar su imagen específica
   
   // Imagen animada del chef (GIF/PNG)
@@ -20,10 +20,13 @@ class PlayerComponent extends PositionComponent
   double _chefFrameElapsed = 0.0;
   Rect? _chefVisibleSourceBounds;
   Size? _chefSourceSize;
-  static const double _hitboxOffsetXRatio = -0.08;
+  
+  // === AJUSTES FINOS DE LA CAJA ROJA ===
+  // Modifica estos valores con decimales pequeños (ej: 0.03 o -0.02) si la caja roja no cuadra con el chef
+  static const double _hitboxOffsetXRatio = 0.0;
   static const double _hitboxWidthRatio = 0.42;
   static const double _hitboxHeightRatio = 0.56;
-  static const double _hitboxOffsetYRatio = 0.22;
+  static const double _hitboxOffsetYRatio = 0.0;
   final bool _showHitbox = true; // Flag para mostrar/ocultar hitbox debug
 
   static const double _defaultFrameDuration = 1 / 12;
@@ -107,15 +110,12 @@ class PlayerComponent extends PositionComponent
   Future<void> onLoad() async {
     await super.onLoad();
     
-    // Cargar la imagen PNG del chef según su ID
     debugPrint('[PlayerComponent] onLoad: chefId = $chefId');
     
     try {
       if (chefId == 'r_fire_1') {
-        // Chef de Línea - carga robusta compatible con assets/ y lib/assets/
         debugPrint('[PlayerComponent] Attempting to load r_fire_1 image');
         
-        // Esperar a que el game esté completamente listo
         game.ready;
         debugPrint('[PlayerComponent] Game ready confirmed');
         
@@ -126,7 +126,6 @@ class PlayerComponent extends PositionComponent
           debugPrint('[PlayerComponent] ❌ Could not load chef image from any key');
         }
       } else {
-        // Otros chefs - no cargar imagen por ahora (usar icono)
         debugPrint('[PlayerComponent] No custom image for $chefId, will use icon');
       }
     } catch (e) {
@@ -136,27 +135,20 @@ class PlayerComponent extends PositionComponent
     }
   }
   
-  /// Obtiene el hitbox del jugador
   Rect getHitbox() {
     final hitboxRect = _getLocalHitboxRect();
-
-    return Rect.fromCenter(
-      center: Offset(
-        position.x + hitboxRect.center.dx,
-        position.y + hitboxRect.center.dy,
-      ),
-      width: hitboxRect.width,
-      height: hitboxRect.height,
-    );
+    final topLeft = Offset(position.x - size.x / 2, position.y - size.y / 2);
+    return hitboxRect.shift(topLeft);
   }
 
   Vector2 _getWorldVisibleCenter() {
     final spriteRect = _getLocalSpriteRect();
     final visibleRect = _getLocalVisibleContentRect(spriteRect);
+    final topLeft = Vector2(position.x - size.x / 2, position.y - size.y / 2);
 
     return Vector2(
-      position.x + visibleRect.center.dx,
-      position.y + visibleRect.center.dy,
+      topLeft.x + visibleRect.center.dx,
+      topLeft.y + visibleRect.center.dy,
     );
   }
 
@@ -164,9 +156,8 @@ class PlayerComponent extends PositionComponent
     if (_dashCooldown > 0) return;
     _invulnerableTimer = 1.0; // 1 segundo de invulnerabilidad
     _dashCooldown = 3.0; // 3 segundos de recarga
-    game.shakeScreen(10.0, 0.2); // Pequeno efecto visual
+    game.shakeScreen(10.0, 0.2);
 
-    // Disparo circular (Nova)
     final origin = _getWorldVisibleCenter();
     int bullets = 16;
     double step = (2 * math.pi) / bullets;
@@ -192,7 +183,6 @@ class PlayerComponent extends PositionComponent
     if (_dashCooldown > 0) _dashCooldown -= dt;
 
     if (isInvulnerable) {
-      // Efecto parpadeo
       _paint.color = Colors.cyanAccent.withValues(alpha: 0.5);
     } else {
       _paint.color = Colors.blue;
@@ -237,7 +227,6 @@ class PlayerComponent extends PositionComponent
   void render(Canvas canvas) {
     final spriteRect = _getLocalSpriteRect();
 
-    // Renderizar la imagen del chef
     if (_chefFrames.isNotEmpty) {
       final frame = _chefFrames[_chefFrameIndex].image;
       final sourceRect = _getChefSourceRect(frame);
@@ -249,7 +238,6 @@ class PlayerComponent extends PositionComponent
         _paint,
       );
     } else if (icon != null) {
-      // Fallback al icono si no se cargó la imagen
       final textPainter = TextPainter(
         text: TextSpan(
           text: String.fromCharCode(icon!.codePoint),
@@ -271,11 +259,9 @@ class PlayerComponent extends PositionComponent
         ),
       );
     } else {
-      // Fallback a rectángulo si nada funciona
       canvas.drawRect(spriteRect, _paint);
     }
     
-    // Mostrar hitbox en rojo (debug)
     if (_showHitbox) {
       final hitboxPaint = Paint()
         ..color = Colors.red.withValues(alpha: 0.3)
@@ -287,8 +273,20 @@ class PlayerComponent extends PositionComponent
   }
 
   Rect _getLocalSpriteRect() {
+    // === AJUSTE FINO DEL SPRITE ===
+    // Modifica nudgeX o nudgeY si el chef completo está separado del círculo verde
+    final double nudgeX = 0.0; // Ej: -4.0, 2.0
+    final double nudgeY = 0.0; 
+    
+    final centerX = (size.x / 2) + nudgeX;
+    final centerY = (size.y / 2) + nudgeY;
+
     if (_chefFrames.isEmpty) {
-      return Rect.fromCenter(center: Offset.zero, width: size.x, height: size.y);
+      return Rect.fromCenter(
+        center: Offset(centerX, centerY),
+        width: size.x,
+        height: size.y,
+      );
     }
 
     final frame = _chefFrames[_chefFrameIndex].image;
@@ -299,7 +297,7 @@ class PlayerComponent extends PositionComponent
     );
 
     return Rect.fromCenter(
-      center: Offset.zero,
+      center: Offset(centerX, centerY),
       width: fittedSize.width,
       height: fittedSize.height,
     );
@@ -324,15 +322,11 @@ class PlayerComponent extends PositionComponent
 
   Rect _getLocalVisibleContentRect([Rect? spriteRect]) {
     final baseSpriteRect = spriteRect ?? _getLocalSpriteRect();
-
-    // The sprite is rendered from the cropped visible source rect, so the local
-    // sprite rect already represents visible chef pixels.
     return baseSpriteRect;
   }
 
   Rect _getChefSourceRect(ui.Image frame) {
-    return _chefVisibleSourceBounds ??
-        Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble());
+    return Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble());
   }
 
   Future<Rect?> _calculateVisibleSourceBounds(List<ui.Image> frames) async {

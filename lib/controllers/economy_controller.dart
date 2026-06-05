@@ -40,22 +40,70 @@ class EconomyController extends ChangeNotifier {
 
   Future<void> _loadCloudData() async {
     try {
-      final cloud = await FirebaseAuthService.instance.loadGameData();
+      final auth = FirebaseAuthService.instance;
+      final cloud = await auth.loadEconomyData() ?? await auth.loadGameData();
       if (cloud == null) return;
+      // Merge seguro:
+      // - Para monedas/gemas: si el local es mayor (p. ej. compras hechas como guest), preservarlo y subirlo.
+      // - Para stats y contadores: tomar el valor máximo para no degradar progreso.
 
-      // Merge simple numeric fields if existen en la nube
-      _coins = (cloud['coins'] is int) ? cloud['coins'] as int : _coins;
-      _gems = (cloud['gems'] is int) ? cloud['gems'] as int : _gems;
-      _damageStat = (cloud['damageStat'] is int) ? cloud['damageStat'] as int : _damageStat;
-      _fireRateStat = (cloud['fireRateStat'] is int) ? cloud['fireRateStat'] as int : _fireRateStat;
+      bool needUpload = false;
 
-      _monstersKilled = (cloud['monstersKilled'] is int) ? cloud['monstersKilled'] as int : _monstersKilled;
-      _chefsLeveledUp = (cloud['chefsLeveledUp'] is int) ? cloud['chefsLeveledUp'] as int : _chefsLeveledUp;
-      _gamesPlayed = (cloud['gamesPlayed'] is int) ? cloud['gamesPlayed'] as int : _gamesPlayed;
-      _coinsSpent = (cloud['coinsSpent'] is int) ? cloud['coinsSpent'] as int : _coinsSpent;
+      final cloudCoins = cloud['coins'] is int ? cloud['coins'] as int : null;
+      final cloudGems = cloud['gems'] is int ? cloud['gems'] as int : null;
 
-      // Guardar localmente la copia sincronizada
-      await _saveData();
+      if (cloudCoins != null) {
+        if (cloudCoins < _coins) {
+          // keep local and mark to upload
+          needUpload = true;
+        } else {
+          _coins = cloudCoins;
+        }
+      }
+
+      if (cloudGems != null) {
+        if (cloudGems < _gems) {
+          needUpload = true;
+        } else {
+          _gems = cloudGems;
+        }
+      }
+
+      // Stats: take max
+      _damageStat = cloud['damageStat'] is int ? math.max(_damageStat, cloud['damageStat'] as int) : _damageStat;
+      _fireRateStat = cloud['fireRateStat'] is int ? math.max(_fireRateStat, cloud['fireRateStat'] as int) : _fireRateStat;
+
+      _monstersKilled = cloud['monstersKilled'] is int ? math.max(_monstersKilled, cloud['monstersKilled'] as int) : _monstersKilled;
+      _chefsLeveledUp = cloud['chefsLeveledUp'] is int ? math.max(_chefsLeveledUp, cloud['chefsLeveledUp'] as int) : _chefsLeveledUp;
+      _gamesPlayed = cloud['gamesPlayed'] is int ? math.max(_gamesPlayed, cloud['gamesPlayed'] as int) : _gamesPlayed;
+      _coinsSpent = cloud['coinsSpent'] is int ? math.max(_coinsSpent, cloud['coinsSpent'] as int) : _coinsSpent;
+
+      // Guardar localmente la copia fusionada
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_key('coins'), _coins);
+      await prefs.setInt(_key('gems'), _gems);
+      await prefs.setInt(_key('damageStat'), _damageStat);
+      await prefs.setInt(_key('fireRateStat'), _fireRateStat);
+      await prefs.setInt(_key('monstersKilled'), _monstersKilled);
+      await prefs.setInt(_key('chefsLeveledUp'), _chefsLeveledUp);
+      await prefs.setInt(_key('gamesPlayed'), _gamesPlayed);
+      await prefs.setInt(_key('coinsSpent'), _coinsSpent);
+
+      // Si preservamos valores locales mayores, subirlos a la nube
+      if (needUpload) {
+        final gameData = {
+          'coins': _coins,
+          'gems': _gems,
+          'damageStat': _damageStat,
+          'fireRateStat': _fireRateStat,
+          'monstersKilled': _monstersKilled,
+          'chefsLeveledUp': _chefsLeveledUp,
+          'gamesPlayed': _gamesPlayed,
+          'coinsSpent': _coinsSpent,
+        };
+        await FirebaseAuthService.instance.saveEconomyData(gameData);
+      }
+
       notifyListeners();
     } catch (e) {
       debugPrint('[EconomyController] Error loading cloud data: $e');
@@ -129,6 +177,7 @@ class EconomyController extends ChangeNotifier {
 
   Future<void> reloadForCurrentUser() async {
     await _loadData();
+    await _loadCloudData();
     notifyListeners();
   }
 

@@ -92,6 +92,15 @@ class GameController extends ChangeNotifier {
       _calculateOfflineRewards();
     }
 
+    // Mantener la nube actualizada con la versión más reciente seleccionada.
+    if (auth.isSignedIn) {
+      try {
+        await auth.saveGameData(_gameState.toJson());
+      } catch (e) {
+        debugPrint('Error guardando estado del juego en Firebase: $e');
+      }
+    }
+
     // Si la nube tenía progreso más reciente, dejar copia local al día.
     if (cloudState != null &&
         (localState == null ||

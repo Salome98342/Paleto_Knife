@@ -144,6 +144,21 @@ class GachaEntity {
         return Colors.orange;
     }
   }
+
+  Map<String, dynamic> toCloudJson() {
+    return {
+      'id': id,
+      'level': level,
+      'tokens': tokens,
+      'isUnlocked': isUnlocked,
+    };
+  }
+
+  void applyCloudJson(Map<String, dynamic> json) {
+    level = json['level'] is int ? json['level'] as int : level;
+    tokens = json['tokens'] is int ? json['tokens'] as int : tokens;
+    isUnlocked = json['isUnlocked'] is bool ? json['isUnlocked'] as bool : isUnlocked;
+  }
 }
 
 class RollResult {
@@ -345,6 +360,8 @@ class ChefController extends ChangeNotifier {
     _activeKnifeIndex =
         prefs.getInt(_key('active_knife_index')) ??
         allEntities.indexWhere((e) => !e.isChef);
+
+    await _loadCloudData();
     notifyListeners();
   }
 
@@ -353,17 +370,93 @@ class ChefController extends ChangeNotifier {
     await prefs.setInt(_key('entity_level_${e.id}'), e.level);
     await prefs.setInt(_key('entity_tokens_${e.id}'), e.tokens);
     await prefs.setBool(_key('entity_unlocked_${e.id}'), e.isUnlocked);
+    await _saveCloudData();
   }
 
   Future<void> _saveActiveIndices() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_key('active_chef_index'), _activeChefIndex);
     await prefs.setInt(_key('active_knife_index'), _activeKnifeIndex);
+    await _saveCloudData();
   }
 
   Future<void> reloadForCurrentUser() async {
     await _loadData();
     notifyListeners();
+  }
+
+  Map<String, dynamic> _buildCloudData() {
+    return {
+      'entities': allEntities.map((e) => e.toCloudJson()).toList(),
+      'activeChefIndex': _activeChefIndex,
+      'activeKnifeIndex': _activeKnifeIndex,
+    };
+  }
+
+  void _applyCloudData(Map<String, dynamic> data) {
+    final entities = data['entities'] as List<dynamic>?;
+    if (entities != null) {
+      for (final raw in entities) {
+        if (raw is! Map) continue;
+        final entityId = raw['id']?.toString();
+        if (entityId == null) continue;
+        final entityIndex = allEntities.indexWhere((e) => e.id == entityId);
+        if (entityIndex == -1) continue;
+        final entity = allEntities[entityIndex];
+        entity.applyCloudJson(Map<String, dynamic>.from(raw));
+      }
+    }
+
+    if (data['activeChefIndex'] is int) {
+      _activeChefIndex = data['activeChefIndex'] as int;
+    }
+    if (data['activeKnifeIndex'] is int) {
+      _activeKnifeIndex = data['activeKnifeIndex'] as int;
+    }
+
+    _activeChefIndex = _activeChefIndex.clamp(0, allEntities.length - 1).toInt();
+    _activeKnifeIndex = _activeKnifeIndex
+      .clamp(-1, allEntities.length - 1)
+      .toInt();
+
+    for (final e in allEntities.where((entity) => entity.isChef && entity.isUnlocked)) {
+      try {
+        final chef = ChefDatabase.allChefs.firstWhere((c) => c.id == e.id);
+        _progressionSystem.forceUnlock(
+          chef.copyWith(level: e.level, tokens: e.tokens),
+        );
+      } catch (error) {
+        debugPrint('[ERROR] Chef cloud sync failed: $error');
+      }
+    }
+  }
+
+  Future<void> _loadCloudData() async {
+    try {
+      final auth = FirebaseAuthService.instance;
+      final cloud = await auth.loadChefData();
+      if (cloud == null) {
+        if (auth.isSignedIn) {
+          await _saveCloudData();
+        }
+        return;
+      }
+
+      _applyCloudData(cloud);
+      await _saveCloudData();
+    } catch (e) {
+      debugPrint('[ChefController] Error loading cloud data: $e');
+    }
+  }
+
+  Future<void> _saveCloudData() async {
+    try {
+      final auth = FirebaseAuthService.instance;
+      if (!auth.isSignedIn) return;
+      await auth.saveChefData(_buildCloudData());
+    } catch (e) {
+      debugPrint('[ChefController] Error saving cloud data: $e');
+    }
   }
 
   void setActive(GachaEntity entity) {

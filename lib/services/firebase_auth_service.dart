@@ -397,34 +397,65 @@ class FirebaseAuthService extends ChangeNotifier {
     }
   }
 
-  /// Guarda datos del juego en la nube
-  Future<void> saveGameData(Map<String, dynamic> gameData) async {
+  Future<void> _saveUserDataSection(
+    String section,
+    Map<String, dynamic> data,
+  ) async {
     if (_currentFirebaseUser == null) return;
 
     try {
-      final gameRef = _database.ref('users/${_currentFirebaseUser!.uid}/gameData');
-      await gameRef.set(gameData);
-      debugPrint('✓ Datos del juego guardados');
+      final ref = _database.ref('users/${_currentFirebaseUser!.uid}/$section');
+      await ref.set(data);
+      debugPrint('✓ Datos guardados en $section');
     } catch (e) {
-      debugPrint('Error saving game data: $e');
+      debugPrint('Error saving $section: $e');
     }
   }
 
-  /// Carga datos del juego desde la nube
-  Future<Map<String, dynamic>?> loadGameData() async {
+  Future<Map<String, dynamic>?> _loadUserDataSection(String section) async {
     if (_currentFirebaseUser == null) return null;
 
     try {
-      final gameRef = _database.ref('users/${_currentFirebaseUser!.uid}/gameData');
-      final snapshot = await gameRef.get();
+      final ref = _database.ref('users/${_currentFirebaseUser!.uid}/$section');
+      final snapshot = await ref.get();
       if (snapshot.exists) {
         return Map<String, dynamic>.from(snapshot.value as Map);
       }
       return null;
     } catch (e) {
-      debugPrint('Error loading game data: $e');
+      debugPrint('Error loading $section: $e');
       return null;
     }
+  }
+
+  /// Guarda datos del progreso principal del juego en la nube
+  Future<void> saveGameData(Map<String, dynamic> gameData) async {
+    await _saveUserDataSection('gameData', gameData);
+  }
+
+  /// Carga datos del progreso principal del juego desde la nube
+  Future<Map<String, dynamic>?> loadGameData() async {
+    return _loadUserDataSection('gameData');
+  }
+
+  /// Guarda datos de economía en la nube
+  Future<void> saveEconomyData(Map<String, dynamic> economyData) async {
+    await _saveUserDataSection('economyData', economyData);
+  }
+
+  /// Carga datos de economía desde la nube
+  Future<Map<String, dynamic>?> loadEconomyData() async {
+    return _loadUserDataSection('economyData');
+  }
+
+  /// Guarda datos de inventario/gacha en la nube
+  Future<void> saveChefData(Map<String, dynamic> chefData) async {
+    await _saveUserDataSection('chefData', chefData);
+  }
+
+  /// Carga datos de inventario/gacha desde la nube
+  Future<Map<String, dynamic>?> loadChefData() async {
+    return _loadUserDataSection('chefData');
   }
 
   /// Cierra sesión del usuario actual

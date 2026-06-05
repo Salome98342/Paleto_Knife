@@ -550,6 +550,13 @@ class AudioService extends ChangeNotifier {
 
       // Reproducir con timeout
       final audioSource = await _getAudioSource(path);
+      // Asegurar volumen del player justo antes de reproducir
+      try {
+        await player.setVolume(_sfxVolume);
+      } catch (e) {
+        debugPrint('[AudioService] ⚠️ No se pudo setVolume en SFX player: $e');
+      }
+
       await player.play(audioSource).timeout(
         const Duration(seconds: 2),
         onTimeout: () {
@@ -562,8 +569,20 @@ class AudioService extends ChangeNotifier {
   }
 
   Future<void> playSfx(String path) async {
-    if (_isDisposed || !_initialized) return;
-    
+    if (_isDisposed) return;
+
+    // Asegurar inicialización (si no está inicializado, intentar inicializar)
+    if (!_initialized) {
+      try {
+        await _ensureInitialized();
+      } catch (e) {
+        debugPrint('[AudioService] ⚠️ No se pudo inicializar antes de SFX: $e');
+        return;
+      }
+    }
+
+    if (!_initialized || !_sfxEnabled) return;
+
     // Obtener índice de forma sincrónica
     final int currentIndex = _nextSfxIndex;
     _nextSfxIndex = (_nextSfxIndex + 1) % _sfxPlayers.length;
