@@ -1,4 +1,5 @@
-package com.example.knife_clicker
+package com.knife_clicker
+
 
 import io.flutter.embedding.android.FlutterActivity
 import android.media.AudioManager

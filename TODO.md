@@ -1,0 +1,8 @@
+- [x] Confirmar alcance: Opción A (fusión) para no romper métodos existentes.
+- [x] Actualizar `EconomyController`:
+  - [x] Reemplazar `_init` para cargar local, y luego sincronizar nube si hay usuario o escuchar login.
+  - [x] Unificar `_onAuthChanged` para cargar nube al autenticarse.
+  - [x] Simplificar `_loadCloudData` para incluir `currentWave` (si viene en la nube) manteniendo stats/quests.
+  - [x] Ajustar subida a nube manteniendo compatibilidad (usa `saveEconomyData`).
+- [x] Ejecutar `flutter analyze` y confirmar: No issues found.
+- [ ] Revisión final del archivo `lib/controllers/economy_controller.dart`.

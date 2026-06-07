@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "386527105063",
+    "firebase_url": "https://paleto-knife-97c24-default-rtdb.firebaseio.com",
     "project_id": "paleto-knife-97c24",
     "storage_bucket": "paleto-knife-97c24.firebasestorage.app"
   },
@@ -13,6 +14,43 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "386527105063-bpsntvpakolve0b4gs85c239i7g3c9af.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA50W-8-652Bf2cqx6v2Kx7c2juiScmFRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "386527105063-bpsntvpakolve0b4gs85c239i7g3c9af.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:386527105063:android:bbd72585b724394914fe02",
+        "android_client_info": {
+          "package_name": "com.knife_clicker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "386527105063-9jj8knqnij3t9hf3uuus879ecois9fma.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.knife_clicker",
+            "certificate_hash": "5fb09c5b43ebe2436d2f785be36b89aa022d62b5"
+          }
+        },
         {
           "client_id": "386527105063-bpsntvpakolve0b4gs85c239i7g3c9af.apps.googleusercontent.com",
           "client_type": 3

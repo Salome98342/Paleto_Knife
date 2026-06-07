@@ -11,28 +11,32 @@ class PlayerComponent extends PositionComponent
   double _invulnerableTimer = 0.0; // Dash invulnerability
   double _dashCooldown = 0.0;
   late Paint _paint;
-  final bool _showHitbox = false; // <-- Cámbialo a false
-  final String? chefId; // ID del chef para cargar su imagen específica
   
-  // Imagen animada del chef (GIF/PNG)
+  // Campo necesario para el constructor
+  final IconData? icon;
+  final String? chefId; 
+  
+  // Imagen animada del chef
   final List<_AnimatedFrame> _chefFrames = [];
   int _chefFrameIndex = 0;
   double _chefFrameElapsed = 0.0;
-  Rect? _chefVisibleSourceBounds;
-  Size? _chefSourceSize;
   
   // === AJUSTES FINOS DE LA CAJA ROJA ===
-  // Modifica estos valores con decimales pequeños (ej: 0.03 o -0.02) si la caja roja no cuadra con el chef
   static const double _hitboxOffsetXRatio = 0.0;
   static const double _hitboxWidthRatio = 0.42;
   static const double _hitboxHeightRatio = 0.56;
   static const double _hitboxOffsetYRatio = 0.0;
-  final bool _showHitbox = true; // Flag para mostrar/ocultar hitbox debug
+  
+  // Flag para mostrar/ocultar hitbox debug (Definición única)
+  final bool _showHitbox = true; 
 
-  static const double _defaultFrameDuration = 1 / 12;
-
-  double get _cheftoDisplayWidth => size.x;
-  double get _cheftoDisplayHeight => size.y;
+  PlayerComponent({
+    required Vector2 position,
+    this.icon,
+    this.chefId,
+  }) : super(position: position, size: Vector2(72, 84), anchor: Anchor.center) {
+    _paint = Paint()..color = Colors.blue;
+  }
 
   Future<ui.Codec> _decodeCodec(ByteData bytes) async {
     final codec = await ui.instantiateImageCodec(bytes.buffer.asUint8List());
@@ -47,7 +51,6 @@ class PlayerComponent extends PositionComponent
 
     for (final key in candidates) {
       try {
-        debugPrint('[PlayerComponent] Trying asset key: $key');
         final bytes = await rootBundle.load(key);
         final codec = await _decodeCodec(bytes);
 
@@ -67,70 +70,24 @@ class PlayerComponent extends PositionComponent
             ),
           );
         }
-
-        if (_chefFrames.isEmpty) {
-          final frame = await codec.getNextFrame();
-          _chefFrames.add(
-            _AnimatedFrame(
-              image: frame.image,
-              duration: frame.duration > Duration.zero
-                  ? frame.duration
-                  : const Duration(milliseconds: 83),
-            ),
-          );
-        }
-
-        _chefSourceSize = Size(
-          _chefFrames.first.image.width.toDouble(),
-          _chefFrames.first.image.height.toDouble(),
-        );
-        _chefVisibleSourceBounds = await _calculateVisibleSourceBounds(
-          _chefFrames.map((frame) => frame.image).toList(),
-        );
-
-        debugPrint('[PlayerComponent] ✅ Loaded ${_chefFrames.length} frame(s) with key: $key');
         return;
       } catch (e) {
         debugPrint('[PlayerComponent] ❌ Failed key $key: $e');
       }
     }
-
     _chefFrames.clear();
-  }
-
-  PlayerComponent({
-    required Vector2 position,
-    this.icon,
-    this.chefId,
-  }) : super(position: position, size: Vector2(72, 84), anchor: Anchor.center) {
-    _paint = Paint()..color = Colors.blue;
   }
   
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     
-    debugPrint('[PlayerComponent] onLoad: chefId = $chefId');
-    
     try {
       if (chefId == 'r_fire_1') {
-        debugPrint('[PlayerComponent] Attempting to load r_fire_1 image');
-        
-        game.ready;
-        debugPrint('[PlayerComponent] Game ready confirmed');
-        
         await _loadChefFramesWithFallback();
-        if (_chefFrames.isNotEmpty) {
-          debugPrint('[PlayerComponent] Frame dimensions: ${_chefFrames.first.image.width} x ${_chefFrames.first.image.height}');
-        } else {
-          debugPrint('[PlayerComponent] ❌ Could not load chef image from any key');
-        }
-      } else {
-        debugPrint('[PlayerComponent] No custom image for $chefId, will use icon');
       }
     } catch (e) {
       debugPrint('[PlayerComponent] ❌ ERROR in onLoad: $e');
-      debugPrint('[PlayerComponent] Stack trace: ${StackTrace.current}');
       _chefFrames.clear();
     }
   }
@@ -143,19 +100,18 @@ class PlayerComponent extends PositionComponent
 
   Vector2 _getWorldVisibleCenter() {
     final spriteRect = _getLocalSpriteRect();
-    final visibleRect = _getLocalVisibleContentRect(spriteRect);
     final topLeft = Vector2(position.x - size.x / 2, position.y - size.y / 2);
 
     return Vector2(
-      topLeft.x + visibleRect.center.dx,
-      topLeft.y + visibleRect.center.dy,
+      topLeft.x + spriteRect.center.dx,
+      topLeft.y + spriteRect.center.dy,
     );
   }
 
   void dash() {
     if (_dashCooldown > 0) return;
-    _invulnerableTimer = 1.0; // 1 segundo de invulnerabilidad
-    _dashCooldown = 3.0; // 3 segundos de recarga
+    _invulnerableTimer = 1.0; 
+    _dashCooldown = 3.0; 
     game.shakeScreen(10.0, 0.2);
 
     final origin = _getWorldVisibleCenter();
@@ -192,8 +148,9 @@ class PlayerComponent extends PositionComponent
 
     if (_chefFrames.length > 1) {
       _chefFrameElapsed += dt;
-      while (_chefFrameElapsed >= _chefFrames[_chefFrameIndex].duration.inMicroseconds / Duration.microsecondsPerSecond) {
-        _chefFrameElapsed -= _chefFrames[_chefFrameIndex].duration.inMicroseconds / Duration.microsecondsPerSecond;
+      final duration = _chefFrames[_chefFrameIndex].duration.inMicroseconds / Duration.microsecondsPerSecond;
+      while (_chefFrameElapsed >= duration) {
+        _chefFrameElapsed -= duration;
         _chefFrameIndex = (_chefFrameIndex + 1) % _chefFrames.length;
       }
     }
@@ -209,14 +166,8 @@ class PlayerComponent extends PositionComponent
   void _keepInBounds() {
     final halfWidth = size.x / 2;
     final halfHeight = size.y / 2;
-    if (position.x < halfWidth) position.x = halfWidth;
-    if (position.x > game.size.x - halfWidth) {
-      position.x = game.size.x - halfWidth;
-    }
-    if (position.y < halfHeight) position.y = halfHeight;
-    if (position.y > game.size.y - halfHeight) {
-      position.y = game.size.y - halfHeight;
-    }
+    position.x = position.x.clamp(halfWidth, game.size.x - halfWidth);
+    position.y = position.y.clamp(halfHeight, game.size.y - halfHeight);
   }
 
   void _shoot() {
@@ -229,11 +180,9 @@ class PlayerComponent extends PositionComponent
 
     if (_chefFrames.isNotEmpty) {
       final frame = _chefFrames[_chefFrameIndex].image;
-      final sourceRect = _getChefSourceRect(frame);
-
       canvas.drawImageRect(
         frame,
-        sourceRect,
+        Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
         spriteRect,
         _paint,
       );
@@ -273,119 +222,36 @@ class PlayerComponent extends PositionComponent
   }
 
   Rect _getLocalSpriteRect() {
-    // === AJUSTE FINO DEL SPRITE ===
-    // Modifica nudgeX o nudgeY si el chef completo está separado del círculo verde
-    final double nudgeX = 0.0; // Ej: -4.0, 2.0
-    final double nudgeY = 0.0; 
-    
-    final centerX = (size.x / 2) + nudgeX;
-    final centerY = (size.y / 2) + nudgeY;
+    final centerX = size.x / 2;
+    final centerY = size.y / 2;
 
     if (_chefFrames.isEmpty) {
-      return Rect.fromCenter(
-        center: Offset(centerX, centerY),
-        width: size.x,
-        height: size.y,
-      );
+      return Rect.fromCenter(center: Offset(centerX, centerY), width: size.x, height: size.y);
     }
 
     final frame = _chefFrames[_chefFrameIndex].image;
-    final sourceRect = _getChefSourceRect(frame);
     final fittedSize = _fitContain(
-      Size(sourceRect.width, sourceRect.height),
+      Size(frame.width.toDouble(), frame.height.toDouble()),
       Size(size.x, size.y),
     );
 
-    return Rect.fromCenter(
-      center: Offset(centerX, centerY),
-      width: fittedSize.width,
-      height: fittedSize.height,
-    );
+    return Rect.fromCenter(center: Offset(centerX, centerY), width: fittedSize.width, height: fittedSize.height);
   }
 
   Rect _getLocalHitboxRect() {
     final spriteRect = _getLocalSpriteRect();
-    final visibleRect = _getLocalVisibleContentRect(spriteRect);
-    final hitboxWidth = visibleRect.width * _hitboxWidthRatio;
-    final hitboxHeight = visibleRect.height * _hitboxHeightRatio;
-    final hitboxOffsetY = visibleRect.height * _hitboxOffsetYRatio;
-
     return Rect.fromCenter(
       center: Offset(
-        visibleRect.center.dx + (visibleRect.width * _hitboxOffsetXRatio),
-        visibleRect.center.dy + hitboxOffsetY,
+        spriteRect.center.dx + (spriteRect.width * _hitboxOffsetXRatio),
+        spriteRect.center.dy + (spriteRect.height * _hitboxOffsetYRatio),
       ),
-      width: hitboxWidth,
-      height: hitboxHeight,
-    );
-  }
-
-  Rect _getLocalVisibleContentRect([Rect? spriteRect]) {
-    final baseSpriteRect = spriteRect ?? _getLocalSpriteRect();
-    return baseSpriteRect;
-  }
-
-  Rect _getChefSourceRect(ui.Image frame) {
-    return Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble());
-  }
-
-  Future<Rect?> _calculateVisibleSourceBounds(List<ui.Image> frames) async {
-    Rect? bounds;
-
-    for (final frame in frames) {
-      final frameBounds = await _calculateVisibleBoundsForImage(frame);
-      if (frameBounds == null) continue;
-
-      bounds = bounds == null ? frameBounds : bounds.expandToInclude(frameBounds);
-    }
-
-    return bounds;
-  }
-
-  Future<Rect?> _calculateVisibleBoundsForImage(ui.Image image) async {
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
-    if (byteData == null) return null;
-
-    final bytes = byteData.buffer.asUint8List();
-    final width = image.width;
-    final height = image.height;
-
-    var minX = width;
-    var minY = height;
-    var maxX = -1;
-    var maxY = -1;
-
-    for (var y = 0; y < height; y++) {
-      for (var x = 0; x < width; x++) {
-        final pixelIndex = ((y * width) + x) * 4;
-        final alpha = bytes[pixelIndex + 3];
-
-        if (alpha > 12) {
-          if (x < minX) minX = x;
-          if (y < minY) minY = y;
-          if (x > maxX) maxX = x;
-          if (y > maxY) maxY = y;
-        }
-      }
-    }
-
-    if (maxX < minX || maxY < minY) {
-      return null;
-    }
-
-    return Rect.fromLTRB(
-      minX.toDouble(),
-      minY.toDouble(),
-      (maxX + 1).toDouble(),
-      (maxY + 1).toDouble(),
+      width: spriteRect.width * _hitboxWidthRatio,
+      height: spriteRect.height * _hitboxHeightRatio,
     );
   }
 
   Size _fitContain(Size source, Size destination) {
-    if (source.width <= 0 || source.height <= 0 || destination.width <= 0 || destination.height <= 0) {
-      return destination;
-    }
-
+    if (source.width <= 0 || source.height <= 0) return destination;
     final scale = math.min(destination.width / source.width, destination.height / source.height);
     return Size(source.width * scale, source.height * scale);
   }
@@ -393,7 +259,6 @@ class PlayerComponent extends PositionComponent
 
 class _AnimatedFrame {
   const _AnimatedFrame({required this.image, required this.duration});
-
   final ui.Image image;
   final Duration duration;
 }

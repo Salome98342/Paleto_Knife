@@ -24,28 +24,49 @@ class EconomyController extends ChangeNotifier {
   int _sessionCoins = 0;
   int _sessionGems = 0;
 
-  EconomyController() {
-    _loadData();
-    // Escuchar cambios de autenticación para sincronizar con la nube
-    FirebaseAuthService.instance.addListener(_onAuthChanged);
+EconomyController() {
+  _init();
+}
+
+Future<void> _init() async {
+  await _loadData(); // Carga local primero
+
+  // Forzar verificación de auth inmediatamente
+  final auth = FirebaseAuthService.instance;
+  if (auth.isSignedIn) {
+    await _loadCloudData();
+  } else {
+    // También escuchamos por si el login ocurre después
+    auth.addListener(_onAuthChanged);
   }
+}
+
 
   void _onAuthChanged() {
-    // Si hay usuario autenticado, intentar cargar sus datos desde la nube
     final user = FirebaseAuthService.instance.firebaseUser;
-    if (user != null) {
-      _loadCloudData();
-    }
+    if (user == null) return;
+
+    // Evitar carreras si el usuario cambia mientras el async está corriendo.
+    // (No bloquea el hilo UI, solo evita llamadas repetidas.)
+    _loadCloudData();
+
+    // Removemos para evitar recargas múltiples
+    FirebaseAuthService.instance.removeListener(_onAuthChanged);
   }
 
   Future<void> _loadCloudData() async {
+    // Si aún no hay usuario cargado, salimos silenciosamente.
+    if (FirebaseAuthService.instance.firebaseUser == null) return;
+
     try {
       final auth = FirebaseAuthService.instance;
       final cloud = await auth.loadEconomyData() ?? await auth.loadGameData();
       if (cloud == null) return;
-      // Merge seguro:
-      // - Para monedas/gemas: si el local es mayor (p. ej. compras hechas como guest), preservarlo y subirlo.
-      // - Para stats y contadores: tomar el valor máximo para no degradar progreso.
+
+
+      // Sin romper tu lógica existente:
+      // - monedas/gemas: tomamos la nube si es mayor, si no, preservamos local y subimos.
+      // - stats/quest: tomamos MAX para no degradar progreso.
 
       bool needUpload = false;
 
@@ -54,7 +75,6 @@ class EconomyController extends ChangeNotifier {
 
       if (cloudCoins != null) {
         if (cloudCoins < _coins) {
-          // keep local and mark to upload
           needUpload = true;
         } else {
           _coins = cloudCoins;
@@ -69,14 +89,31 @@ class EconomyController extends ChangeNotifier {
         }
       }
 
-      // Stats: take max
-      _damageStat = cloud['damageStat'] is int ? math.max(_damageStat, cloud['damageStat'] as int) : _damageStat;
-      _fireRateStat = cloud['fireRateStat'] is int ? math.max(_fireRateStat, cloud['fireRateStat'] as int) : _fireRateStat;
+      // wave: si existe en nube, la cargamos; si no, se mantiene 1 (como estabas haciendo)
+      if (cloud['currentWave'] is int) {
+        _currentWave = cloud['currentWave'] as int;
+      }
 
-      _monstersKilled = cloud['monstersKilled'] is int ? math.max(_monstersKilled, cloud['monstersKilled'] as int) : _monstersKilled;
-      _chefsLeveledUp = cloud['chefsLeveledUp'] is int ? math.max(_chefsLeveledUp, cloud['chefsLeveledUp'] as int) : _chefsLeveledUp;
-      _gamesPlayed = cloud['gamesPlayed'] is int ? math.max(_gamesPlayed, cloud['gamesPlayed'] as int) : _gamesPlayed;
-      _coinsSpent = cloud['coinsSpent'] is int ? math.max(_coinsSpent, cloud['coinsSpent'] as int) : _coinsSpent;
+      // Stats: take max
+      _damageStat = cloud['damageStat'] is int
+          ? math.max(_damageStat, cloud['damageStat'] as int)
+          : _damageStat;
+      _fireRateStat = cloud['fireRateStat'] is int
+          ? math.max(_fireRateStat, cloud['fireRateStat'] as int)
+          : _fireRateStat;
+
+      _monstersKilled = cloud['monstersKilled'] is int
+          ? math.max(_monstersKilled, cloud['monstersKilled'] as int)
+          : _monstersKilled;
+      _chefsLeveledUp = cloud['chefsLeveledUp'] is int
+          ? math.max(_chefsLeveledUp, cloud['chefsLeveledUp'] as int)
+          : _chefsLeveledUp;
+      _gamesPlayed = cloud['gamesPlayed'] is int
+          ? math.max(_gamesPlayed, cloud['gamesPlayed'] as int)
+          : _gamesPlayed;
+      _coinsSpent = cloud['coinsSpent'] is int
+          ? math.max(_coinsSpent, cloud['coinsSpent'] as int)
+          : _coinsSpent;
 
       // Guardar localmente la copia fusionada
       final prefs = await SharedPreferences.getInstance();
@@ -91,9 +128,12 @@ class EconomyController extends ChangeNotifier {
 
       // Si preservamos valores locales mayores, subirlos a la nube
       if (needUpload) {
-        final gameData = {
+        final economyData = {
+          // campos mínimos del snippet
           'coins': _coins,
           'gems': _gems,
+          'currentWave': _currentWave,
+          // compatibilidad con tu estructura actual
           'damageStat': _damageStat,
           'fireRateStat': _fireRateStat,
           'monstersKilled': _monstersKilled,
@@ -101,7 +141,7 @@ class EconomyController extends ChangeNotifier {
           'gamesPlayed': _gamesPlayed,
           'coinsSpent': _coinsSpent,
         };
-        await FirebaseAuthService.instance.saveEconomyData(gameData);
+        await FirebaseAuthService.instance.saveEconomyData(economyData);
       }
 
       notifyListeners();
