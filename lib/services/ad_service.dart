@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'consent_service.dart' as local_consent;
 
+
 class AdService {
   // =========================
   // SINGLETON
@@ -20,7 +21,7 @@ class AdService {
   static String bannerUnitId = 'ca-app-pub-4429728476735259/7173399735';
   static String interstitialUnitId = 'ca-app-pub-4429728476735259/2965324316';
 
-  static String rewardedGemasUnitId = 'ca-app-pub-4429728476735259/2299313168';
+  static String rewardedGemasUnitId = 'ca-app-pub-4429728476735259/7221556066';
   static String rewardedMonedasUnitId = 'ca-app-pub-4429728476735259/5695429435';
   static String rewardedRevivirUnitId = 'ca-app-pub-4429728476735259/4382347765';
   static String rewardedGachaUnitId = 'ca-app-pub-4429728476735259/6761302358';
@@ -84,14 +85,24 @@ class AdService {
   // INIT
   // =========================
 
+  bool _initialized = false;
+  bool _initializing = false;
   Future<void> init() async {
-    // google_mobile_ads no soporta web
+    // Evitar que se dispare init múltiples veces.
+    if (_initialized || _initializing) return;
+
+    _initializing = true;
+
     if (kIsWeb) {
       _log('🌐 Web platform detected - AdService skipping native initialization');
+      _initialized = true;
+      _initializing = false;
       return;
     }
 
     _log('📱 Initializing AdService on mobile platform...');
+
+
     // Apply test device ids configuration for development (no-op if empty)
     try {
       await MobileAds.instance.updateRequestConfiguration(
@@ -112,18 +123,32 @@ class AdService {
 
     if (adFree) {
       _log('User opted-out of ads (ad-free). Skipping ad loading.');
+      _initialized = true;
       return;
     }
 
     _log('📦 Loading all ads... (nonPersonalized=$nonPersonalized)');
-    loadBanner(nonPersonalized: nonPersonalized);
-    loadInterstitial(nonPersonalized: nonPersonalized);
+
+    // Evitar re-cargar ads si init se llama varias veces por reconstrucciones.
+    // (Mantiene el flujo normal pero reduce presión de WebView => menos timeouts.)
+    if (_bannerAd == null) {
+      loadBanner(nonPersonalized: nonPersonalized);
+    }
+
+    if (_interstitialAd == null) {
+      loadInterstitial(nonPersonalized: nonPersonalized);
+    }
+
 
     loadRewardedGemas(nonPersonalized: nonPersonalized);
     loadRewardedMonedas(nonPersonalized: nonPersonalized);
     loadRewardedRevivir(nonPersonalized: nonPersonalized);
     loadRewardedGacha(nonPersonalized: nonPersonalized);
+
+    _initialized = true;
+    _initializing = false;
   }
+
 
   // =========================
   // BANNER
